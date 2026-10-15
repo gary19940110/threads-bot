@@ -1,0 +1,40 @@
+name: 每日數據與新草稿
+on:
+  schedule:
+    - cron: "30 22 * * *"   # 台灣 06:30
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "要產幾篇草稿"
+        default: "3"
+concurrency:
+  group: bot
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install requests
+      - name: 更新數據、熱門話題
+        env:
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          REPO: ${{ github.repository }}
+        run: python bot.py insights trends || true
+      - name: AI 產生今日草稿
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          REPO: ${{ github.repository }}
+        run: python generate.py ${{ github.event.inputs.count || '3' }}
+      - name: 存檔
+        run: |
+          git config user.name "threads-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A drafts data
+          git diff --cached --quiet || (git commit -m "bot: 每日草稿 $(TZ=Asia/Taipei date '+%m-%d')" && git pull --rebase && git push)
