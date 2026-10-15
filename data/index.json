@@ -1,0 +1,44 @@
+{
+  "updated_at": "2026-10-15T14:44:30.554715+08:00",
+  "drafts": [
+    {
+      "id": "202610151600-3",
+      "status": "pending",
+      "type": "knowledge",
+      "hook_id": "H05",
+      "publish_at": "2026-10-16T21:00:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "同樣的預算，你會選哪一個？",
+      "metrics": null,
+      "error": "",
+      "images": 0
+    },
+    {
+      "id": "202610151600-2",
+      "status": "pending",
+      "type": "knowledge",
+      "hook_id": "H01",
+      "publish_at": "2026-10-16T12:30:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "在台中買房，最貴的從來不是房價。",
+      "metrics": null,
+      "error": "",
+      "images": 0
+    },
+    {
+      "id": "202610151600-1",
+      "status": "pending",
+      "type": "knowledge",
+      "hook_id": "H06",
+      "publish_at": "2026-10-16T08:30:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "仲介說「屋主很好談」，",
+      "metrics": null,
+      "error": "",
+      "images": 0
+    }
+  ]
+}

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>阿正 Threads 中控台</title>
+<style>
+:root{
+  --bg:#f6f5f2;--card:#ffffff;--ink:#1d1d1b;--ink2:#55534e;--muted:#8a877f;--line:#e4e1da;
+  --accent:#1f5f8b;--accent-weak:#e3eef6;--good:#2e7d4f;--good-weak:#e2f2e8;--warn:#a5650a;--warn-weak:#fbf0dc;
+  --bad:#b3372f;--bad-weak:#f8e3e1;--bar:#3a78a8;--grid:#ece9e2;
+  --r:14px;--shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#141414;--card:#1e1e1d;--ink:#f0eee9;--ink2:#c3c0b8;--muted:#8f8c85;--line:#33322f;
+  --accent:#7fb5dc;--accent-weak:#1d3242;--good:#6cc591;--good-weak:#183326;--warn:#e0a54a;--warn-weak:#3a2c14;
+  --bad:#ec7b72;--bad-weak:#3d1f1c;--bar:#6fa8d6;--grid:#2b2a28;--shadow:none}
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px 0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.02em}
+.sub{color:var(--muted);font-size:12px}
+nav{display:flex;gap:4px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+nav button{flex:none;border:0;background:none;padding:8px 12px;border-bottom:2px solid transparent;color:var(--ink2);cursor:pointer;font-weight:600}
+nav button.on{color:var(--accent);border-bottom-color:var(--accent)}
+nav .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;line-height:18px;text-align:center}
+main{max-width:720px;margin:0 auto;padding:16px 16px 80px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--accent-weak);color:var(--accent);font-weight:600}
+.chip.good{background:var(--good-weak);color:var(--good)}.chip.warn{background:var(--warn-weak);color:var(--warn)}.chip.bad{background:var(--bad-weak);color:var(--bad)}
+.chip.gray{background:var(--grid);color:var(--ink2)}
+textarea{width:100%;min-height:220px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);resize:vertical;line-height:1.6}
+input[type=text],input[type=password],input[type=datetime-local],select,input[type=number]{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);max-width:100%}
+.field{display:flex;flex-direction:column;gap:4px;margin:10px 0}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.good{background:var(--good);border-color:var(--good);color:#fff}
+.btn.ghost{background:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.why{font-size:13px;color:var(--ink2);margin:6px 0 8px}
+.count{font-size:12px;color:var(--muted)}.count.over{color:var(--bad);font-weight:700}
+.warnbox{font-size:13px;background:var(--warn-weak);color:var(--warn);border-radius:8px;padding:6px 10px;margin-top:8px}
+.errbox{font-size:13px;background:var(--bad-weak);color:var(--bad);border-radius:8px;padding:6px 10px;margin-top:8px}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.thumb{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;background:var(--grid)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;top:2px;right:2px;border:0;border-radius:50%;width:22px;height:22px;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;line-height:22px;padding:0}
+.preview{white-space:pre-wrap;font-size:14px;color:var(--ink2);border-left:3px solid var(--line);padding-left:10px;margin-top:8px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:560px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--muted)}
+h2{font-size:15px;margin:0 0 4px}
+h3{font-size:13px;margin:0 0 10px;color:var(--muted);font-weight:600}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--card);font-size:12px;padding:6px 8px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+.empty{color:var(--muted);text-align:center;padding:28px 0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;z-index:20;max-width:90vw}
+.toast.on{opacity:1}
+.comment{border-bottom:1px solid var(--line);padding:10px 0}
+.comment:last-child{border-bottom:0}
+.small{font-size:12px;color:var(--muted)}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-top:10px}
+.check input{margin-top:4px;width:18px;height:18px}
+details summary{cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div><h1>阿正 Threads 中控台</h1><div class="sub" id="sync">尚未連線</div></div>
+    <button class="btn ghost" id="reload" title="重新整理">↻</button>
+  </div>
+  <nav id="tabs">
+    <button data-t="review" class="on">審核<span class="badge" id="b-review" hidden></span></button>
+    <button data-t="stats">數據</button>
+    <button data-t="inbox">留言待回<span class="badge" id="b-inbox" hidden></span></button>
+    <button data-t="listings">物件</button>
+    <button data-t="settings">設定</button>
+  </nav>
+</header>
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+<input type="file" id="file" accept="image/*" multiple hidden>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+const S = { repo: store.get("tb_repo") || "", pat: store.get("tb_pat") || "", tab: "review",
+  settings:{}, hooks:[], index:{drafts:[]}, stats:{}, inbox:[], listings:[], followers:[], token:{}, drafts:{}, shas:{} };
+
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2600); }
+
+// ---------- GitHub API ----------
+async function gh(path, opts={}){
+  const r = await fetch(`https://api.github.com/repos/${S.repo}${path}`, {...opts, headers:{
+    "Authorization":"Bearer "+S.pat, "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28", ...(opts.headers||{})}});
+  if(r.status===404) return null;
+  if(!r.ok){ const e=new Error(`GitHub ${r.status}`); e.status=r.status; try{e.body=await r.json();}catch(_){} throw e; }
+  return r.status===204 ? {} : r.json();
+}
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,"")), c=>c.charCodeAt(0)));
+const b64enc = str => { const b=new TextEncoder().encode(str); let s=""; for(let i=0;i<b.length;i+=0x8000) s+=String.fromCharCode(...b.subarray(i,i+0x8000)); return btoa(s); };
+async function getJSON(path, fallback){
+  const f = await gh(`/contents/${path}?ref=main&t=${Date.now()}`);
+  if(!f) return fallback;
+  S.shas[path]=f.sha;
+  return JSON.parse(b64dec(f.content));
+}
+async function putRaw(path, base64, msg, sha){
+  const body={message:msg, content:base64, branch:"main"}; if(sha) body.sha=sha;
+  const r = await gh(`/contents/${path}`, {method:"PUT", body:JSON.stringify(body)});
+  S.shas[path]=r.content.sha; return r;
+}
+// 讀最新版 → 套用修改 → 寫回；遇到機器人同時寫入就重試
+async function updateJSON(path, mutate, msg, fallback){
+  for(let i=0;i<3;i++){
+    const cur = await getJSON(path, fallback);
+    const next = mutate(structuredClone(cur));
+    try{ await putRaw(path, b64enc(JSON.stringify(next,null,2)+"\n"), msg, S.shas[path]); return next; }
+    catch(e){ if(e.status!==409 && e.status!==422) throw e; }
+  }
+  throw new Error("存檔衝突，請重新整理");
+}
+const rawURL = rel => rel.startsWith("http") ? rel : `https://raw.githubusercontent.com/${S.repo}/main/${rel}`;
+
+// ---------- 載入 ----------
+async function loadAll(){
+  $("#sync").textContent = "同步中…";
+  const [settings, hooks, index, stats, inbox, listings, followers, token] = await Promise.all([
+    getJSON("config/settings.json",{}), getJSON("config/hooks.json",[]), getJSON("data/index.json",{drafts:[]}),
+    getJSON("data/stats.json",{}), getJSON("data/inbox.json",[]), getJSON("data/listings.json",[]),
+    getJSON("data/followers.json",[]), getJSON("data/token_status.json",{})]);
+  Object.assign(S,{settings,hooks,index,stats,inbox,listings,followers,token});
+  const dir = await gh(`/contents/drafts?ref=main&t=${Date.now()}`) || [];
+  const known = Object.fromEntries((index.drafts||[]).map(d=>[d.id,d]));
+  const want = dir.filter(f=>f.name.endsWith(".json")).map(f=>f.name.replace(".json",""))
+    .filter(id => !known[id] || ["pending","approved","failed"].includes(known[id].status));
+  S.drafts = {};
+  await Promise.all(want.map(async id => { const d = await getJSON(`drafts/${id}.json`); if(d) S.drafts[id]=d; }));
+  $("#sync").textContent = `${S.repo} · ${new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})} 已同步`;
+  render();
+}
+
+// ---------- 共用 ----------
+const hookName = id => (S.hooks.find(h=>h.id===id)||{}).name || id || "—";
+const footer = () => (S.settings.brand_footer||"").trim();
+const fullLen = t => (t.trim() + (footer() ? "\n\n"+footer() : "")).length;
+const toLocalInput = iso => { if(!iso) return ""; const d=new Date(iso); const p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+const fromLocalInput = v => { const d=new Date(v); const off=-d.getTimezoneOffset(); const s=off>=0?"+":"-"; const p=n=>String(Math.floor(Math.abs(n))).padStart(2,"0");
+  return `${v}:00${s}${p(off/60)}:${p(off%60)}`; };
+const fmtTime = iso => iso ? new Date(iso).toLocaleString("zh-TW",{month:"numeric",day:"numeric",weekday:"short",hour:"2-digit",minute:"2-digit"}) : "";
+const STATUS = {pending:["待審","warn"],approved:["已排程","good"],failed:["發布失敗","bad"],rejected:["已退回","gray"],posted:["已發布","gray"]};
+const TYPE = {listing:"物件文",knowledge:"知識文",market:"行情文"};
+
+function render(){
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b.dataset.t===S.tab));
+  const pend = Object.values(S.drafts).filter(d=>d.status==="pending").length;
+  const ib = S.inbox.filter(x=>!x.handled).length;
+  const br=$("#b-review"), bi=$("#b-inbox");
+  br.hidden=!pend; br.textContent=pend; bi.hidden=!ib; bi.textContent=ib;
+  ({review:renderReview, stats:renderStats, inbox:renderInbox, listings:renderListings, settings:renderSettings})[S.tab]();
+}
+
+// ---------- 審核 ----------
+function renderReview(){
+  const list = Object.values(S.drafts).filter(d=>["pending","approved","failed"].includes(d.status))
+    .sort((a,b)=>(a.publish_at||"").localeCompare(b.publish_at||""));
+  const tags = S.settings.topic_tags||[];
+  let h = `<div class="btns" style="margin:0 0 14px"><button class="btn" id="new">＋ 自己寫一篇</button>
+    <button class="btn" id="gen">請 AI 再產 3 篇</button></div>`;
+  if(!list.length) h += `<div class="card empty">目前沒有待審草稿。每天早上 6:30 會自動產生新草稿。</div>`;
+  for(const d of list){
+    const [st,cls] = STATUS[d.status]||[d.status,"gray"];
+    const n = fullLen(d.text||""), max = S.settings.max_chars||500;
+    const blanks = (d.text||"").match(/\[待填[^\]]*\]/g)||[];
+    const needSign = d.type==="listing" && !d.commission_signed;
+    const blocked = n>max || blanks.length || needSign;
+    h += `<div class="card" data-id="${esc(d.id)}">
+      <div class="row"><span class="chip ${cls}">${st}</span><span class="chip gray">${TYPE[d.type]||d.type}</span>
+      <span class="chip">${esc(hookName(d.hook_id))}</span><span class="small">${fmtTime(d.publish_at)}</span></div>
+      ${d.why?`<div class="why">🎯 ${esc(d.why)}</div>`:""}
+      <textarea data-k="text">${esc(d.text)}</textarea>
+      <div class="row" style="justify-content:space-between"><span class="count ${n>max?"over":""}" data-count>含署名 ${n} / ${max} 字</span>
+      <span class="small">發布時自動加：${esc(footer())}</span></div>
+      ${blanks.length?`<div class="warnbox">還有 ${blanks.length} 處要填：${esc(blanks.join("、"))}</div>`:""}
+      ${d.error?`<div class="errbox">${esc(d.error)}</div>`:""}
+      <div class="row" style="margin-top:10px">
+        <input type="datetime-local" data-k="publish_at" value="${toLocalInput(d.publish_at)}">
+        <select data-k="topic_tag">${[...new Set([d.topic_tag,...tags].filter(Boolean))].map(t=>`<option ${t===d.topic_tag?"selected":""}>${esc(t)}</option>`).join("")}</select>
+      </div>
+      <div class="thumbs">${(d.images||[]).map((im,i)=>`<div class="thumb"><img src="${esc(rawURL(im))}" alt=""><button data-rmimg="${i}" title="移除">×</button></div>`).join("")}
+        <button class="btn ghost" data-addimg style="width:72px;height:72px">＋圖</button></div>
+      ${d.type==="listing"?`<label class="check"><input type="checkbox" data-k="commission_signed" ${d.commission_signed?"checked":""}>
+        <span>已和屋主簽好委託（不動產經紀業管理條例第21條：簽約後才能刊登廣告）</span></label>`:""}
+      <div class="btns">
+        ${d.status==="approved"
+          ? `<button class="btn" data-act="unapprove">取消排程</button>`
+          : `<button class="btn good" data-act="approve" ${blocked?"disabled":""}>核准排程</button>`}
+        <button class="btn" data-act="save">只存檔</button>
+        <button class="btn ghost" data-act="reject">退回</button>
+      </div></div>`;
+  }
+  $("#main").innerHTML = h;
+  $("#new").onclick = newDraft;
+  $("#gen").onclick = () => dispatch("daily.yml", {count:"3"}, "已請 AI 產生，約 2 分鐘後重新整理");
+  document.querySelectorAll("[data-id]").forEach(card=>{
+    const id=card.dataset.id, d=S.drafts[id];
+    const ta=card.querySelector("textarea");
+    ta.oninput=()=>{ d.text=ta.value; const n=fullLen(ta.value), max=S.settings.max_chars||500; const c=card.querySelector("[data-count]");
+      c.textContent=`含署名 ${n} / ${max} 字`; c.classList.toggle("over",n>max); };
+    card.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>act(id,b.dataset.act,card));
+    card.querySelector("[data-addimg]").onclick=()=>pickImages(id);
+    card.querySelectorAll("[data-rmimg]").forEach(b=>b.onclick=()=>{ d.images.splice(+b.dataset.rmimg,1); saveDraft(d,"移除圖片").then(render); });
+  });
+}
+function collect(card,d){
+  d.text = card.querySelector('[data-k="text"]').value;
+  const t = card.querySelector('[data-k="publish_at"]').value; if(t) d.publish_at = fromLocalInput(t);
+  d.topic_tag = card.querySelector('[data-k="topic_tag"]').value;
+  const cs = card.querySelector('[data-k="commission_signed"]'); if(cs) d.commission_signed = cs.checked;
+}
+async function saveDraft(d,msg){
+  const path=`drafts/${d.id}.json`;
+  const saved = await updateJSON(path, cur => ({...(cur||{}), ...d, ...(cur&&cur.status==="posted"?{status:"posted"}:{})}), `中控台：${msg} ${d.id}`, null);
+  S.drafts[d.id]=saved; return saved;
+}
+async function act(id,a,card){
+  const d=S.drafts[id]; collect(card,d);
+  const max=S.settings.max_chars||500;
+  try{
+    if(a==="approve"){
+      if(fullLen(d.text)>max) return toast("字數超過上限");
+      if(/\[待填/.test(d.text)) return toast("還有 [待填] 沒填完");
+      if(d.type==="listing" && !d.commission_signed) return toast("物件文要先勾選已簽委託");
+      if(new Date(d.publish_at) < new Date()) toast("時間已過，機器人會在 15 分鐘內發出");
+      d.status="approved"; d.error=""; d.tries=0; d.approved_at=new Date().toISOString();
+    } else if(a==="unapprove"){ d.status="pending"; }
+    else if(a==="reject"){ d.status="rejected"; }
+    card.querySelectorAll("button").forEach(b=>b.disabled=true);
+    await saveDraft(d, {approve:"核准",unapprove:"取消排程",reject:"退回",save:"編輯"}[a]);
+    toast({approve:`已排程 ${fmtTime(d.publish_at)} 發布`,unapprove:"已取消排程",reject:"已退回",save:"已存檔"}[a]);
+    render();
+  }catch(e){ toast("存檔失敗："+e.message); render(); }
+}
+function newDraft(){
+  const now=new Date(); const p=n=>String(n).padStart(2,"0");
+  const id=`${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}${p(now.getHours())}${p(now.getMinutes())}-m`;
+  const t=new Date(now.getTime()+3*3600e3); t.setMinutes(0);
+  S.drafts[id]={id,status:"pending",type:"knowledge",hook_id:"",text:"",topic_tag:(S.settings.topic_tags||[""])[0],images:[],
+    publish_at:fromLocalInput(toLocalInput(t.toISOString())),created_at:now.toISOString(),created_by:"manual",why:"手動新增"};
+  const type = confirm("這篇是物件文嗎？\n按「確定」= 物件文（要勾已簽委託）\n按「取消」= 知識／行情文") ? "listing":"knowledge";
+  S.drafts[id].type=type; render(); window.scrollTo(0,document.body.scrollHeight);
+}
+let imgTarget=null;
+function pickImages(id){ imgTarget=id; $("#file").value=""; $("#file").click(); }
+$("#file").onchange = async e => {
+  const files=[...e.target.files]; if(!files.length||!imgTarget) return;
+  const d=S.drafts[imgTarget]; d.images=d.images||[];
+  toast(`上傳 ${files.length} 張圖中…`);
+  try{
+    for(const [i,f] of files.entries()){
+      const b64 = await shrink(f);
+      const path = `images/${d.id}-${Date.now()}-${i}.jpg`;
+      await putRaw(path, b64, `中控台：上傳圖片 ${d.id}`);
+      d.images.push(path);
+    }
+    await saveDraft(d,"加圖片"); toast("圖片已上傳"); render();
+  }catch(err){ toast("上傳失敗："+err.message); }
+};
+function shrink(file){ // 長邊 1440、JPEG，符合 Threads 圖片規格
+  return new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>{ const k=Math.min(1,1440/Math.max(img.width,img.height));
+    const c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",0.86).split(",")[1]); URL.revokeObjectURL(img.src); };
+    img.onerror=rej; img.src=URL.createObjectURL(file); });
+}
+async function dispatch(wf, inputs, msg){
+  try{ await gh(`/actions/workflows/${wf}/dispatches`,{method:"POST",body:JSON.stringify({ref:"main",inputs})}); toast(msg); }
+  catch(e){ toast("無法啟動（權杖需要 Actions 權限）："+e.message); }
+}
+
+// ---------- 數據 ----------
+function renderStats(){
+  const posted=(S.index.drafts||[]).filter(d=>d.status==="posted").sort((a,b)=>(a.posted_at||"").localeCompare(b.posted_at||""));
+  const withM=posted.filter(d=>d.metrics);
+  const views=withM.reduce((s,d)=>s+(d.metrics.views||0),0);
+  const reps=withM.reduce((s,d)=>s+(d.metrics.replies||0),0);
+  const fol=S.followers.length?S.followers[S.followers.length-1].followers:"—";
+  let h=`<div class="kpis">
+    <div class="kpi"><b>${posted.length}</b><span>已發布篇數</span></div>
+    <div class="kpi"><b>${views.toLocaleString()}</b><span>總觀看</span></div>
+    <div class="kpi"><b>${withM.length?Math.round(views/withM.length).toLocaleString():"—"}</b><span>平均每篇觀看</span></div>
+    <div class="kpi"><b>${typeof fol==="number"?fol.toLocaleString():fol}</b><span>粉絲數</span></div></div>`;
+  if(!withM.length){ $("#main").innerHTML = h+`<div class="card empty">發文後隔天早上會開始出現數據。<br>鉤子排行、觀看趨勢、最佳時段都會在這裡用圖表呈現。</div>`+tokenCard(); return; }
+  const hooks=Object.entries(S.stats.hooks||{}).map(([id,v])=>({label:v.name||id,value:v.avg_score,n:v.n,views:v.avg_views,eng:v.avg_eng})).sort((a,b)=>b.value-a.value);
+  h+=`<div class="card"><h2>鉤子排行</h2><h3>分數 = 平均觀看 × 互動加權（留言權重最高）。分數高的鉤子 AI 會多用。</h3>
+    <div class="chart" id="c-hooks"></div></div>`;
+  h+=`<div class="card"><h2>每篇觀看數</h2><h3>最近 ${Math.min(withM.length,20)} 篇，滑過看詳細</h3><div class="chart" id="c-views"></div></div>`;
+  const hrs=Object.entries(S.stats.hours||{}).map(([k,v])=>({label:k+"點",value:v.avg_views,n:v.n})).sort((a,b)=>parseInt(a.label)-parseInt(b.label));
+  h+=`<div class="card"><h2>發文時段 × 平均觀看</h2><h3>樣本少時僅供參考，至少各時段 3 篇再調整排程</h3><div class="chart" id="c-hours"></div></div>`;
+  h+=`<div class="card"><h2>最近貼文</h2><table><thead><tr><th>開頭</th><th class="num">觀看</th><th class="num">讚</th><th class="num">留言</th></tr></thead><tbody>
+    ${withM.slice(-15).reverse().map(d=>`<tr><td>${d.permalink?`<a href="${esc(d.permalink)}" target="_blank" rel="noopener">${esc(d.first_line)}</a>`:esc(d.first_line)}<div class="small">${fmtTime(d.posted_at)} · ${esc(hookName(d.hook_id))}</div></td>
+    <td class="num">${(d.metrics.views||0).toLocaleString()}</td><td class="num">${d.metrics.likes||0}</td><td class="num">${d.metrics.replies||0}</td></tr>`).join("")}</tbody></table></div>`;
+  $("#main").innerHTML=h+tokenCard();
+  hbar("#c-hooks", hooks, v=>`${v.label}｜分數 ${v.value}｜${v.n} 篇｜平均觀看 ${v.views}`);
+  line("#c-views", withM.slice(-20).map(d=>({label:fmtTime(d.posted_at),value:d.metrics.views||0,text:d.first_line})));
+  vbar("#c-hours", hrs, v=>`${v.label}｜平均觀看 ${v.value}｜${v.n} 篇`);
+}
+function tokenCard(){
+  const t=S.token||{}; if(!t.refreshed_at) return "";
+  return `<div class="small" style="text-align:center">Threads 權杖上次續期：${fmtTime(t.refreshed_at)}（有效 ${t.expires_in_days} 天，每週自動續）</div>`;
+}
+function tipOn(el){ const tip=document.createElement("div"); tip.className="tip"; el.appendChild(tip);
+  return { show(x,y,txt){ tip.textContent=txt; tip.style.left=x+"px"; tip.style.top=y+"px"; tip.style.opacity=1; }, hide(){ tip.style.opacity=0; } }; }
+function hbar(sel, data, fmt){
+  const el=$(sel), W=Math.max(300,el.clientWidth||340), rowH=30, L=96, R=46, H=data.length*rowH+8, max=Math.max(...data.map(d=>d.value),1);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="鉤子分數排行">`;
+  data.forEach((d,i)=>{ const y=i*rowH+4, w=Math.max(4,(W-L-R)*d.value/max);
+    s+=`<text x="${L-8}" y="${y+18}" text-anchor="end" font-size="13" fill="var(--ink2)">${esc(d.label)}</text>
+      <rect x="${L}" y="${y+5}" width="${w}" height="18" rx="4" fill="var(--bar)"/>
+      <text x="${L+w+6}" y="${y+18}" font-size="12" fill="var(--muted)">${Math.round(d.value)}</text>
+      <rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-i="${i}"/>`; });
+  el.innerHTML=s+"</svg>"; const t=tipOn(el);
+  el.querySelectorAll("[data-i]").forEach(r=>{ r.onmousemove=r.ontouchstart=ev=>{ const b=el.getBoundingClientRect(), d=data[+r.dataset.i];
+    const p=ev.touches?ev.touches[0]:ev; t.show(p.clientX-b.left,p.clientY-b.top,fmt(d)); }; r.onmouseleave=t.hide; });
+}
+function vbar(sel, data, fmt){
+  if(!data.length){ $(sel).innerHTML='<div class="empty">尚無資料</div>'; return; }
+  const el=$(sel), W=Math.max(300,el.clientWidth||340), H=180, B=24, T=10, max=Math.max(...data.map(d=>d.value),1), bw=(W-20)/data.length;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="時段平均觀看"><line x1="0" x2="${W}" y1="${H-B}" y2="${H-B}" stroke="var(--grid)"/>`;
+  data.forEach((d,i)=>{ const h=Math.max(4,(H-B-T)*d.value/max), x=10+i*bw+bw*0.2;
+    s+=`<rect x="${x}" y="${H-B-h}" width="${bw*0.6}" height="${h}" rx="4" fill="var(--bar)"/>
+      <text x="${x+bw*0.3}" y="${H-6}" text-anchor="middle" font-size="12" fill="var(--muted)">${esc(d.label)}</text>
+      <rect x="${10+i*bw}" y="0" width="${bw}" height="${H}" fill="transparent" data-i="${i}"/>`; });
+  el.innerHTML=s+"</svg>"; const t=tipOn(el);
+  el.querySelectorAll("[data-i]").forEach(r=>{ r.onmousemove=r.ontouchstart=ev=>{ const b=el.getBoundingClientRect(), d=data[+r.dataset.i];
+    const p=ev.touches?ev.touches[0]:ev; t.show(p.clientX-b.left,p.clientY-b.top,fmt(d)); }; r.onmouseleave=t.hide; });
+}
+function line(sel, data){
+  const el=$(sel), W=Math.max(300,el.clientWidth||340), H=200, L=44, R=12, T=12, B=22, max=Math.max(...data.map(d=>d.value),1)*1.1;
+  const x=i=>L+(data.length<2?0:(W-L-R)*i/(data.length-1)), y=v=>T+(H-T-B)*(1-v/max);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="每篇觀看數">`;
+  for(let g=0;g<=3;g++){ const v=max*g/3; s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${Math.round(v)}</text>`; }
+  s+=`<polyline fill="none" stroke="var(--bar)" stroke-width="2" stroke-linejoin="round" points="${data.map((d,i)=>`${x(i)},${y(d.value)}`).join(" ")}"/>`;
+  data.forEach((d,i)=>{ s+=`<circle cx="${x(i)}" cy="${y(d.value)}" r="4" fill="var(--bar)" stroke="var(--card)" stroke-width="2"/>`; });
+  s+=`<line id="xh" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--muted)" stroke-dasharray="3 3" opacity="0"/><rect x="${L}" y="0" width="${W-L-R}" height="${H}" fill="transparent" id="hit"/>`;
+  el.innerHTML=s+"</svg>"; const t=tipOn(el), svg=el.querySelector("svg"), xh=el.querySelector("#xh");
+  const move=ev=>{ const p=ev.touches?ev.touches[0]:ev, b=svg.getBoundingClientRect(); const vx=(p.clientX-b.left)/b.width*W;
+    const i=Math.max(0,Math.min(data.length-1,Math.round((vx-L)/((W-L-R)/Math.max(1,data.length-1))))); const d=data[i];
+    xh.setAttribute("x1",x(i)); xh.setAttribute("x2",x(i)); xh.setAttribute("opacity",1);
+    t.show(x(i)/W*b.width, y(d.value)/H*b.height, `${d.label}｜觀看 ${d.value.toLocaleString()}｜${d.text.slice(0,16)}`); };
+  const hit=el.querySelector("#hit"); hit.onmousemove=move; hit.ontouchmove=hit.ontouchstart=move; hit.onmouseleave=()=>{t.hide(); xh.setAttribute("opacity",0);};
+}
+
+// ---------- 留言待回 ----------
+function renderInbox(){
+  const items=S.inbox.filter(x=>!x.handled).slice().reverse();
+  let h=`<div class="card"><h2>需要你親自回的留言</h2><h3>問價、問地點、約看屋這類留言機器人已自動回覆並導 LINE。這裡是它判斷不了的，真人回比較好。</h3>`;
+  h+= items.length ? items.map(x=>`<div class="comment"><div><b>@${esc(x.username)}</b>：${esc(x.text)}</div>
+      <div class="small">在「${esc(x.post_first_line)}」 · ${fmtTime(x.timestamp)}</div>
+      <div class="btns"><a class="btn primary" href="${esc(x.permalink||"https://www.threads.net")}" target="_blank" rel="noopener">到 Threads 回覆</a>
+      <button class="btn" data-done="${esc(x.id)}">已處理</button></div></div>`).join("") : `<div class="empty">都回完了 👍</div>`;
+  $("#main").innerHTML=h+"</div>";
+  document.querySelectorAll("[data-done]").forEach(b=>b.onclick=async()=>{ b.disabled=true;
+    try{ S.inbox=await updateJSON("data/inbox.json", arr=>arr.map(x=>x.id===b.dataset.done?{...x,handled:true}:x), "中控台：留言已處理", []); render(); }
+    catch(e){ toast("失敗："+e.message); b.disabled=false; } });
+}
+
+// ---------- 物件 ----------
+const LF=[["name","物件名稱"],["area","區域／路段（不寫門牌樓層）"],["type","類型"],["price","開價（空白＝文案不寫價格）"],["layout","格局"],["size","坪數"],["parking","車位"],["highlights","賣點"],["story","屋主故事／銷售話題"]];
+function renderListings(){
+  let h=`<div class="card"><h3 style="margin:0">AI 只會用「已簽委託」且「在售」的物件寫物件文，也只會用你填的數字。</h3></div>`;
+  S.listings.forEach((l,i)=>{
+    h+=`<div class="card" data-li="${i}"><details ${l._open?"open":""}><summary>${esc(l.name||"新物件")} ${l.commission_signed?'<span class="chip good">已簽委託</span>':'<span class="chip warn">未簽委託</span>'} ${l.active?"":'<span class="chip gray">已下架</span>'}</summary>
+      ${LF.map(([k,lab])=>`<div class="field"><label>${lab}</label><input type="text" data-f="${k}" value="${esc(l[k])}"></div>`).join("")}
+      <label class="check"><input type="checkbox" data-f="commission_signed" ${l.commission_signed?"checked":""}><span>已簽委託</span></label>
+      <label class="check"><input type="checkbox" data-f="active" ${l.active?"checked":""}><span>在售中（成交或下架就取消勾選）</span></label>
+      <div class="thumbs">${(l.images||[]).map((im,j)=>`<div class="thumb"><img src="${esc(rawURL(im))}" alt=""><button data-rm="${j}">×</button></div>`).join("")}
+      <button class="btn ghost" data-limg style="width:72px;height:72px">＋圖</button></div>
+      <div class="btns"><button class="btn primary" data-lsave>儲存</button></div></details></div>`; });
+  h+=`<button class="btn" id="addl">＋ 新增物件</button>`;
+  $("#main").innerHTML=h;
+  $("#addl").onclick=()=>{ S.listings.push({id:"L"+Date.now().toString().slice(-6),name:"",commission_signed:false,active:true,images:[],_open:true}); render(); };
+  document.querySelectorAll("[data-li]").forEach(card=>{
+    const i=+card.dataset.li, l=S.listings[i];
+    const read=()=>{ card.querySelectorAll("[data-f]").forEach(inp=>{ l[inp.dataset.f]= inp.type==="checkbox"?inp.checked:inp.value; }); };
+    card.querySelector("[data-lsave]").onclick=async()=>{ read(); await saveListings("更新物件 "+l.name); };
+    card.querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{ read(); l.images.splice(+b.dataset.rm,1); await saveListings("移除物件圖片"); });
+    card.querySelector("[data-limg]").onclick=()=>{ read(); listingImgTarget=i; $("#limg").value=""; $("#limg").click(); };
+  });
+}
+let listingImgTarget=null;
+const limg=document.createElement("input"); limg.type="file"; limg.accept="image/*"; limg.multiple=true; limg.hidden=true; limg.id="limg"; document.body.appendChild(limg);
+limg.onchange=async e=>{ const l=S.listings[listingImgTarget]; if(!l) return; l.images=l.images||[]; toast("上傳中…");
+  try{ for(const [i,f] of [...e.target.files].entries()){ const path=`images/${l.id}-${Date.now()}-${i}.jpg`; await putRaw(path, await shrink(f), "中控台：物件圖片"); l.images.push(path); }
+    l._open=true; await saveListings("物件加圖片"); }catch(err){ toast("上傳失敗："+err.message); } };
+async function saveListings(msg){
+  try{ const clean=S.listings.map(({_open,...x})=>x);
+    await updateJSON("data/listings.json", ()=>clean, "中控台："+msg, []); toast("已儲存"); render(); }
+  catch(e){ toast("儲存失敗："+e.message); }
+}
+
+// ---------- 設定 ----------
+function renderSettings(){
+  const s=S.settings;
+  $("#main").innerHTML=`<div class="card"><h2>發文設定</h2>
+    <div class="field"><label>每篇自動加的署名（法規要求註明經紀業名稱）</label><input type="text" id="s-footer" value="${esc(s.brand_footer)}"></div>
+    <div class="field"><label>每天發文時段（逗號分隔）</label><input type="text" id="s-slots" value="${esc((s.slots||[]).join(", "))}"></div>
+    <div class="field"><label>每天產幾篇草稿</label><input type="number" id="s-n" min="1" max="5" value="${s.drafts_per_day||3}"></div>
+    <div class="field"><label>話題標籤（逗號分隔）</label><input type="text" id="s-tags" value="${esc((s.topic_tags||[]).join(", "))}"></div>
+    <div class="field"><label>熱門話題追蹤關鍵字（逗號分隔，最多 10 個）</label><input type="text" id="s-kw" value="${esc((s.search_keywords||[]).join(", "))}"></div>
+    <label class="check"><input type="checkbox" id="s-reply" ${s.reply?.enabled!==false?"checked":""}><span>自動回覆留言（問價、地點、看屋、貸款等導 LINE ${esc(s.line_id)}）</span></label>
+    <div class="btns"><button class="btn primary" id="s-save">儲存設定</button></div></div>
+    <div class="card"><h2>手動執行</h2><div class="btns">
+      <button class="btn" id="run-pub">立刻檢查發文與留言</button><button class="btn" id="run-gen">立刻產 3 篇草稿</button></div></div>
+    <div class="card"><h2>連線</h2><div class="small">儲存庫：${esc(S.repo)}</div>
+      <div class="btns"><button class="btn ghost" id="logout">登出這台手機</button></div></div>`;
+  const list=v=>v.split(/[,，]/).map(x=>x.trim()).filter(Boolean);
+  $("#s-save").onclick=async()=>{ try{ S.settings=await updateJSON("config/settings.json", cur=>({...cur, brand_footer:$("#s-footer").value.trim(),
+      slots:list($("#s-slots").value), drafts_per_day:+$("#s-n").value||3, topic_tags:list($("#s-tags").value), search_keywords:list($("#s-kw").value).slice(0,10),
+      reply:{...(cur.reply||{}), enabled:$("#s-reply").checked}}), "中控台：更新設定", {}); toast("設定已儲存"); }catch(e){ toast("儲存失敗："+e.message); } };
+  $("#run-pub").onclick=()=>dispatch("publish.yml",undefined,"已啟動，約 1 分鐘");
+  $("#run-gen").onclick=()=>dispatch("daily.yml",{count:"3"},"已請 AI 產生，約 2 分鐘後重新整理");
+  $("#logout").onclick=()=>{ store.del("tb_pat"); location.reload(); };
+}
+
+// ---------- 登入 ----------
+function renderLogin(err){
+  $("#main").innerHTML=`<div class="card"><h2>第一次使用</h2><h3>權杖只存在這支手機的瀏覽器裡，不會上傳。</h3>
+    ${err?`<div class="errbox">${esc(err)}</div>`:""}
+    <div class="field"><label>GitHub 儲存庫（帳號/名稱）</label><input type="text" id="l-repo" placeholder="gary19940110/threads-bot" value="${esc(S.repo)}"></div>
+    <div class="field"><label>GitHub 權杖（Fine-grained token）</label><input type="password" id="l-pat" placeholder="github_pat_…"></div>
+    <div class="btns"><button class="btn primary" id="l-go">連線</button></div></div>`;
+  $("#l-go").onclick=async()=>{ S.repo=$("#l-repo").value.trim(); S.pat=$("#l-pat").value.trim();
+    try{ await gh(""); store.set("tb_repo",S.repo); store.set("tb_pat",S.pat); await loadAll(); }
+    catch(e){ renderLogin("連不上："+e.message+"（檢查儲存庫名稱與權杖權限）"); } };
+}
+
+$("#tabs").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; S.tab=b.dataset.t; if(S.pat) render(); };
+$("#reload").onclick=()=>S.pat?loadAll().catch(e=>toast(e.message)):null;
+if(S.repo && S.pat) loadAll().catch(e=>renderLogin("連線失敗："+e.message)); else renderLogin();
+</script>
+</body>
+</html>

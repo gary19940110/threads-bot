@@ -1,0 +1,62 @@
+[
+  {
+    "id": "L001",
+    "name": "惠宇仰德",
+    "area": "台中北區 育德路",
+    "type": "電梯大樓",
+    "price": "",
+    "layout": "3+1房2衛",
+    "size": "室內約50坪",
+    "parking": "雙平面車位（含大型獨立車位）",
+    "highlights": "約100公尺棟距、安靜景觀、SRC結構、隔音樓板、高級窗材；適合醫師、企業主、高資產自住",
+    "story": "屋主只想留一筆孝親費，其餘交給市場決定",
+    "commission_signed": false,
+    "active": true,
+    "images": []
+  },
+  {
+    "id": "L002",
+    "name": "磐峰百坪電梯別墅",
+    "area": "北屯×太平交界",
+    "type": "電梯別墅",
+    "price": "",
+    "layout": "",
+    "size": "百坪",
+    "parking": "",
+    "highlights": "百坪電梯別墅、庭院",
+    "story": "",
+    "commission_signed": false,
+    "active": true,
+    "images": []
+  },
+  {
+    "id": "L003",
+    "name": "惠宇開朗",
+    "area": "台中北屯 廍子",
+    "type": "電梯大樓",
+    "price": "",
+    "layout": "三房",
+    "size": "",
+    "parking": "",
+    "highlights": "河岸第一排、近太原匝道",
+    "story": "",
+    "commission_signed": false,
+    "active": true,
+    "images": []
+  },
+  {
+    "id": "L004",
+    "name": "仁美映序",
+    "area": "台中北屯 豐樂路",
+    "type": "全新電梯別墅（建案）",
+    "price": "",
+    "layout": "",
+    "size": "",
+    "parking": "",
+    "highlights": "全新電梯別墅，主打換屋自住家庭",
+    "story": "",
+    "commission_signed": false,
+    "active": true,
+    "images": []
+  }
+]
