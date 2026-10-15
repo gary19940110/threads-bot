@@ -24,7 +24,6 @@ jobs:
       - name: 更新數據、熱門話題
         env:
           THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
-          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
           REPO: ${{ github.repository }}
         run: python bot.py insights trends || true
       - name: AI 產生今日草稿
