@@ -1,6 +1,6 @@
 {
   "id": "202610202100-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H07",
   "listing_id": null,
@@ -24,5 +24,8 @@
       "付款進度怎麼排",
       "可不可以換約、轉售"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:01:32.748Z"
 }
