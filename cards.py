@@ -29,10 +29,12 @@ FONT_CANDIDATES = [
 
 def font(weight, size):
     from PIL import ImageFont
-    for c in FONT_CANDIDATES:
-        p = c.format(w=weight)
-        if os.path.exists(p):
-            return ImageFont.truetype(p, size, index=3)  # index 3 = 繁中 TC
+    fallback = {"Black": ["Black", "Bold"], "Medium": ["Medium", "Regular", "Bold"], "Bold": ["Bold"]}.get(weight, [weight])
+    for w in fallback:
+        for c in FONT_CANDIDATES:
+            p = c.format(w=w)
+            if os.path.exists(p):
+                return ImageFont.truetype(p, size, index=3)  # index 3 = 繁中 TC
     raise SystemExit("找不到中文字型，請先安裝 fonts-noto-cjk")
 
 
