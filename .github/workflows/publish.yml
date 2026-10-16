@@ -17,6 +17,17 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install requests
+      - name: 產生圖卡（有需要才跑）
+        run: |
+          git config user.name "threads-bot"
+          git config user.email "bot@users.noreply.github.com"
+          if [ "$(python cards.py check)" = "yes" ]; then
+            sudo apt-get install -y -qq fonts-noto-cjk > /dev/null
+            pip install -q pillow
+            python cards.py
+            git add -A images drafts
+            git commit -m "bot: 產生圖卡" && git pull --rebase && git push && sleep 20
+          fi
       - name: 發布到時間的貼文、回覆留言
         env:
           THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
@@ -25,7 +36,5 @@ jobs:
         run: python bot.py publish replies
       - name: 存檔
         run: |
-          git config user.name "threads-bot"
-          git config user.email "bot@users.noreply.github.com"
           git add -A drafts data
           git diff --cached --quiet || (git commit -m "bot: 發文/回覆 $(TZ=Asia/Taipei date '+%m-%d %H:%M')" && git pull --rebase && git push)
