@@ -1,6 +1,6 @@
 {
   "id": "202610231230-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H10",
   "listing_id": null,
@@ -22,5 +22,8 @@
       "格局方正、沒有畸零角",
       "每個房間都有對外窗"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:00:21.319Z"
 }
