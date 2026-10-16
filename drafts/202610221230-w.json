@@ -1,6 +1,6 @@
 {
   "id": "202610221230-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H02",
   "listing_id": null,
@@ -24,5 +24,8 @@
       "到停車場和垃圾場走一圈",
       "問一下管委會運作狀況"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:01:12.695Z"
 }
