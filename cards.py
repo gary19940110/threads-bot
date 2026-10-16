@@ -55,7 +55,7 @@ def wrap(draw, text, f, max_w):
     return lines
 
 
-def render(card, out_path, brand="阿正｜台灣房屋北屯松竹十一期店", line_id="LINE @a0110"):
+def render(card, out_path, brand="連續五年千萬經紀人｜阿正", line_id="LINE @a0110"):
     from PIL import Image, ImageDraw
     img = Image.new("RGB", (W, H), NAVY)
     d = ImageDraw.Draw(img)
