@@ -1,6 +1,6 @@
 {
   "id": "202610181230-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H02",
   "listing_id": null,
@@ -24,5 +24,8 @@
       "有沒有漏水、修繕紀錄？",
       "附近未來有什麼要蓋？"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:01:39.699Z"
 }
