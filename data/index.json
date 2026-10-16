@@ -1,6 +1,45 @@
 {
-  "updated_at": "2026-10-16T10:51:10.013020+08:00",
+  "updated_at": "2026-10-16T11:02:18.232337+08:00",
   "drafts": [
+    {
+      "id": "202610161100-3",
+      "status": "pending",
+      "type": "knowledge",
+      "hook_id": "H12",
+      "publish_at": "2026-10-17T21:00:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "預算1500萬，你會在台中買哪一區？",
+      "metrics": null,
+      "error": "",
+      "images": 1
+    },
+    {
+      "id": "202610161100-2",
+      "status": "pending",
+      "type": "knowledge",
+      "hook_id": "H07",
+      "publish_at": "2026-10-17T12:30:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "看到這幾種狀況，先別急著下斡旋。",
+      "metrics": null,
+      "error": "",
+      "images": 1
+    },
+    {
+      "id": "202610161100-1",
+      "status": "pending",
+      "type": "knowledge",
+      "hook_id": "H08",
+      "publish_at": "2026-10-17T08:30:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "在台中租房超過5年的人，請把這篇看完。",
+      "metrics": null,
+      "error": "",
+      "images": 1
+    },
     {
       "id": "202610151600-3",
       "status": "pending",
@@ -12,7 +51,7 @@
       "first_line": "同樣的預算，你會選哪一個？",
       "metrics": null,
       "error": "",
-      "images": 0
+      "images": 1
     },
     {
       "id": "202610151600-2",
@@ -25,7 +64,7 @@
       "first_line": "在台中買房，最貴的從來不是房價。",
       "metrics": null,
       "error": "",
-      "images": 0
+      "images": 1
     },
     {
       "id": "202610151600-1",
@@ -38,7 +77,7 @@
       "first_line": "仲介說「屋主很好談」，",
       "metrics": null,
       "error": "",
-      "images": 0
+      "images": 1
     }
   ]
 }
