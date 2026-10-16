@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-17T06:31:19.840501+08:00",
+  "updated_at": "2026-10-17T06:54:18.892730+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
@@ -205,7 +205,16 @@
       "posted_at": "2026-10-16T21:00:46.567474+08:00",
       "permalink": "https://www.threads.com/@jng01.10/post/Dejl15voBKU",
       "first_line": "同樣的預算，你會選哪一個？",
-      "metrics": null,
+      "metrics": {
+        "views": 42,
+        "likes": 3,
+        "replies": 5,
+        "reposts": 0,
+        "quotes": 0,
+        "shares": 0,
+        "score": 402.0,
+        "updated_at": "2026-10-17T06:54:18.722876+08:00"
+      },
       "error": "",
       "images": 1
     },
@@ -219,14 +228,14 @@
       "permalink": "https://www.threads.com/@jng01.10/post/DeiyMAXDquZ",
       "first_line": "在台中買房，最貴的從來不是房價。",
       "metrics": {
-        "views": 45,
-        "likes": 0,
+        "views": 135,
+        "likes": 2,
         "replies": 0,
         "reposts": 0,
         "quotes": 0,
         "shares": 0,
-        "score": 45.0,
-        "updated_at": "2026-10-16T14:18:16.959081+08:00"
+        "score": 175.0,
+        "updated_at": "2026-10-17T06:54:18.472120+08:00"
       },
       "error": "",
       "images": 1
@@ -241,14 +250,14 @@
       "permalink": "https://www.threads.com/@jng01.10/post/DeiyKYKDuYH",
       "first_line": "仲介說「屋主很好談」，",
       "metrics": {
-        "views": 96,
-        "likes": 0,
+        "views": 355,
+        "likes": 4,
         "replies": 0,
         "reposts": 0,
         "quotes": 0,
         "shares": 0,
-        "score": 96.0,
-        "updated_at": "2026-10-16T14:18:16.818145+08:00"
+        "score": 435.0,
+        "updated_at": "2026-10-17T06:54:18.088537+08:00"
       },
       "error": "",
       "images": 1

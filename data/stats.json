@@ -1,37 +1,49 @@
 {
-  "updated_at": "2026-10-16T14:18:16.961220+08:00",
+  "updated_at": "2026-10-17T06:54:18.724484+08:00",
   "hooks": {
     "H06": {
       "n": 1,
-      "avg_views": 96,
-      "avg_eng": 0.0,
-      "avg_score": 96.0,
+      "avg_views": 355,
+      "avg_eng": 4.0,
+      "avg_score": 435.0,
       "name": "仲介行話翻譯",
       "status": "測試中"
     },
     "H01": {
       "n": 1,
-      "avg_views": 45,
-      "avg_eng": 0.0,
-      "avg_score": 45.0,
+      "avg_views": 135,
+      "avg_eng": 2.0,
+      "avg_score": 175.0,
       "name": "反常識",
+      "status": "測試中"
+    },
+    "H05": {
+      "n": 1,
+      "avg_views": 42,
+      "avg_eng": 18.0,
+      "avg_score": 402.0,
+      "name": "二選一",
       "status": "測試中"
     }
   },
   "types": {
     "knowledge": {
-      "n": 2,
-      "avg_views": 70,
-      "avg_eng": 0.0,
-      "avg_score": 70.5
+      "n": 3,
+      "avg_views": 177,
+      "avg_eng": 8.0,
+      "avg_score": 337.3
     }
   },
-  "median_views": 96,
+  "median_views": 135,
   "low_posts": [],
   "hours": {
     "13": {
       "n": 2,
-      "avg_views": 70
+      "avg_views": 245
+    },
+    "21": {
+      "n": 1,
+      "avg_views": 42
     }
   }
 }
