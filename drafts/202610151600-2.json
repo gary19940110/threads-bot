@@ -1,6 +1,6 @@
 {
   "id": "202610151600-2",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H01",
   "listing_id": null,
@@ -23,5 +23,8 @@
       "車位是平面還是機械",
       "路寬、採光、嫌惡設施"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T05:23:17.762Z"
 }
