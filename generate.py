@@ -33,6 +33,7 @@ Threads 寫法：
 def pick_hooks(n):
     hooks = load("config/hooks.json", [])
     stats = (load("data/stats.json", {}) or {}).get("hooks", {})
+    hooks = [h for h in hooks if stats.get(h["id"], {}).get("status") != "淘汰"] or hooks
     explore = SETTINGS.get("explore_ratio", 0.3)
     ranked = sorted(hooks, key=lambda h: stats.get(h["id"], {}).get("avg_score", -1), reverse=True)
     tried = [h for h in ranked if stats.get(h["id"], {}).get("n", 0) >= 2]
