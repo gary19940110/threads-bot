@@ -311,12 +311,16 @@ function renderStats(){
     <div class="kpi"><b>${withM.length?Math.round(views/withM.length).toLocaleString():"—"}</b><span>平均每篇觀看</span></div>
     <div class="kpi"><b>${typeof fol==="number"?fol.toLocaleString():fol}</b><span>粉絲數</span></div></div>`;
   if(!withM.length){ $("#main").innerHTML = h+`<div class="card empty">發文後隔天早上會開始出現數據。<br>鉤子排行、觀看趨勢、最佳時段都會在這裡用圖表呈現。</div>`+tokenCard(); return; }
-  const hooks=Object.entries(S.stats.hooks||{}).map(([id,v])=>({label:v.name||id,value:v.avg_score,n:v.n,views:v.avg_views,eng:v.avg_eng})).sort((a,b)=>b.value-a.value);
+  const hooks=Object.entries(S.stats.hooks||{}).map(([id,v])=>({label:(v.name||id)+(v.status?'·'+v.status:''),value:v.avg_score,n:v.n,views:v.avg_views,eng:v.avg_eng})).sort((a,b)=>b.value-a.value);
   h+=`<div class="card"><h2>鉤子排行</h2><h3>分數 = 平均觀看 × 互動加權（留言權重最高）。分數高的鉤子 AI 會多用。</h3>
     <div class="chart" id="c-hooks"></div></div>`;
   h+=`<div class="card"><h2>每篇觀看數</h2><h3>最近 ${Math.min(withM.length,20)} 篇，滑過看詳細</h3><div class="chart" id="c-views"></div></div>`;
   const hrs=Object.entries(S.stats.hours||{}).map(([k,v])=>({label:k+"點",value:v.avg_views,n:v.n})).sort((a,b)=>parseInt(a.label)-parseInt(b.label));
   h+=`<div class="card"><h2>發文時段 × 平均觀看</h2><h3>樣本少時僅供參考，至少各時段 3 篇再調整排程</h3><div class="chart" id="c-hours"></div></div>`;
+  const low=S.stats.low_posts||[];
+  if(low.length) h+=`<div class="card"><h2>低流量貼文（建議下架）</h2><h3>發布超過 3 天、觀看不到平均 3 成。沒有留言的可以到 Threads 刪掉；有留言的先留著，可能是潛在客戶。</h3>
+    ${low.map(x=>`<div class="comment"><div>${x.permalink?`<a href="${esc(x.permalink)}" target="_blank" rel="noopener">${esc(x.first_line)}</a>`:esc(x.first_line)}</div>
+    <div class="small">觀看 ${x.views}｜留言 ${x.replies}｜${esc(hookName(x.hook_id))} ${x.replies?'・<b>有留言，建議保留</b>':'・可刪除'}</div></div>`).join("")}</div>`;
   h+=`<div class="card"><h2>最近貼文</h2><table><thead><tr><th>開頭</th><th class="num">觀看</th><th class="num">讚</th><th class="num">留言</th></tr></thead><tbody>
     ${withM.slice(-15).reverse().map(d=>`<tr><td>${d.permalink?`<a href="${esc(d.permalink)}" target="_blank" rel="noopener">${esc(d.first_line)}</a>`:esc(d.first_line)}<div class="small">${fmtTime(d.posted_at)} · ${esc(hookName(d.hook_id))}</div></td>
     <td class="num">${(d.metrics.views||0).toLocaleString()}</td><td class="num">${d.metrics.likes||0}</td><td class="num">${d.metrics.replies||0}</td></tr>`).join("")}</tbody></table></div>`;
