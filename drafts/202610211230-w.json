@@ -1,6 +1,6 @@
 {
   "id": "202610211230-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H01",
   "listing_id": null,
@@ -22,5 +22,8 @@
       "萬一要賣，賣得掉嗎？",
       "比同預算的其他選擇好在哪？"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:01:31.518Z"
 }
