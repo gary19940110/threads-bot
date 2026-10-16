@@ -1,6 +1,6 @@
 {
   "id": "202610191230-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H05",
   "listing_id": null,
@@ -21,5 +21,8 @@
       "預售屋｜付款輕鬆，但看不到實品",
       "新成屋｜馬上能住，但總價一次到位"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:01:36.575Z"
 }
