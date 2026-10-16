@@ -28,7 +28,7 @@ nav{display:flex;gap:4px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
 nav button{flex:none;border:0;background:none;padding:8px 12px;border-bottom:2px solid transparent;color:var(--ink2);cursor:pointer;font-weight:600}
 nav button.on{color:var(--accent);border-bottom-color:var(--accent)}
 nav .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;line-height:18px;text-align:center}
-main{max-width:720px;margin:0 auto;padding:16px 16px 80px}
+main{max-width:1100px;margin:0 auto;padding:16px 16px 80px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--accent-weak);color:var(--accent);font-weight:600}
@@ -77,6 +77,34 @@ a{color:var(--accent)}
 .check{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-top:10px}
 .check input{margin-top:4px;width:18px;height:18px}
 details summary{cursor:pointer;font-weight:600}
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.tbtn{display:flex;gap:6px;align-items:center;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:10px;cursor:pointer;font-weight:600;text-align:left}
+.tbtn.on{border-color:var(--accent);background:var(--accent-weak);color:var(--accent)}
+.quick .btn{padding:6px 10px;font-size:13px}
+.cardbox{margin-top:10px;border:1px dashed var(--line);border-radius:10px;padding:8px 12px}
+input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg)}
+.calbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.calttl{display:flex;align-items:center;gap:8px;font-size:17px}
+.legend{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--grid)}
+.dot.warn{background:var(--warn)}.dot.good{background:var(--good)}.dot.bad{background:var(--bad)}.dot.gray{background:var(--muted)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+@media(max-width:820px){.cal{grid-template-columns:1fr}}
+.day{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;min-height:150px}
+@media(max-width:820px){.day{min-height:0}}
+.day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.day.past{opacity:.75}.day.drop{background:var(--accent-weak)}
+.dhead{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink2);margin-bottom:6px}
+.addbtn{border:0;background:var(--accent-weak);color:var(--accent);border-radius:8px;width:28px;height:28px;font-size:18px;cursor:pointer;line-height:28px;padding:0}
+.ev{border-left:4px solid var(--muted);background:var(--bg);border-radius:8px;padding:6px 8px;margin-bottom:6px;cursor:pointer;font-size:13px}
+.ev.warn{border-left-color:var(--warn)}.ev.good{border-left-color:var(--good)}.ev.bad{border-left-color:var(--bad)}.ev.gray{border-left-color:var(--muted);opacity:.85}
+.evt{font-weight:700;margin-right:6px;font-variant-numeric:tabular-nums}.evtype{font-size:11px;color:var(--muted)}
+.evx{margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nothing{padding:6px 0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:700px){.modal{align-items:center}}
+.sheet{background:var(--card);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px}
+@media(min-width:700px){.sheet{border-radius:16px}}
 </style>
 </head>
 <body>
@@ -86,11 +114,11 @@ details summary{cursor:pointer;font-weight:600}
     <button class="btn ghost" id="reload" title="重新整理">↻</button>
   </div>
   <nav id="tabs">
-    <button data-t="review" class="on">審核<span class="badge" id="b-review" hidden></span></button>
-    <button data-t="stats">數據</button>
-    <button data-t="inbox">留言待回<span class="badge" id="b-inbox" hidden></span></button>
-    <button data-t="listings">物件</button>
-    <button data-t="settings">設定</button>
+    <button data-t="cal" class="on">📅 週曆排程<span class="badge" id="b-review" hidden></span></button>
+    <button data-t="write">✍️ 寫文案</button>
+    <button data-t="stats">📈 數據</button>
+    <button data-t="inbox">💬 留言待回<span class="badge" id="b-inbox" hidden></span></button>
+    <button data-t="settings">⚙️ 設定</button>
   </nav>
 </header>
 <main id="main"></main>
@@ -105,7 +133,7 @@ const store = {
   set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
   del(k){ try { localStorage.removeItem(k); } catch(e){} }
 };
-const S = { repo: store.get("tb_repo") || "", pat: store.get("tb_pat") || "", tab: "review",
+const S = { repo: store.get("tb_repo") || "", pat: store.get("tb_pat") || "", tab: "cal", week: null,
   settings:{}, hooks:[], index:{drafts:[]}, stats:{}, inbox:[], listings:[], followers:[], token:{}, drafts:{}, shas:{} };
 
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2600); }
@@ -170,7 +198,6 @@ const fromLocalInput = v => { const d=new Date(v); const off=-d.getTimezoneOffse
   return `${v}:00${s}${p(off/60)}:${p(off%60)}`; };
 const fmtTime = iso => iso ? new Date(iso).toLocaleString("zh-TW",{month:"numeric",day:"numeric",weekday:"short",hour:"2-digit",minute:"2-digit"}) : "";
 const STATUS = {pending:["待審","warn"],approved:["已排程","good"],failed:["發布失敗","bad"],rejected:["已退回","gray"],posted:["已發布","gray"]};
-const TYPE = {listing:"物件文",knowledge:"知識文",market:"行情文"};
 
 function render(){
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b.dataset.t===S.tab));
@@ -178,114 +205,275 @@ function render(){
   const ib = S.inbox.filter(x=>!x.handled).length;
   const br=$("#b-review"), bi=$("#b-inbox");
   br.hidden=!pend; br.textContent=pend; bi.hidden=!ib; bi.textContent=ib;
-  ({review:renderReview, stats:renderStats, inbox:renderInbox, listings:renderListings, settings:renderSettings})[S.tab]();
+  ({cal:renderCal, write:renderWrite, stats:renderStats, inbox:renderInbox, settings:renderSettings})[S.tab]();
 }
 
-// ---------- 審核 ----------
-function renderReview(){
-  const list = Object.values(S.drafts).filter(d=>["pending","approved","failed"].includes(d.status))
-    .sort((a,b)=>(a.publish_at||"").localeCompare(b.publish_at||""));
-  const tags = S.settings.topic_tags||[];
-  let h = `<div class="btns" style="margin:0 0 14px"><button class="btn" id="new">＋ 自己寫一篇</button>
-    <button class="btn" id="gen">請 AI 再產 3 篇</button></div>`;
-  if(!list.length) h += `<div class="card empty">目前沒有待審草稿。每天早上 6:30 會自動產生新草稿。</div>`;
-  for(const d of list){
-    const [st,cls] = STATUS[d.status]||[d.status,"gray"];
-    const n = fullLen(d.text||""), max = S.settings.max_chars||500;
-    const blanks = (d.text||"").match(/\[待填[^\]]*\]/g)||[];
-    const needSign = d.type==="listing" && !d.commission_signed;
-    const blocked = n>max || blanks.length || needSign;
-    h += `<div class="card" data-id="${esc(d.id)}">
-      <div class="row"><span class="chip ${cls}">${st}</span><span class="chip gray">${TYPE[d.type]||d.type}</span>
-      <span class="chip">${esc(hookName(d.hook_id))}</span><span class="small">${fmtTime(d.publish_at)}</span></div>
-      ${d.why?`<div class="why">🎯 ${esc(d.why)}</div>`:""}
-      <textarea data-k="text">${esc(d.text)}</textarea>
-      <div class="row" style="justify-content:space-between"><span class="count ${n>max?"over":""}" data-count>含署名 ${n} / ${max} 字</span>
-      <span class="small">發布時自動加：${esc(footer())}</span></div>
-      ${blanks.length?`<div class="warnbox">還有 ${blanks.length} 處要填：${esc(blanks.join("、"))}</div>`:""}
-      ${d.error?`<div class="errbox">${esc(d.error)}</div>`:""}
-      <div class="row" style="margin-top:10px">
-        <input type="datetime-local" data-k="publish_at" value="${toLocalInput(d.publish_at)}">
-        <select data-k="topic_tag">${[...new Set([d.topic_tag,...tags].filter(Boolean))].map(t=>`<option ${t===d.topic_tag?"selected":""}>${esc(t)}</option>`).join("")}</select>
-      </div>
-      <div class="thumbs">${(d.images||[]).map((im,i)=>`<div class="thumb"><img src="${esc(rawURL(im))}" alt=""><button data-rmimg="${i}" title="移除">×</button></div>`).join("")}
-        <button class="btn ghost" data-addimg style="width:72px;height:72px">＋圖</button></div>
-      ${d.type==="listing"?`<label class="check"><input type="checkbox" data-k="commission_signed" ${d.commission_signed?"checked":""}>
-        <span>已和屋主簽好委託（不動產經紀業管理條例第21條：簽約後才能刊登廣告）</span></label>`:""}
-      <div class="btns">
-        ${d.status==="approved"
-          ? `<button class="btn" data-act="unapprove">取消排程</button>`
-          : `<button class="btn good" data-act="approve" ${blocked?"disabled":""}>核准排程</button>`}
-        <button class="btn" data-act="save">只存檔</button>
-        <button class="btn ghost" data-act="reject">退回</button>
-      </div></div>`;
+// ---------- 文章類型 ----------
+const TYPES = {
+  owner:{name:"屋主開發",icon:"🏠",guide:"寫給想賣房的屋主：賣房策略、估價觀念、什麼房子好賣、怎麼賣到好價格。目的是讓屋主私訊阿正估價。CTA 例：LINE @a0110 傳社區名，免費幫你估。"},
+  market:{name:"行情快報",icon:"📊",guide:"區域或社區行情觀察。素材沒提供的實價登錄、成交價、漲跌幅一律寫 [待填:要填什麼]，絕不編造數字。"},
+  listing:{name:"物件文",icon:"🔑",guide:"只用使用者提供的物件資料寫，突出 1–2 個最強賣點與適合誰，讓人想私訊問價。不寫門牌樓層；沒提供價格就不寫價格。"},
+  knowledge:{name:"知識文",icon:"📘",guide:"買房、換屋、看屋、議價、預售屋、轉售性等實用觀念，要有阿正的現場觀點，讓人想收藏轉發。"},
+  poll:{name:"互動二選一",icon:"🗳️",guide:"給兩個選項讓大家留言 A 或 B，各列 2 個優缺點，最後附阿正的看法。"},
+  story:{name:"帶看／成交現場",icon:"🤝",guide:"只能根據使用者提供的真實情境改寫，人物去識別化；沒提供情境就寫 [待填:今天發生的事]，不可虛構故事。"},
+  news:{name:"政策時事",icon:"📰",guide:"解讀使用者提供的新聞重點，說明對買方或屋主的影響。不可自行編造政策細節或數字，缺的寫 [待填]。"},
+  area:{name:"區域生活圈",icon:"📍",guide:"介紹台中某區的生活機能、通勤、學區、適合誰住，不寫精確數字。"},
+  brand:{name:"個人品牌",icon:"⭐",guide:"以連續五年千萬經紀人阿正的口吻分享做房仲的心法、價值觀或一句真心話。"}
+};
+const typeName = t => (TYPES[t]||{}).name || ({market:"行情快報"}[t]) || "知識文";
+
+// ---------- AI（Claude API，金鑰只存在這台裝置） ----------
+const STYLE = `你是台中房仲「阿正（黃守正）」的 Threads 小編。阿正是連續五年千萬經紀人，主力區域：北屯、北區、東區、南區、南屯、太平、豐原、沙鹿。
+守正版語氣：直接、接地氣、現場仲介思維、像跟朋友講話；不油、不廢話、不堆浮誇形容詞。
+核心觀點：「未來能賣得掉的房子，才是真正的好房子」。
+Threads 寫法：第一行就是鉤子（12–24字），短句多換行，正文 120–380 字；結尾一個問題邀請留言或給加 LINE 的理由；LINE @a0110 只寫一次；不放 hashtag；emoji 最多 2 個；不寫署名（系統會自動加）。
+鐵律：只能用使用者提供的數字與事實；沒有的價格、坪數、成交行情、利率、政策數字一律寫 [待填:要填什麼]，絕不編造。不寫保證增值、穩賺。不寫門牌樓層。`;
+const aiKey = () => store.get("tb_ai_key") || "";
+async function askClaude(prompt){
+  const key = aiKey();
+  if(!key) throw new Error("NO_KEY");
+  let last="";
+  for(const model of (S.settings.models || ["claude-sonnet-4-5"])){
+    const r = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{
+      "x-api-key":key,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model,max_tokens:2000,system:STYLE,messages:[{role:"user",content:prompt}]})});
+    if(r.ok){ const j=await r.json(); return j.content.map(b=>b.text||"").join(""); }
+    last = `${r.status} ${(await r.text()).slice(0,160)}`;
+    if(r.status===401) throw new Error("API 金鑰無效，請到「設定」重新貼上");
   }
-  $("#main").innerHTML = h;
-  $("#new").onclick = newDraft;
-  $("#gen").onclick = () => dispatch("daily.yml", {count:"3"}, "已請 AI 產生，約 2 分鐘後重新整理");
-  document.querySelectorAll("[data-id]").forEach(card=>{
-    const id=card.dataset.id, d=S.drafts[id];
-    const ta=card.querySelector("textarea");
-    ta.oninput=()=>{ d.text=ta.value; const n=fullLen(ta.value), max=S.settings.max_chars||500; const c=card.querySelector("[data-count]");
-      c.textContent=`含署名 ${n} / ${max} 字`; c.classList.toggle("over",n>max); };
-    card.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>act(id,b.dataset.act,card));
-    card.querySelector("[data-addimg]").onclick=()=>pickImages(id);
-    card.querySelectorAll("[data-rmimg]").forEach(b=>b.onclick=()=>{ d.images.splice(+b.dataset.rmimg,1); saveDraft(d,"移除圖片").then(render); });
-  });
+  throw new Error("AI 暫時無法使用："+last);
 }
-function collect(card,d){
-  d.text = card.querySelector('[data-k="text"]').value;
-  const t = card.querySelector('[data-k="publish_at"]').value; if(t) d.publish_at = fromLocalInput(t);
-  d.topic_tag = card.querySelector('[data-k="topic_tag"]').value;
-  const cs = card.querySelector('[data-k="commission_signed"]'); if(cs) d.commission_signed = cs.checked;
+function parseJSON(raw){ const a=raw.indexOf("{"), b=raw.lastIndexOf("}"); return JSON.parse(raw.slice(a,b+1)); }
+function hookGuide(){
+  const st=(S.stats.hooks)||{};
+  return S.hooks.filter(h=>(st[h.id]||{}).status!=="淘汰").map(h=>`${h.id} ${h.name}：${h.pattern}${(st[h.id]||{}).status==="主力"?"（主力，優先）":""}`).join("\n");
 }
+const OUT_FMT = `只輸出 JSON，不要其他文字：{"text":"貼文全文","hook_id":"用的鉤子編號","why":"一句話說明這篇想打中誰","card":{"label":"4–6字標籤","title":"圖卡大標，最多兩行，用\\n換行，每行不超過12字","points":["圖卡重點，2到5條，每條不超過16字"]}}`;
+async function aiWrite(type, brief){
+  const t=TYPES[type]||TYPES.knowledge;
+  const posted=(S.index.drafts||[]).filter(d=>d.status==="posted").slice(0,8).map(d=>"- "+d.first_line).join("\n");
+  return parseJSON(await askClaude(`請寫一篇 Threads 貼文。
+類型：${t.name}——${t.guide}
+方向／素材：${brief||"（自由發揮，選台中買方或屋主最關心的題目）"}
+可用的鉤子（第一行要用其中一種）：
+${hookGuide()}
+最近發過的開頭（避免重複）：
+${posted||"（無）"}
+${OUT_FMT}`));
+}
+const QUICK = {all:"整體優化：開頭更有鉤子、節奏更好讀、更導向留言或加 LINE",oral:"改得更口語、更像阿正本人在講話",hook:"第一行標題改得更有衝擊力、讓人停下來",short:"縮短到 200 字以內，保留重點",line:"加強結尾的行動呼籲，讓人更想加 LINE @a0110 私訊"};
+async function aiImprove(text, how, type){
+  return parseJSON(await askClaude(`請優化下面這篇 Threads 貼文。
+要求：${QUICK[how]||how}
+類型：${typeName(type)}。保留原本的事實與數字，不可新增沒提供的數字。
+可用的鉤子：
+${hookGuide()}
+原文：
+${text}
+${OUT_FMT}`));
+}
+function aiError(e){
+  if(e.message==="NO_KEY"){ toast("還沒設定 AI 金鑰：到「設定」貼上 Claude API 金鑰，或回 Claude 對話請阿正的助理寫"); return; }
+  toast(e.message);
+}
+
+// ---------- 時間工具 ----------
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const isoOf=(date,time)=>fromLocalInput(`${date}T${time}`);
+const dayOf=iso=>ymd(new Date(iso));
+const timeOf=iso=>{const d=new Date(iso);return `${pad(d.getHours())}:${pad(d.getMinutes())}`;};
+function mondayOf(d){ const x=new Date(d); x.setHours(0,0,0,0); const k=(x.getDay()+6)%7; x.setDate(x.getDate()-k); return x; }
+function nextFreeSlot(dateStr){
+  const slots=S.settings.slots||["08:30","12:30","21:00"];
+  const used=new Set(calItems().map(x=>x.publish_at&&dayOf(x.publish_at)+" "+timeOf(x.publish_at)));
+  const start=dateStr?new Date(dateStr+"T00:00"):new Date();
+  for(let k=0;k<30;k++){ const d=new Date(start); d.setDate(d.getDate()+k);
+    for(const s of slots){ const iso=isoOf(ymd(d),s); if(new Date(iso)>new Date(Date.now()+30*60e3) && !used.has(ymd(d)+" "+s)) return {date:ymd(d),time:s}; } }
+  return {date:ymd(new Date()),time:"21:00"};
+}
+function newId(){ const n=new Date(); return `${n.getFullYear()}${pad(n.getMonth()+1)}${pad(n.getDate())}${pad(n.getHours())}${pad(n.getMinutes())}-${Math.random().toString(36).slice(2,5)}`; }
+
+// ---------- 存檔 ----------
 async function saveDraft(d,msg){
   const path=`drafts/${d.id}.json`;
-  const saved = await updateJSON(path, cur => ({...(cur||{}), ...d, ...(cur&&cur.status==="posted"?{status:"posted"}:{})}), `中控台：${msg} ${d.id}`, null);
+  const saved = await updateJSON(path, cur => {
+    const next={...(cur||{}), ...d};
+    if(cur && JSON.stringify(cur.card||null)!==JSON.stringify(d.card||null)) next.images=(next.images||[]).filter(x=>!x.startsWith("images/card-"));
+    if(cur && cur.status==="posted") next.status="posted";
+    return next;
+  }, `中控台：${msg} ${d.id}`, null);
   S.drafts[d.id]=saved; return saved;
 }
-async function act(id,a,card){
-  const d=S.drafts[id]; collect(card,d);
+function checkReady(d){
   const max=S.settings.max_chars||500;
-  try{
-    if(a==="approve"){
-      if(fullLen(d.text)>max) return toast("字數超過上限");
-      if(/\[待填/.test(d.text)) return toast("還有 [待填] 沒填完");
-      if(d.type==="listing" && !d.commission_signed) return toast("物件文要先勾選已簽委託");
-      if(new Date(d.publish_at) < new Date()) toast("時間已過，機器人會在 15 分鐘內發出");
-      d.status="approved"; d.error=""; d.tries=0; d.approved_at=new Date().toISOString();
-    } else if(a==="unapprove"){ d.status="pending"; }
-    else if(a==="reject"){ d.status="rejected"; }
-    card.querySelectorAll("button").forEach(b=>b.disabled=true);
-    await saveDraft(d, {approve:"核准",unapprove:"取消排程",reject:"退回",save:"編輯"}[a]);
-    toast({approve:`已排程 ${fmtTime(d.publish_at)} 發布`,unapprove:"已取消排程",reject:"已退回",save:"已存檔"}[a]);
-    render();
-  }catch(e){ toast("存檔失敗："+e.message); render(); }
+  if(!d.text||!d.text.trim()) return "文案是空的";
+  if(fullLen(d.text)>max) return `含署名 ${fullLen(d.text)} 字，超過 ${max}`;
+  if(/\[待填/.test(d.text)) return "還有 [待填] 沒填完";
+  if(d.type==="listing" && !d.commission_signed) return "物件文要先勾「已簽委託」";
+  return "";
 }
-function newDraft(){
-  const now=new Date(); const p=n=>String(n).padStart(2,"0");
-  const id=`${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}${p(now.getHours())}${p(now.getMinutes())}-m`;
-  const t=new Date(now.getTime()+3*3600e3); t.setMinutes(0);
-  S.drafts[id]={id,status:"pending",type:"knowledge",hook_id:"",text:"",topic_tag:(S.settings.topic_tags||[""])[0],images:[],
-    publish_at:fromLocalInput(toLocalInput(t.toISOString())),created_at:now.toISOString(),created_by:"manual",why:"手動新增"};
-  const type = confirm("這篇是物件文嗎？\n按「確定」= 物件文（要勾已簽委託）\n按「取消」= 知識／行情文") ? "listing":"knowledge";
-  S.drafts[id].type=type; render(); window.scrollTo(0,document.body.scrollHeight);
+
+// ---------- ① 寫文案 ----------
+const W = { type:"knowledge", brief:"", result:null, date:"", time:"" };
+function renderWrite(){
+  if(!W.date){ const s=nextFreeSlot(); W.date=s.date; W.time=s.time; }
+  const r=W.result;
+  $("#main").innerHTML=`
+  <div class="card"><h2>① 選文章類型</h2>
+    <div class="types">${Object.entries(TYPES).map(([k,t])=>`<button class="tbtn ${k===W.type?"on":""}" data-type="${k}"><span>${t.icon}</span>${t.name}</button>`).join("")}</div>
+    <div class="small" style="margin-top:8px">${esc(TYPES[W.type].guide)}</div></div>
+  <div class="card"><h2>② 給 AI 方向，或貼上你自己寫的文案</h2>
+    <textarea id="w-brief" style="min-height:110px" placeholder="例：北屯透天屋主，想換屋但怕賣太便宜&#10;或直接貼上你寫好的文案，按「AI 優化」">${esc(W.brief)}</textarea>
+    <div class="btns"><button class="btn primary" id="w-gen">✨ AI 幫我寫</button><button class="btn" id="w-imp">AI 優化我貼的文案</button><button class="btn ghost" id="w-raw">不用 AI，直接用這段</button></div>
+    ${aiKey()?"":`<div class="warnbox">AI 按鈕要先到「設定」貼上 Claude API 金鑰。沒有金鑰也能自己寫，或回 Claude 對話請助理寫。</div>`}
+  </div>
+  ${r?`<div class="card"><h2>③ 確認內容</h2>
+    <textarea id="w-text">${esc(r.text)}</textarea>
+    <div class="row" style="justify-content:space-between"><span class="count" id="w-count"></span><span class="small">發布時自動加署名</span></div>
+    <div class="btns quick">${Object.entries({all:"整體優化",oral:"更口語",hook:"標題更有力",short:"縮短",line:"加強導 LINE"}).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
+    ${cardFields(r.card,"w")}
+    ${W.type==="listing"?`<label class="check"><input type="checkbox" id="w-sign" ${r.commission_signed?"checked":""}><span>已和屋主簽好委託（經紀業管理條例第21條）</span></label>`:""}
+  </div>
+  <div class="card"><h2>④ 選發文時間</h2><h3>任何日期、任何時間都可以，之後在週曆也能再改</h3>
+    <div class="row"><input type="date" id="w-date" value="${W.date}"><input type="time" id="w-time" value="${W.time}">
+    ${(S.settings.slots||[]).map(s=>`<button class="btn ghost slot" data-s="${s}">${s}</button>`).join("")}</div>
+    <div class="btns"><button class="btn" id="w-save">放進週曆（待審）</button><button class="btn good" id="w-approve">放進週曆並核准</button></div>
+  </div>`:""}`;
+  document.querySelectorAll("[data-type]").forEach(b=>b.onclick=()=>{ W.brief=$("#w-brief").value; W.type=b.dataset.type; renderWrite(); });
+  const brief=()=>(W.brief=$("#w-brief").value.trim());
+  $("#w-gen").onclick=()=>runAI($("#w-gen"),()=>aiWrite(W.type,brief()));
+  $("#w-imp").onclick=()=>{ if(!brief()) return toast("先在框裡貼上你的文案"); runAI($("#w-imp"),()=>aiImprove(W.brief,"all",W.type)); };
+  $("#w-raw").onclick=()=>{ if(!brief()) return toast("先在框裡寫文案"); W.result={text:W.brief,card:autoCard(W.brief),why:"自己寫的"}; renderWrite(); };
+  if(!r) return;
+  const ta=$("#w-text"), cnt=()=>{ const n=fullLen(ta.value), m=S.settings.max_chars||500; $("#w-count").textContent=`含署名 ${n} / ${m} 字`; $("#w-count").classList.toggle("over",n>m); };
+  ta.oninput=()=>{ r.text=ta.value; cnt(); }; cnt();
+  document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ r.text=ta.value; r.card=readCard("w"); runAI(b,()=>aiImprove(r.text,b.dataset.q,W.type)); });
+  document.querySelectorAll(".slot").forEach(b=>b.onclick=()=>{ $("#w-time").value=b.dataset.s; });
+  const build=approve=>{ r.text=ta.value; W.date=$("#w-date").value; W.time=$("#w-time").value;
+    const d={id:newId(),status:"pending",type:W.type,hook_id:r.hook_id||"",text:r.text.trim(),why:r.why||"",card:readCard("w"),
+      topic_tag:(S.settings.topic_tags||[""])[0],images:[],publish_at:isoOf(W.date,W.time),created_at:new Date().toISOString(),created_by:aiKey()?"ai-console":"manual",
+      commission_signed:W.type==="listing"?!!($("#w-sign")||{}).checked:false};
+    if(approve){ const why=checkReady(d); if(why) return toast(why); d.status="approved"; }
+    return d; };
+  const put=async approve=>{ const d=build(approve); if(!d) return;
+    try{ await saveDraft(d, approve?"新增並核准":"新增草稿"); toast(`已放進 ${fmtTime(d.publish_at)}${approve?"，會自動發出":"，記得審核"}`);
+      W.result=null; W.brief=""; const s=nextFreeSlot(W.date); W.date=s.date; W.time=s.time; S.week=mondayOf(new Date(d.publish_at)); S.tab="cal"; render(); }
+    catch(e){ toast("存檔失敗："+e.message); } };
+  $("#w-save").onclick=()=>put(false); $("#w-approve").onclick=()=>put(true);
 }
-let imgTarget=null;
-function pickImages(id){ imgTarget=id; $("#file").value=""; $("#file").click(); }
+async function runAI(btn, fn){
+  const old=btn.textContent; btn.disabled=true; btn.textContent="AI 撰寫中…";
+  try{ const out=await fn(); W.result={...(W.result||{}), ...out}; renderWrite(); }
+  catch(e){ aiError(e); btn.disabled=false; btn.textContent=old; }
+}
+function autoCard(text){ const lines=text.trim().split("\n").map(s=>s.trim()).filter(Boolean);
+  return {label:"台中買房筆記",title:(lines[0]||"").slice(0,24),points:lines.slice(1).filter(l=>/^[0-9・\-•]/.test(l)).slice(0,4).map(l=>l.replace(/^[0-9.、・\-•\s]+/,"").slice(0,16))}; }
+function cardFields(c,p){ c=c||{label:"",title:"",points:[]};
+  return `<details class="cardbox"><summary>圖卡文字（發文時自動做成圖片）</summary>
+    <div class="field"><label>標籤</label><input type="text" id="${p}-cl" value="${esc(c.label)}"></div>
+    <div class="field"><label>大標（換行用 Enter）</label><textarea id="${p}-ct" style="min-height:64px">${esc(c.title)}</textarea></div>
+    <div class="field"><label>重點（一行一條，最多 5 條）</label><textarea id="${p}-cp" style="min-height:110px">${esc((c.points||[]).join("\n"))}</textarea></div>
+    <label class="check"><input type="checkbox" id="${p}-cn" ${c.none?"checked":""}><span>這篇不要圖卡</span></label></details>`; }
+function readCard(p){ if(!$(`#${p}-cl`)) return null; if($(`#${p}-cn`).checked) return null;
+  return {label:$(`#${p}-cl`).value.trim()||"台中買房筆記",title:$(`#${p}-ct`).value.trim(),points:$(`#${p}-cp`).value.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,5)}; }
+
+// ---------- ② 週曆排程 ----------
+function calItems(){
+  const out=[]; const seen=new Set();
+  Object.values(S.drafts).forEach(d=>{ if(d.status!=="rejected"&&d.publish_at){ out.push(d); seen.add(d.id); } });
+  (S.index.drafts||[]).forEach(d=>{ if(!seen.has(d.id)&&d.status==="posted"&&(d.posted_at||d.publish_at)) out.push({...d,publish_at:d.posted_at||d.publish_at,text:d.first_line}); });
+  return out;
+}
+function renderCal(){
+  S.week=S.week||mondayOf(new Date());
+  const days=[...Array(7)].map((_,i)=>{ const d=new Date(S.week); d.setDate(d.getDate()+i); return d; });
+  const items=calItems(); const today=ymd(new Date());
+  const inWeek=items.filter(x=>{ const k=dayOf(x.publish_at); return k>=ymd(days[0])&&k<=ymd(days[6]); });
+  const pend=inWeek.filter(x=>x.status==="pending");
+  const W2=["一","二","三","四","五","六","日"];
+  $("#main").innerHTML=`
+  <div class="calbar"><button class="btn" id="c-prev">◀</button>
+    <div class="calttl"><b>${days[0].getMonth()+1}/${days[0].getDate()} – ${days[6].getMonth()+1}/${days[6].getDate()}</b><button class="btn ghost" id="c-today">回本週</button></div>
+    <button class="btn" id="c-next">▶</button></div>
+  <div class="row" style="justify-content:space-between;margin-bottom:10px">
+    <div class="legend"><span class="dot warn"></span>待審 <span class="dot good"></span>已核准 <span class="dot gray"></span>已發布 <span class="dot bad"></span>失敗</div>
+    <button class="btn good" id="c-all" ${pend.length?"":"disabled"}>整週核准（${pend.length}）</button></div>
+  <div class="cal">${days.map((d,i)=>{ const k=ymd(d); const list=inWeek.filter(x=>dayOf(x.publish_at)===k).sort((a,b)=>a.publish_at.localeCompare(b.publish_at));
+    return `<div class="day ${k===today?"today":""} ${k<today?"past":""}" data-day="${k}">
+      <div class="dhead"><span>週${W2[i]} <b>${d.getMonth()+1}/${d.getDate()}</b></span>${k>=today?`<button class="addbtn" data-add="${k}" title="在這天新增">＋</button>`:""}</div>
+      ${list.map(x=>{ const [st,cls]=STATUS[x.status]||["","gray"]; const first=(x.text||"").trim().split("\n")[0];
+        return `<div class="ev ${cls}" draggable="${x.status!=="posted"}" data-ev="${esc(x.id)}"><span class="evt">${timeOf(x.publish_at)}</span><span class="evtype">${esc(typeName(x.type))}</span><div class="evx">${esc(first)}</div>${x.metrics?`<div class="small">👁 ${x.metrics.views||0}　💬 ${x.metrics.replies||0}</div>`:""}</div>`; }).join("")||`<div class="small nothing">${k>=today?"點 ＋ 新增":""}</div>`}
+    </div>`; }).join("")}</div>
+  <div class="small" style="margin-top:10px">點貼文可以修改內容、換日期時間、核准；電腦上也可以直接把貼文拖到別天。</div>`;
+  const shift=n=>{ const d=new Date(S.week); d.setDate(d.getDate()+n); S.week=d; renderCal(); };
+  $("#c-prev").onclick=()=>shift(-7); $("#c-next").onclick=()=>shift(7); $("#c-today").onclick=()=>{ S.week=mondayOf(new Date()); renderCal(); };
+  document.querySelectorAll("[data-add]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const s=nextFreeSlot(b.dataset.add); W.date=b.dataset.add; W.time=s.date===b.dataset.add?s.time:"21:00"; W.result=null; S.tab="write"; render(); });
+  document.querySelectorAll("[data-ev]").forEach(el=>{
+    el.onclick=()=>{ const x=items.find(i=>i.id===el.dataset.ev); if(x.status==="posted"){ if(x.permalink) window.open(x.permalink,"_blank"); return; } openEditor(x.id); };
+    el.ondragstart=e=>e.dataTransfer.setData("text/plain",el.dataset.ev); });
+  document.querySelectorAll("[data-day]").forEach(day=>{
+    day.ondragover=e=>{ e.preventDefault(); day.classList.add("drop"); }; day.ondragleave=()=>day.classList.remove("drop");
+    day.ondrop=async e=>{ e.preventDefault(); day.classList.remove("drop"); const id=e.dataTransfer.getData("text/plain"); const d=S.drafts[id]; if(!d) return;
+      const nd={...d,publish_at:isoOf(day.dataset.day,timeOf(d.publish_at))}; try{ await saveDraft(nd,"改日期"); toast(`改到 ${fmtTime(nd.publish_at)}`); renderCal(); }catch(err){ toast("失敗："+err.message); } }; });
+  $("#c-all").onclick=async()=>{ const ok=[],bad=[]; for(const x of pend){ const why=checkReady(x); if(why) bad.push(timeOf(x.publish_at)+" "+why); else ok.push(x); }
+    if(!ok.length) return toast("沒有可核准的："+bad.join("；"));
+    if(!confirm(`要核准這週 ${ok.length} 篇嗎？${bad.length?`\n另有 ${bad.length} 篇還要修改，先不核准。`:""}`)) return;
+    $("#c-all").disabled=true; let n=0;
+    for(const x of ok){ try{ await saveDraft({...x,status:"approved",error:"",tries:0,approved_at:new Date().toISOString()},"整週核准"); n++; }catch(e){} }
+    toast(`已核准 ${n} 篇${bad.length?`，${bad.length} 篇待修改`:""}`); renderCal(); };
+}
+
+// ---------- 編輯視窗 ----------
+function openEditor(id){
+  const d=structuredClone(S.drafts[id]); if(!d) return;
+  const box=document.createElement("div"); box.className="modal";
+  const draw=()=>{ const [st,cls]=STATUS[d.status]||[d.status,"gray"]; const why=checkReady(d);
+    box.innerHTML=`<div class="sheet">
+    <div class="row" style="justify-content:space-between"><div class="row"><span class="chip ${cls}">${st}</span><span class="chip gray">${esc(typeName(d.type))}</span>${d.hook_id?`<span class="chip">${esc(hookName(d.hook_id))}</span>`:""}</div><button class="btn ghost" data-x>✕</button></div>
+    ${d.why?`<div class="why">🎯 ${esc(d.why)}</div>`:""}
+    <textarea id="e-text">${esc(d.text)}</textarea>
+    <div class="row" style="justify-content:space-between"><span class="count" id="e-count"></span><span class="small">發布時自動加署名</span></div>
+    <div class="btns quick">${Object.entries({all:"AI 整體優化",oral:"更口語",hook:"標題更有力",short:"縮短",line:"加強導 LINE"}).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
+    ${d.error?`<div class="errbox">${esc(d.error)}</div>`:""}
+    ${cardFields(d.card||(d.card===null?{none:true,label:"",title:"",points:[]}:null),"e")}
+    <div class="thumbs">${(d.images||[]).map((im,i)=>`<div class="thumb"><img src="${esc(rawURL(im))}" alt=""><button data-rm="${i}">×</button></div>`).join("")}<button class="btn ghost" data-addimg style="width:72px;height:72px">＋照片</button></div>
+    ${d.type==="listing"?`<label class="check"><input type="checkbox" id="e-sign" ${d.commission_signed?"checked":""}><span>已和屋主簽好委託（經紀業管理條例第21條）</span></label>`:""}
+    <div class="field"><label>發文時間（任何日期時間都可以）</label><div class="row"><input type="date" id="e-date" value="${dayOf(d.publish_at)}"><input type="time" id="e-time" value="${timeOf(d.publish_at)}">
+      ${(S.settings.slots||[]).map(s=>`<button class="btn ghost slot" data-s="${s}">${s}</button>`).join("")}</div></div>
+    ${why&&d.status!=="approved"?`<div class="warnbox">核准前要先處理：${esc(why)}</div>`:""}
+    <div class="btns">${d.status==="approved"?`<button class="btn" data-a="unapprove">取消核准</button>`:`<button class="btn good" data-a="approve">核准排程</button>`}
+      <button class="btn" data-a="save">存檔</button><button class="btn ghost" data-a="reject">刪除（不發）</button></div></div>`;
+    const ta=box.querySelector("#e-text"), cnt=()=>{ const n=fullLen(ta.value),m=S.settings.max_chars||500; const c=box.querySelector("#e-count"); c.textContent=`含署名 ${n} / ${m} 字`; c.classList.toggle("over",n>m); };
+    ta.oninput=()=>{ d.text=ta.value; cnt(); }; cnt();
+    const collect=()=>{ d.text=ta.value; d.publish_at=isoOf(box.querySelector("#e-date").value,box.querySelector("#e-time").value); d.card=readCard("e"); const s=box.querySelector("#e-sign"); if(s) d.commission_signed=s.checked; };
+    box.querySelector("[data-x]").onclick=()=>box.remove();
+    box.querySelectorAll(".slot").forEach(b=>b.onclick=()=>{ box.querySelector("#e-time").value=b.dataset.s; });
+    box.querySelectorAll("[data-q]").forEach(b=>b.onclick=async()=>{ collect(); const old=b.textContent; b.disabled=true; b.textContent="AI 撰寫中…";
+      try{ const out=await aiImprove(d.text,b.dataset.q,d.type); d.text=out.text; if(out.card) d.card=out.card; if(out.hook_id) d.hook_id=out.hook_id; draw(); toast("已優化，看過沒問題記得存檔或核准"); }
+      catch(e){ aiError(e); b.disabled=false; b.textContent=old; } });
+    box.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{ collect(); d.images.splice(+b.dataset.rm,1); draw(); });
+    box.querySelector("[data-addimg]").onclick=()=>{ collect(); pickImages(d, draw); };
+    box.querySelectorAll("[data-a]").forEach(b=>b.onclick=async()=>{ collect(); const a=b.dataset.a;
+      if(a==="approve"){ const why=checkReady(d); if(why) return toast(why); d.status="approved"; d.error=""; d.tries=0; d.approved_at=new Date().toISOString();
+        if(new Date(d.publish_at)<new Date()) toast("時間已過，機器人會在 15 分鐘內發出"); }
+      if(a==="unapprove") d.status="pending";
+      if(a==="reject"){ if(!confirm("確定刪除這篇？刪除後不會發出。")) return; d.status="rejected"; }
+      box.querySelectorAll("button").forEach(x=>x.disabled=true);
+      try{ await saveDraft(d,{approve:"核准",unapprove:"取消核准",reject:"刪除",save:"編輯"}[a]); toast({approve:`已核准，${fmtTime(d.publish_at)} 自動發出`,unapprove:"已取消核准",reject:"已刪除",save:"已存檔"}[a]); box.remove(); render(); }
+      catch(e){ toast("存檔失敗："+e.message); draw(); } });
+  };
+  draw(); document.body.appendChild(box);
+}
+let imgTarget=null, imgDone=null;
+function pickImages(d, done){ imgTarget=d; imgDone=done; $("#file").value=""; $("#file").click(); }
 $("#file").onchange = async e => {
   const files=[...e.target.files]; if(!files.length||!imgTarget) return;
-  const d=S.drafts[imgTarget]; d.images=d.images||[];
-  toast(`上傳 ${files.length} 張圖中…`);
-  try{
-    for(const [i,f] of files.entries()){
-      const b64 = await shrink(f);
-      const path = `images/${d.id}-${Date.now()}-${i}.jpg`;
-      await putRaw(path, b64, `中控台：上傳圖片 ${d.id}`);
-      d.images.push(path);
-    }
-    await saveDraft(d,"加圖片"); toast("圖片已上傳"); render();
-  }catch(err){ toast("上傳失敗："+err.message); }
+  const d=imgTarget; d.images=d.images||[];
+  toast(`上傳 ${files.length} 張照片中…`);
+  try{ for(const [i,f] of files.entries()){ const path=`images/${d.id}-${Date.now()}-${i}.jpg`; await putRaw(path, await shrink(f), `中控台：上傳照片 ${d.id}`); d.images.push(path); }
+    toast("照片已上傳，記得按存檔"); imgDone&&imgDone(); }
+  catch(err){ toast("上傳失敗："+err.message); }
 };
 function shrink(file){ // 長邊 1440、JPEG，符合 Threads 圖片規格
   return new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>{ const k=Math.min(1,1440/Math.max(img.width,img.height));
@@ -297,6 +485,7 @@ async function dispatch(wf, inputs, msg){
   try{ await gh(`/actions/workflows/${wf}/dispatches`,{method:"POST",body:JSON.stringify({ref:"main",inputs})}); toast(msg); }
   catch(e){ toast("無法啟動（權杖需要 Actions 權限）："+e.message); }
 }
+
 
 // ---------- 數據 ----------
 function renderStats(){
@@ -389,40 +578,6 @@ function renderInbox(){
     catch(e){ toast("失敗："+e.message); b.disabled=false; } });
 }
 
-// ---------- 物件 ----------
-const LF=[["name","物件名稱"],["area","區域／路段（不寫門牌樓層）"],["type","類型"],["price","開價（空白＝文案不寫價格）"],["layout","格局"],["size","坪數"],["parking","車位"],["highlights","賣點"],["story","屋主故事／銷售話題"]];
-function renderListings(){
-  let h=`<div class="card"><h3 style="margin:0">AI 只會用「已簽委託」且「在售」的物件寫物件文，也只會用你填的數字。</h3></div>`;
-  S.listings.forEach((l,i)=>{
-    h+=`<div class="card" data-li="${i}"><details ${l._open?"open":""}><summary>${esc(l.name||"新物件")} ${l.commission_signed?'<span class="chip good">已簽委託</span>':'<span class="chip warn">未簽委託</span>'} ${l.active?"":'<span class="chip gray">已下架</span>'}</summary>
-      ${LF.map(([k,lab])=>`<div class="field"><label>${lab}</label><input type="text" data-f="${k}" value="${esc(l[k])}"></div>`).join("")}
-      <label class="check"><input type="checkbox" data-f="commission_signed" ${l.commission_signed?"checked":""}><span>已簽委託</span></label>
-      <label class="check"><input type="checkbox" data-f="active" ${l.active?"checked":""}><span>在售中（成交或下架就取消勾選）</span></label>
-      <div class="thumbs">${(l.images||[]).map((im,j)=>`<div class="thumb"><img src="${esc(rawURL(im))}" alt=""><button data-rm="${j}">×</button></div>`).join("")}
-      <button class="btn ghost" data-limg style="width:72px;height:72px">＋圖</button></div>
-      <div class="btns"><button class="btn primary" data-lsave>儲存</button></div></details></div>`; });
-  h+=`<button class="btn" id="addl">＋ 新增物件</button>`;
-  $("#main").innerHTML=h;
-  $("#addl").onclick=()=>{ S.listings.push({id:"L"+Date.now().toString().slice(-6),name:"",commission_signed:false,active:true,images:[],_open:true}); render(); };
-  document.querySelectorAll("[data-li]").forEach(card=>{
-    const i=+card.dataset.li, l=S.listings[i];
-    const read=()=>{ card.querySelectorAll("[data-f]").forEach(inp=>{ l[inp.dataset.f]= inp.type==="checkbox"?inp.checked:inp.value; }); };
-    card.querySelector("[data-lsave]").onclick=async()=>{ read(); await saveListings("更新物件 "+l.name); };
-    card.querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{ read(); l.images.splice(+b.dataset.rm,1); await saveListings("移除物件圖片"); });
-    card.querySelector("[data-limg]").onclick=()=>{ read(); listingImgTarget=i; $("#limg").value=""; $("#limg").click(); };
-  });
-}
-let listingImgTarget=null;
-const limg=document.createElement("input"); limg.type="file"; limg.accept="image/*"; limg.multiple=true; limg.hidden=true; limg.id="limg"; document.body.appendChild(limg);
-limg.onchange=async e=>{ const l=S.listings[listingImgTarget]; if(!l) return; l.images=l.images||[]; toast("上傳中…");
-  try{ for(const [i,f] of [...e.target.files].entries()){ const path=`images/${l.id}-${Date.now()}-${i}.jpg`; await putRaw(path, await shrink(f), "中控台：物件圖片"); l.images.push(path); }
-    l._open=true; await saveListings("物件加圖片"); }catch(err){ toast("上傳失敗："+err.message); } };
-async function saveListings(msg){
-  try{ const clean=S.listings.map(({_open,...x})=>x);
-    await updateJSON("data/listings.json", ()=>clean, "中控台："+msg, []); toast("已儲存"); render(); }
-  catch(e){ toast("儲存失敗："+e.message); }
-}
-
 // ---------- 設定 ----------
 function renderSettings(){
   const s=S.settings;
@@ -434,8 +589,10 @@ function renderSettings(){
     <div class="field"><label>熱門話題追蹤關鍵字（逗號分隔，最多 10 個）</label><input type="text" id="s-kw" value="${esc((s.search_keywords||[]).join(", "))}"></div>
     <label class="check"><input type="checkbox" id="s-reply" ${s.reply?.enabled!==false?"checked":""}><span>自動回覆留言（問價、地點、看屋、貸款等導 LINE ${esc(s.line_id)}）</span></label>
     <div class="btns"><button class="btn primary" id="s-save">儲存設定</button></div></div>
+    <div class="card"><h2>AI 寫文案金鑰</h2><h3>Claude API 金鑰（sk-ant- 開頭），只存在這台裝置的瀏覽器，不會上傳。有了它，「寫文案」和週曆裡的 AI 按鈕才能用。</h3>
+      <div class="row"><input type="password" id="s-ai" placeholder="sk-ant-…" style="flex:1" value="${aiKey()?"••••••••（已設定）":""}"><button class="btn primary" id="s-ai-save">儲存</button><button class="btn ghost" id="s-ai-del">清除</button></div></div>
     <div class="card"><h2>手動執行</h2><div class="btns">
-      <button class="btn" id="run-pub">立刻檢查發文與留言</button><button class="btn" id="run-gen">立刻產 3 篇草稿</button></div></div>
+      <button class="btn" id="run-pub">立刻檢查發文與留言</button></div></div>
     <div class="card"><h2>連線</h2><div class="small">儲存庫：${esc(S.repo)}</div>
       <div class="btns"><button class="btn ghost" id="logout">登出這台手機</button></div></div>`;
   const list=v=>v.split(/[,，]/).map(x=>x.trim()).filter(Boolean);
@@ -443,7 +600,8 @@ function renderSettings(){
       slots:list($("#s-slots").value), drafts_per_day:+$("#s-n").value||3, topic_tags:list($("#s-tags").value), search_keywords:list($("#s-kw").value).slice(0,10),
       reply:{...(cur.reply||{}), enabled:$("#s-reply").checked}}), "中控台：更新設定", {}); toast("設定已儲存"); }catch(e){ toast("儲存失敗："+e.message); } };
   $("#run-pub").onclick=()=>dispatch("publish.yml",undefined,"已啟動，約 1 分鐘");
-  $("#run-gen").onclick=()=>dispatch("daily.yml",{count:"3"},"已請 AI 產生，約 2 分鐘後重新整理");
+  $("#s-ai-save").onclick=()=>{ const v=$("#s-ai").value.trim(); if(!v.startsWith("sk-")) return toast("金鑰應該是 sk-ant- 開頭"); store.set("tb_ai_key",v); toast("AI 金鑰已儲存在這台裝置"); renderSettings(); };
+  $("#s-ai-del").onclick=()=>{ store.del("tb_ai_key"); toast("已清除"); renderSettings(); };
   $("#logout").onclick=()=>{ store.del("tb_pat"); location.reload(); };
 }
 
