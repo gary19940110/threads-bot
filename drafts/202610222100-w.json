@@ -1,6 +1,6 @@
 {
   "id": "202610222100-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H06",
   "listing_id": null,
@@ -22,5 +22,8 @@
       "問有沒有修過漏水",
       "自己開窗、開門、開水試一次"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:00:50.054Z"
 }
