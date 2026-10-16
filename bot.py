@@ -350,8 +350,32 @@ def cmd_insights():
     hs = finish(agg)
     for k, v in hs.items():
         v["name"] = hooks.get(k, {}).get("name", k)
+    # 鉤子汰弱留強：和中位數比較
+    scores = sorted(v["avg_score"] for v in hs.values() if v["n"] >= 2)
+    med = scores[len(scores) // 2] if scores else 0
+    for k, v in hs.items():
+        if v["n"] < 2 or not med:
+            v["status"] = "測試中"
+        elif v["n"] >= 3 and v["avg_score"] < med * 0.5:
+            v["status"] = "淘汰"
+        elif v["avg_score"] >= med * 1.3:
+            v["status"] = "主力"
+        else:
+            v["status"] = "觀察"
+    # 低流量貼文：發布超過 72 小時、觀看低於近 30 篇中位數的 3 成
+    posted = [d for d in drafts() if d.get("status") == "posted" and d.get("metrics") and d.get("posted_at")]
+    views = sorted(d["metrics"].get("views", 0) for d in posted[-30:])
+    vmed = views[len(views) // 2] if views else 0
+    low = []
+    for d in posted:
+        if now() - parse_time(d["posted_at"]) < dt.timedelta(hours=72) or not vmed:
+            continue
+        m = d["metrics"]
+        if m.get("views", 0) < vmed * 0.3:
+            low.append({"id": d["id"], "first_line": d["text"].strip().split("\n")[0][:40], "views": m.get("views", 0),
+                        "replies": m.get("replies", 0), "permalink": d.get("permalink"), "hook_id": d.get("hook_id")})
     save("data/stats.json", {
-        "updated_at": now().isoformat(), "hooks": hs, "types": finish(types),
+        "updated_at": now().isoformat(), "hooks": hs, "types": finish(types), "median_views": vmed, "low_posts": low,
         "hours": {k: {"n": v["n"], "avg_views": round(v["views"] / v["n"])} for k, v in hours.items()},
     })
     try:
