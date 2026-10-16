@@ -1,6 +1,6 @@
 {
   "id": "202610192100-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H11",
   "listing_id": null,
@@ -22,5 +22,8 @@
       "留 6 個月生活預備金",
       "裝潢、家具、稅費也要算進去"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:01:35.133Z"
 }
