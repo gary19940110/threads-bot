@@ -1,6 +1,6 @@
 {
   "id": "202610182100-w",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H06",
   "listing_id": null,
@@ -22,5 +22,8 @@
       "價格開得甜，看的人多",
       "只是想讓你快點決定"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T06:01:37.944Z"
 }
