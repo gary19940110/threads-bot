@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-16T14:02:59.497568+08:00",
+  "updated_at": "2026-10-16T14:16:16.370759+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
@@ -218,7 +218,16 @@
       "posted_at": "2026-10-16T13:29:31.474795+08:00",
       "permalink": "https://www.threads.com/@jng01.10/post/DeiyMAXDquZ",
       "first_line": "在台中買房，最貴的從來不是房價。",
-      "metrics": null,
+      "metrics": {
+        "views": 45,
+        "likes": 0,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "shares": 0,
+        "score": 45.0,
+        "updated_at": "2026-10-16T14:16:16.228146+08:00"
+      },
       "error": "",
       "images": 1
     },
@@ -231,7 +240,16 @@
       "posted_at": "2026-10-16T13:29:13.739571+08:00",
       "permalink": "https://www.threads.com/@jng01.10/post/DeiyKYKDuYH",
       "first_line": "仲介說「屋主很好談」，",
-      "metrics": null,
+      "metrics": {
+        "views": 96,
+        "likes": 0,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "shares": 0,
+        "score": 96.0,
+        "updated_at": "2026-10-16T14:16:16.004397+08:00"
+      },
       "error": "",
       "images": 1
     }
