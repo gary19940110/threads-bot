@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-10-16T13:29:31.476186+08:00",
+  "updated_at": "2026-10-16T14:02:21.887723+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H05",
       "publish_at": "2026-10-23T21:00:00+08:00",
@@ -16,7 +16,7 @@
     },
     {
       "id": "202610231230-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H10",
       "publish_at": "2026-10-23T12:30:00+08:00",
@@ -29,7 +29,7 @@
     },
     {
       "id": "202610222100-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H06",
       "publish_at": "2026-10-22T21:00:00+08:00",
@@ -42,7 +42,7 @@
     },
     {
       "id": "202610221230-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H02",
       "publish_at": "2026-10-22T12:30:00+08:00",
@@ -55,7 +55,7 @@
     },
     {
       "id": "202610212100-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H12",
       "publish_at": "2026-10-21T21:00:00+08:00",
@@ -68,7 +68,7 @@
     },
     {
       "id": "202610211230-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H01",
       "publish_at": "2026-10-21T12:30:00+08:00",
@@ -81,7 +81,7 @@
     },
     {
       "id": "202610202100-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H07",
       "publish_at": "2026-10-20T21:00:00+08:00",
@@ -94,7 +94,7 @@
     },
     {
       "id": "202610201230-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H08",
       "publish_at": "2026-10-20T12:30:00+08:00",
@@ -107,7 +107,7 @@
     },
     {
       "id": "202610192100-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H11",
       "publish_at": "2026-10-19T21:00:00+08:00",
@@ -120,7 +120,7 @@
     },
     {
       "id": "202610191230-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H05",
       "publish_at": "2026-10-19T12:30:00+08:00",
@@ -133,7 +133,7 @@
     },
     {
       "id": "202610182100-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H06",
       "publish_at": "2026-10-18T21:00:00+08:00",
@@ -146,7 +146,7 @@
     },
     {
       "id": "202610181230-w",
-      "status": "pending",
+      "status": "approved",
       "type": "knowledge",
       "hook_id": "H02",
       "publish_at": "2026-10-18T12:30:00+08:00",
