@@ -1,6 +1,6 @@
 {
   "id": "202610151600-3",
-  "status": "pending",
+  "status": "approved",
   "type": "knowledge",
   "hook_id": "H05",
   "listing_id": null,
@@ -21,5 +21,8 @@
       "A｜北屯新成屋三房，進市區要開車",
       "B｜北區老公寓四房，機能走路到"
     ]
-  }
+  },
+  "error": "",
+  "tries": 0,
+  "approved_at": "2026-10-16T05:23:19.290Z"
 }
