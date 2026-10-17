@@ -1,6 +1,6 @@
 {
   "id": "202610161100-1",
-  "status": "approved",
+  "status": "posted",
   "type": "knowledge",
   "hook_id": "H08",
   "listing_id": null,
@@ -25,5 +25,8 @@
   },
   "error": "",
   "tries": 0,
-  "approved_at": "2026-10-16T05:23:25.281Z"
+  "approved_at": "2026-10-16T05:23:25.281Z",
+  "threads_id": "18104928890139859",
+  "permalink": "https://www.threads.com/@jng01.10/post/Dek3-iEGAgo",
+  "posted_at": "2026-10-17T08:58:35.787659+08:00"
 }
