@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-18T06:22:04.368200+08:00",
+  "updated_at": "2026-10-18T06:47:53.487785+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
@@ -166,7 +166,16 @@
       "posted_at": "2026-10-17T21:28:09.080868+08:00",
       "permalink": "https://www.threads.com/@jng01.10/post/DemNwt2lFav",
       "first_line": "預算1500萬，你會在台中買哪一區？",
-      "metrics": null,
+      "metrics": {
+        "views": 221,
+        "likes": 1,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "shares": 0,
+        "score": 241.0,
+        "updated_at": "2026-10-18T06:47:52.809959+08:00"
+      },
       "error": "",
       "images": 1
     },
@@ -179,7 +188,16 @@
       "posted_at": "2026-10-17T13:25:51.598728+08:00",
       "permalink": "https://www.threads.com/@jng01.10/post/DelWj-JjmMp",
       "first_line": "‼️北屯這間開3280萬，有人出股災級的價位，",
-      "metrics": null,
+      "metrics": {
+        "views": 369,
+        "likes": 1,
+        "replies": 2,
+        "reposts": 0,
+        "quotes": 0,
+        "shares": 0,
+        "score": 509.0,
+        "updated_at": "2026-10-18T06:47:53.243251+08:00"
+      },
       "error": "",
       "images": 9
     },
@@ -192,7 +210,16 @@
       "posted_at": "2026-10-17T12:47:04.038738+08:00",
       "permalink": "https://www.threads.com/@jng01.10/post/DelSH9Mlljs",
       "first_line": "看到這幾種狀況，先別急著下斡旋。",
-      "metrics": null,
+      "metrics": {
+        "views": 196,
+        "likes": 1,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "shares": 0,
+        "score": 216.0,
+        "updated_at": "2026-10-18T06:47:52.563530+08:00"
+      },
       "error": "",
       "images": 1
     },
@@ -205,7 +232,16 @@
       "posted_at": "2026-10-17T13:25:05.890790+08:00",
       "permalink": "https://www.threads.com/@jng01.10/post/DelWeciDgWP",
       "first_line": "‼️北屯這間豪宅開毫價3280萬，有人出股災級的價位，",
-      "metrics": null,
+      "metrics": {
+        "views": 131,
+        "likes": 2,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "shares": 2,
+        "score": 251.0,
+        "updated_at": "2026-10-18T06:47:53.022553+08:00"
+      },
       "error": "",
       "images": 8
     },
@@ -218,7 +254,16 @@
       "posted_at": "2026-10-17T08:58:35.787659+08:00",
       "permalink": "https://www.threads.com/@jng01.10/post/Dek3-iEGAgo",
       "first_line": "在台中租房超過5年的人，請把這篇看完。",
-      "metrics": null,
+      "metrics": {
+        "views": 80,
+        "likes": 0,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "shares": 0,
+        "score": 80.0,
+        "updated_at": "2026-10-18T06:47:52.292423+08:00"
+      },
       "error": "",
       "images": 1
     },
@@ -232,14 +277,14 @@
       "permalink": "https://www.threads.com/@jng01.10/post/Dejl15voBKU",
       "first_line": "同樣的預算，你會選哪一個？",
       "metrics": {
-        "views": 42,
-        "likes": 3,
+        "views": 76,
+        "likes": 4,
         "replies": 5,
         "reposts": 0,
         "quotes": 0,
         "shares": 0,
-        "score": 402.0,
-        "updated_at": "2026-10-17T06:54:18.722876+08:00"
+        "score": 456.0,
+        "updated_at": "2026-10-18T06:47:51.965953+08:00"
       },
       "error": "",
       "images": 1
@@ -254,14 +299,14 @@
       "permalink": "https://www.threads.com/@jng01.10/post/DeiyMAXDquZ",
       "first_line": "在台中買房，最貴的從來不是房價。",
       "metrics": {
-        "views": 135,
+        "views": 141,
         "likes": 2,
         "replies": 0,
         "reposts": 0,
         "quotes": 0,
         "shares": 0,
-        "score": 175.0,
-        "updated_at": "2026-10-17T06:54:18.472120+08:00"
+        "score": 181.0,
+        "updated_at": "2026-10-18T06:47:51.702027+08:00"
       },
       "error": "",
       "images": 1
@@ -276,14 +321,14 @@
       "permalink": "https://www.threads.com/@jng01.10/post/DeiyKYKDuYH",
       "first_line": "仲介說「屋主很好談」，",
       "metrics": {
-        "views": 355,
+        "views": 379,
         "likes": 4,
         "replies": 0,
         "reposts": 0,
         "quotes": 0,
         "shares": 0,
-        "score": 435.0,
-        "updated_at": "2026-10-17T06:54:18.088537+08:00"
+        "score": 459.0,
+        "updated_at": "2026-10-18T06:47:51.414224+08:00"
       },
       "error": "",
       "images": 1

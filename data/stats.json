@@ -1,49 +1,95 @@
 {
-  "updated_at": "2026-10-17T06:54:18.724484+08:00",
+  "updated_at": "2026-10-18T06:47:53.245112+08:00",
   "hooks": {
     "H06": {
       "n": 1,
-      "avg_views": 355,
+      "avg_views": 379,
       "avg_eng": 4.0,
-      "avg_score": 435.0,
+      "avg_score": 459.0,
       "name": "仲介行話翻譯",
       "status": "測試中"
     },
     "H01": {
       "n": 1,
-      "avg_views": 135,
+      "avg_views": 141,
       "avg_eng": 2.0,
-      "avg_score": 175.0,
+      "avg_score": 181.0,
       "name": "反常識",
       "status": "測試中"
     },
     "H05": {
       "n": 1,
-      "avg_views": 42,
-      "avg_eng": 18.0,
-      "avg_score": 402.0,
+      "avg_views": 76,
+      "avg_eng": 19.0,
+      "avg_score": 456.0,
       "name": "二選一",
       "status": "測試中"
+    },
+    "H08": {
+      "n": 1,
+      "avg_views": 80,
+      "avg_eng": 0.0,
+      "avg_score": 80.0,
+      "name": "身分點名",
+      "status": "測試中"
+    },
+    "H07": {
+      "n": 1,
+      "avg_views": 196,
+      "avg_eng": 1.0,
+      "avg_score": 216.0,
+      "name": "踩雷警告",
+      "status": "測試中"
+    },
+    "H12": {
+      "n": 1,
+      "avg_views": 221,
+      "avg_eng": 1.0,
+      "avg_score": 241.0,
+      "name": "問題開場",
+      "status": "測試中"
+    },
+    "—": {
+      "n": 2,
+      "avg_views": 250,
+      "avg_eng": 6.5,
+      "avg_score": 380.0,
+      "name": "—",
+      "status": "觀察"
     }
   },
   "types": {
     "knowledge": {
-      "n": 3,
-      "avg_views": 177,
-      "avg_eng": 8.0,
-      "avg_score": 337.3
+      "n": 6,
+      "avg_views": 182,
+      "avg_eng": 4.5,
+      "avg_score": 272.2
+    },
+    "area": {
+      "n": 2,
+      "avg_views": 250,
+      "avg_eng": 6.5,
+      "avg_score": 380.0
     }
   },
-  "median_views": 135,
+  "median_views": 196,
   "low_posts": [],
   "hours": {
     "13": {
-      "n": 2,
-      "avg_views": 245
+      "n": 4,
+      "avg_views": 255
     },
     "21": {
+      "n": 2,
+      "avg_views": 148
+    },
+    "8": {
       "n": 1,
-      "avg_views": 42
+      "avg_views": 80
+    },
+    "12": {
+      "n": 1,
+      "avg_views": 196
     }
   }
 }
