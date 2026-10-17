@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-17T12:00:39.620859+08:00",
+  "updated_at": "2026-10-17T12:47:32.230532+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
@@ -171,17 +171,43 @@
       "images": 1
     },
     {
-      "id": "202610161100-2",
+      "id": "202610171224-0ml",
       "status": "approved",
+      "type": "area",
+      "hook_id": "",
+      "publish_at": "2026-10-17T13:00:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "‼️北屯這間開3280萬，有人出股災級的價位，",
+      "metrics": null,
+      "error": "",
+      "images": 9
+    },
+    {
+      "id": "202610161100-2",
+      "status": "posted",
       "type": "knowledge",
       "hook_id": "H07",
       "publish_at": "2026-10-17T12:30:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "posted_at": "2026-10-17T12:47:04.038738+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/DelSH9Mlljs",
       "first_line": "看到這幾種狀況，先別急著下斡旋。",
       "metrics": null,
       "error": "",
       "images": 1
+    },
+    {
+      "id": "202610171220-wes",
+      "status": "approved",
+      "type": "area",
+      "hook_id": "",
+      "publish_at": "2026-10-17T12:30:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "‼️北屯這間豪宅開毫價3280萬，有人出股災級的價位，",
+      "metrics": null,
+      "error": "400 {\"error\": {\"message\": \"The requested resource does not exist\", \"type\": \"OAuthException\", \"code\": 24, \"error_subcode\": 4279009, \"is_transient\": false, \"error_user_title\": \"Media Not Found\", \"error_user_msg\": \"The media with id 17950876629317785 cannot be found.\", \"fbtrace_id\": \"Ayvq_IxsYCMBC_bp824s_KQ\"}}",
+      "images": 9
     },
     {
       "id": "202610161100-1",
