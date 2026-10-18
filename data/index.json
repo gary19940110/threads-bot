@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-18T21:43:03.476784+08:00",
+  "updated_at": "2026-10-18T22:07:45.470966+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
@@ -133,12 +133,12 @@
     },
     {
       "id": "202610182200-s4",
-      "status": "approved",
+      "status": "posted",
       "type": "poll",
       "hook_id": "H05",
       "publish_at": "2026-10-18T22:00:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "posted_at": "2026-10-18T22:07:45.469106+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/Deo3FkslNYj",
       "first_line": "明天如果真的開低走低，你會怎麼做？",
       "metrics": null,
       "error": "",

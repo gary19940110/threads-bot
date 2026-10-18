@@ -1,6 +1,6 @@
 {
   "id": "202610182200-s4",
-  "status": "approved",
+  "status": "posted",
   "type": "poll",
   "hook_id": "H05",
   "text": "明天如果真的開低走低，你會怎麼做？\n\nA｜先停下來觀望，等股市穩了再說\n優點：心比較安，不會在情緒裡做決定\n缺點：等大家都回來，好物件也被挑走了\n\nB｜趁大家猶豫，開始認真看房\n優點：屋主比較願意談，看屋不用搶\n缺點：要確定自己的資金不受股市影響\n\n阿正的看法：\n自住、資金穩的人，B 比較有機會；\n頭期款還在股市的人，先 A，把錢準備好再出手。\n\n你是 A 還是 B？留言告訴我 👇",
@@ -24,5 +24,9 @@
   "created_at": "2026-10-18T16:35:00+08:00",
   "created_by": "claude",
   "approved_at": "2026-10-18T16:35:00+08:00",
-  "commission_signed": false
+  "commission_signed": false,
+  "threads_id": "18345287302248484",
+  "permalink": "https://www.threads.com/@jng01.10/post/Deo3FkslNYj",
+  "posted_at": "2026-10-18T22:07:45.469106+08:00",
+  "error": ""
 }
