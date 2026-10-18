@@ -214,6 +214,47 @@ def pick_reply(rule, seed):
     return opts[i].replace("{line}", SETTINGS.get("line_id", ""))
 
 
+def ar_match(ar, text):
+    kws = [k for k in (ar.get("keywords") or []) if k.strip()]
+    t = (text or "").lower()
+    return not kws or any(k.lower() in t for k in kws)
+
+
+def ar_text(ar):
+    t = (ar.get("text") or "").replace("{line}", SETTINGS.get("line_id", ""))
+    link = (ar.get("link") or "").strip()
+    if "{link}" in t:
+        t = t.replace("{link}", link)
+    elif link:
+        t = f"{t}\n{link}"
+    t = "\n".join(line.rstrip() for line in t.split("\n"))
+    while "\n\n\n" in t:
+        t = t.replace("\n\n\n", "\n\n")
+    return t.strip()[:500]
+
+
+def send_reply(cid, text, images=None):
+    """在留言底下回覆：純文字、單張圖或多張圖（輪播）。圖片失敗就退回純文字。"""
+    imgs = [x for x in (images or []) if x][:10]
+    try:
+        if not imgs:
+            c = call("POST", f"{USER_ID}/threads", media_type="TEXT", text=text, reply_to_id=cid)
+        elif len(imgs) == 1:
+            c = call("POST", f"{USER_ID}/threads", media_type="IMAGE", image_url=image_url(imgs[0]), text=text, reply_to_id=cid)
+        else:
+            kids = [call("POST", f"{USER_ID}/threads", media_type="IMAGE", image_url=image_url(x), is_carousel_item="true")["id"] for x in imgs]
+            for k in kids:
+                wait_ready(k)
+            c = call("POST", f"{USER_ID}/threads", media_type="CAROUSEL", children=",".join(kids), text=text, reply_to_id=cid)
+        wait_ready(c["id"])
+        call("POST", f"{USER_ID}/threads_publish", creation_id=c["id"])
+    except ThreadsError as e:
+        if not imgs:
+            raise
+        p("附圖回覆失敗，改用純文字", cid, e)
+        send_reply(cid, text)
+
+
 def my_username():
     cache = load("data/me.json")
     if cache:
@@ -258,12 +299,28 @@ def cmd_replies():
             if kind == "ignore":
                 replied[cid] = "ignored"
                 continue
+            ar = d.get("auto_reply") or {}
+            if ar.get("enabled") and (ar.get("text") or ar.get("images")) and ar_match(ar, c.get("text")):
+                if c.get("username") in users_done:
+                    replied[cid] = "same_user"
+                    continue
+                if sent >= budget:
+                    continue
+                try:
+                    send_reply(cid, ar_text(ar), ar.get("images") or [])
+                    replied[cid] = "auto_reply"
+                    users_done.add(c.get("username"))
+                    sent += 1
+                    p("已用預設資料回覆", c.get("username"), d["id"])
+                    if not DRY:
+                        time.sleep(random.randint(cfg.get("min_delay_sec", 20), cfg.get("max_delay_sec", 45)))
+                except ThreadsError as e:
+                    p("回覆失敗", cid, e)
+                continue
             if kind and c.get("username") not in users_done and sent < budget:
                 msg = pick_reply(rule_by_id[kind], cid)
                 try:
-                    r = call("POST", f"{USER_ID}/threads", media_type="TEXT", text=msg, reply_to_id=cid)
-                    wait_ready(r["id"])
-                    call("POST", f"{USER_ID}/threads_publish", creation_id=r["id"])
+                    send_reply(cid, msg)
                     replied[cid] = kind
                     users_done.add(c.get("username"))
                     sent += 1
