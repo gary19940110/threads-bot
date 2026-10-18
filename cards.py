@@ -138,7 +138,7 @@ def main():
             continue
         render(card, os.path.join(ROOT, rel))
         imgs = [x for x in (dft.get("images") or []) if x != rel]
-        dft["images"] = [rel] + imgs
+        dft["images"] = imgs + [rel] if dft.get("card_pos") == "last" else [rel] + imgs
         with open(f, "w", encoding="utf-8") as fh:
             json.dump(dft, fh, ensure_ascii=False, indent=2)
             fh.write("\n")
