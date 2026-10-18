@@ -115,6 +115,17 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 .tmove button{position:static;border:0;background:none;color:#fff;font-size:15px;width:30px;height:24px;cursor:pointer;padding:0}
 .addimg{width:84px;height:84px}
 .slotchip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 12px;font-variant-numeric:tabular-nums;font-weight:600}
+.libtags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.libtag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:14px}
+.libtag span{font-size:12px;color:var(--muted)}
+.libtag.on{border-color:var(--accent);background:var(--accent-weak);color:var(--accent)}
+.libtag.add{border-style:dashed;color:var(--accent);font-weight:700}
+.tagbar{margin-top:6px}.ftag{border:0;background:var(--grid);border-radius:999px;padding:3px 10px;cursor:pointer;font-size:12px;color:var(--ink2)}
+.ftag.on{background:var(--accent);color:#fff}
+.titlein{font-size:17px;font-weight:700;padding:10px 12px !important}
+#w-text{min-height:180px}
+.replybox{border-style:solid;border-color:var(--good)}
+.slotchip .sbtn{width:auto;height:auto;border-radius:6px;background:none;font-weight:700;padding:2px 4px}
 .slotchip button{border:0;background:var(--grid);border-radius:50%;width:22px;height:22px;cursor:pointer;padding:0}
 .cardprev{width:100%;max-width:260px;border-radius:10px;margin-top:8px;display:block;box-shadow:var(--shadow)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
@@ -332,26 +343,29 @@ function checkReady(d){
 
 // ---------- ① 寫文案 ----------
 const W = { mode:"ai", type:"knowledge", brief:"", result:null, date:"", time:"", id:"", images:[], reply:null, lib_id:"", lib_name:"" };
-function resetW(){ Object.assign(W,{brief:"",result:null,id:newId(),images:[],reply:null,lib_id:"",lib_name:""}); }
+function resetW(){ Object.assign(W,{brief:"",result:null,id:newId(),images:[],reply:null,lib_id:"",lib_name:"",lib_tags:[]}); }
 const NOCARD={none:true,label:"",title:"",points:[]};
 const realCard=c=>c&&!c.none&&c.title?c:null;
+const splitTitle=t=>{ t=t||""; const i=t.indexOf("\n"); return i<0?[t,""]:[t.slice(0,i),t.slice(i+1)]; };
+const joinTitle=(h,b)=>{ h=(h||"").trim(); return h?(b?h+"\n"+b:h):(b||""); };
+const tagList=v=>(v||"").split(/[,，、\s]+/).map(s=>s.replace(/^#/,"").trim()).filter(Boolean);
 function syncW(){ // 重畫前把畫面上的內容存回來
   const r=W.result; if(!r||!$("#w-text")) return;
-  r.text=$("#w-text").value; r.card=readCard("w")||{...NOCARD,label:$("#w-cl").value,title:$("#w-ct").value,points:$("#w-cp").value.split("\n").filter(Boolean)};
+  r.text=joinTitle($("#w-title").value,$("#w-text").value); r.card=readCard("w")||{...NOCARD,label:$("#w-cl").value,title:$("#w-ct").value,points:$("#w-cp").value.split("\n").filter(Boolean)};
   r.card_pos=$("#w-cardlast")&&$("#w-cardlast").checked?"last":"first";
   if($("#w-sign")) r.commission_signed=$("#w-sign").checked;
   if($("#w-type")) W.type=$("#w-type").value;
-  W.reply=readReply("w", W.reply); W.lib_name=$("#w-lname").value; W.date=$("#w-date").value; W.time=$("#w-time").value;
+  W.reply=readReply("w", W.reply); W.lib_name=$("#w-lname").value; W.lib_tags=tagList($("#w-ltags").value); W.date=$("#w-date").value; W.time=$("#w-time").value;
 }
 function libList(){
-  const L=S.library||[];
-  return `<div class="card"><h2>📁 我的文案庫</h2><h3>自己寫好的文案、照片、留言自動回覆都存在這裡。要重複發同一個案件，按「用這份」就好。</h3>
-    ${L.length?L.map(e=>`<div class="libitem ${e.id===W.lib_id?"on":""}"><div style="flex:1;min-width:0"><b>${esc(e.name)}</b>
-      <div class="row" style="margin-top:2px"><span class="chip gray">${esc(typeName(e.type))}</span>${(e.images||[]).length?`<span class="chip gray">📷 ${e.images.length} 張</span>`:""}${e.auto_reply&&e.auto_reply.enabled?`<span class="chip good">💬 自動回覆</span>`:""}</div>
-      <div class="small evx">${esc((e.text||"").split("\n")[0])}</div></div>
-      <div class="row"><button class="btn primary" data-use="${esc(e.id)}">用這份</button><button class="btn ghost" data-del="${esc(e.id)}">刪除</button></div></div>`).join("")
-      :`<div class="empty">還沒有存過。按下面「寫一份新的」，寫好後按「💾 存到我的文案庫」。</div>`}
-    <div class="btns"><button class="btn" id="w-new">＋ 寫一份新的</button></div></div>`;
+  const L=S.library||[]; const tags=[...new Set(L.flatMap(e=>e.tags||[]))]; const f=W.libTag||"";
+  const shown=L.filter(e=>!f||(e.tags||[]).includes(f));
+  return `<div class="card"><h2>📁 我的文案庫</h2><h3>點一個標籤就把那份文案、照片、自動回覆載入下面，可以直接改、直接發。</h3>
+    ${tags.length?`<div class="row tagbar"><span class="small">分類：</span><button class="ftag ${!f?"on":""}" data-ftag="">全部 ${L.length}</button>${tags.map(t=>`<button class="ftag ${t===f?"on":""}" data-ftag="${esc(t)}">#${esc(t)}</button>`).join("")}</div>`:""}
+    <div class="libtags">${shown.map(e=>`<button class="libtag ${e.id===W.lib_id?"on":""}" data-use="${esc(e.id)}" title="${esc((e.text||"").split("\n")[0])}">
+      <b>${esc(e.name)}</b><span>${(e.images||[]).length?`📷${e.images.length}`:""}${e.auto_reply&&e.auto_reply.enabled?" 💬":""}</span></button>`).join("")}
+      <button class="libtag add" id="w-new">＋ 新增一份</button></div>
+    ${L.length?"":`<div class="small" style="margin-top:8px">還沒有存過。按「＋ 新增一份」，寫好後按「💾 存到我的文案庫」。</div>`}</div>`;
 }
 function renderWrite(){
   if(!W.id) W.id=newId();
@@ -371,7 +385,8 @@ function renderWrite(){
   </div>`:libList()}
   ${r?`<div class="card"><h2>③ 內容${W.lib_id?`（文案庫：${esc(W.lib_name)}）`:""}</h2>
     ${W.mode==="lib"?`<div class="field"><label>文章類型</label><select id="w-type">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===W.type?"selected":""}>${t.icon} ${t.name}</option>`).join("")}</select></div>`:""}
-    <textarea id="w-text" placeholder="在這裡寫你的文案">${esc(r.text)}</textarea>
+    <div class="field"><label>標題（貼文第一行，最吸睛的一句）</label><input type="text" id="w-title" class="titlein" placeholder="例：若山牧水 地獄底價！三房平車只要 [待填] 萬" value="${esc(splitTitle(r.text)[0])}"></div>
+    <div class="field"><label>內文</label><textarea id="w-text" placeholder="在這裡寫內文">${esc(splitTitle(r.text)[1])}</textarea></div>
     <div class="row" style="justify-content:space-between"><span class="count" id="w-count"></span><span class="small">發布時自動加署名</span></div>
     <div class="btns quick">${Object.entries({all:"AI 整體優化",oral:"更口語",hook:"標題更有力",short:"縮短",line:"加強導 LINE"}).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
     <div class="field"><label>📷 照片（照這個順序發出；◀ ▶ 調整順序，× 移除）</label>${imgStrip(W.images,"w")}</div>
@@ -379,13 +394,17 @@ function renderWrite(){
     <canvas id="w-prev" class="cardprev" width="1080" height="1350"></canvas>
     ${W.images.length?`<label class="check"><input type="checkbox" id="w-cardlast" ${r.card_pos==="last"?"checked":""}><span>圖卡放在照片最後（沒勾＝圖卡當第一張）</span></label>`:""}
     ${W.type==="listing"?`<label class="check"><input type="checkbox" id="w-sign" ${r.commission_signed?"checked":""}><span>已和屋主簽好委託，且委託還在有效期內（經紀業管理條例第21條）</span></label>`:""}
-    ${replyFields(W.reply,"w")}
-    <div class="libsave"><input type="text" id="w-lname" placeholder="存到文案庫的名稱，例：若山牧水地獄底價" value="${esc(W.lib_name)}">
-      <button class="btn" id="w-lib">💾 ${W.lib_id?"更新文案庫":"存到我的文案庫"}</button>${W.lib_id?`<button class="btn ghost" id="w-libnew">另存一份新的</button>`:""}</div>
+    ${replyFields(W.reply,"w",true)}
+    <div class="libsave"><div class="field" style="flex:1;min-width:200px;margin:0"><label>文案庫名稱（標籤上顯示的字，可隨時改）</label><input type="text" id="w-lname" placeholder="例：若山牧水地獄底價" value="${esc(W.lib_name)}"></div>
+      <div class="field" style="flex:1;min-width:200px;margin:0"><label>分類標籤（可多個，用逗號分開）</label><input type="text" id="w-ltags" placeholder="例：北屯, 三房, 地獄底價" value="${esc((W.lib_tags||[]).join(", "))}"></div>
+      <div class="btns" style="width:100%;margin-top:0"><button class="btn" id="w-lib">💾 ${W.lib_id?"更新這份文案庫":"存到我的文案庫"}</button>${W.lib_id?`<button class="btn ghost" id="w-libnew">另存一份新的</button><button class="btn ghost" data-del="${esc(W.lib_id)}">🗑 從文案庫刪除</button>`:""}</div></div>
   </div>
   <div class="card"><h2>④ 什麼時候發？</h2><h3>系統建議：${W.date.slice(5).replace("-","/")} ${W.time}（最近的空檔）。任何日期、任何時間都可以，一天發幾篇都行。</h3>
     <div class="row"><input type="date" id="w-date" value="${W.date}"><input type="time" id="w-time" value="${W.time}">
-    ${slots.map(s=>`<button class="btn ghost slot" data-s="${s}">${s}</button>`).join("")}<button class="btn ghost" id="w-addslot" title="把現在選的時間加入常用時段">☆ 存成常用時段</button></div>
+    </div>
+    <div class="field"><label>常用時段（點一下套用；× 刪除；想加幾個就加幾個）</label>
+      <div class="row">${slots.map(s=>`<span class="slotchip"><button class="slot sbtn" data-s="${s}">${s}</button><button data-wdel="${s}" title="刪除這個時段">×</button></span>`).join("")}
+      <input type="time" id="w-newslot" value="19:00"><button class="btn" id="w-addslot">＋新增時段</button></div></div>
     <div class="btns"><button class="btn primary" id="w-now">⚡ 立即發布</button><button class="btn good" id="w-approve">✅ 照這個時間排程</button><button class="btn" id="w-save">先存草稿（之後再審）</button></div>
     <div class="small" style="margin-top:6px">立即發布：15 分鐘內發出。排程：時間到自動發出。草稿：放進週曆，之後再看。</div>
   </div>`:""}`;
@@ -398,26 +417,28 @@ function renderWrite(){
     $("#w-imp").onclick=()=>{ if(!brief()) return toast("先在框裡貼上你的文案"); syncW(); runAI($("#w-imp"),()=>aiImprove(W.brief,"all",W.type)); };
     $("#w-raw").onclick=()=>{ if(!brief()) return toast("先在框裡寫文案"); syncW(); W.result={...(W.result||{}),text:W.brief,card:autoCard(W.brief),why:"自己寫的"}; renderWrite(); };
   } else {
-    $("#w-new").onclick=()=>{ resetW(); W.mode="lib"; W.type="listing"; W.result={text:"",card:{...NOCARD},why:"自己寫的"}; W.reply={enabled:true,text:DEFAULT_REPLY,images:[],link:"",keywords:[]}; renderWrite(); setTimeout(()=>$("#w-text")&&$("#w-text").focus(),50); };
+    $("#w-new").onclick=()=>{ resetW(); W.mode="lib"; W.type="listing"; W.result={text:"",card:{...NOCARD},why:"自己寫的"}; W.reply={enabled:true,text:DEFAULT_REPLY,images:[],link:"",keywords:[]}; renderWrite(); setTimeout(()=>$("#w-title")&&$("#w-title").focus(),50); };
     document.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{ const e=(S.library||[]).find(x=>x.id===b.dataset.use); if(!e) return;
-      resetW(); W.mode="lib"; W.type=e.type||"listing"; W.lib_id=e.id; W.lib_name=e.name; W.images=[...(e.images||[])];
+      resetW(); W.mode="lib"; W.type=e.type||"listing"; W.lib_id=e.id; W.lib_name=e.name; W.lib_tags=[...(e.tags||[])]; W.images=[...(e.images||[])];
       W.reply=e.auto_reply?structuredClone(e.auto_reply):null;
       W.result={text:e.text||"",card:e.card||{...NOCARD},card_pos:e.card_pos||"first",commission_signed:false,why:"文案庫："+e.name};
-      renderWrite(); $("#w-text").scrollIntoView({behavior:"smooth",block:"center"}); toast(`已載入「${e.name}」，選好時間就能發`); });
+      renderWrite(); $("#w-title").scrollIntoView({behavior:"smooth",block:"center"}); toast(`已載入「${e.name}」，選好時間就能發`); });
+    document.querySelectorAll("[data-ftag]").forEach(b=>b.onclick=()=>{ syncW(); W.libTag=b.dataset.ftag; renderWrite(); });
     document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{ const e=(S.library||[]).find(x=>x.id===b.dataset.del); if(!e||!confirm(`從文案庫刪除「${e.name}」？（已排程的貼文不受影響）`)) return;
       try{ S.library=await updateJSON("data/library.json", arr=>arr.filter(x=>x.id!==e.id), `中控台：文案庫刪除 ${e.name}`, []); if(W.lib_id===e.id) W.lib_id=""; renderWrite(); toast("已刪除"); }
       catch(err){ toast("刪除失敗："+err.message); } });
   }
   if(!r) return;
-  const ta=$("#w-text"), cnt=()=>{ const n=fullLen(ta.value), m=S.settings.max_chars||500; $("#w-count").textContent=`含署名 ${n} / ${m} 字`; $("#w-count").classList.toggle("over",n>m); };
-  ta.oninput=()=>{ r.text=ta.value; cnt(); }; cnt(); bindPreview("w");
+  const ta=$("#w-text"), tin=$("#w-title"), cnt=()=>{ const n=fullLen(joinTitle(tin.value,ta.value)), m=S.settings.max_chars||500; $("#w-count").textContent=`含署名 ${n} / ${m} 字`; $("#w-count").classList.toggle("over",n>m); };
+  ta.oninput=tin.oninput=()=>{ r.text=joinTitle(tin.value,ta.value); cnt(); }; cnt(); bindPreview("w");
   if($("#w-type")) $("#w-type").onchange=()=>{ syncW(); renderWrite(); };
-  document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ if(!ta.value.trim()) return toast("先寫一點內容"); syncW(); runAI(b,()=>aiImprove(r.text,b.dataset.q,W.type)); });
+  document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ if(!(tin.value+ta.value).trim()) return toast("先寫一點內容"); syncW(); runAI(b,()=>aiImprove(r.text,b.dataset.q,W.type)); });
   bindStrip($("#main"), {w:{arr:W.images,id:W.id}, wr:{arr:(W.reply=W.reply||blankReply()).images,id:W.id+"-r"}}, renderWrite, syncW);
   $("#w-rcopy").onclick=()=>{ syncW(); W.reply.images=[...W.images]; renderWrite(); };
   $("#w-lib").onclick=()=>saveLib(false); if($("#w-libnew")) $("#w-libnew").onclick=()=>saveLib(true);
   document.querySelectorAll(".slot").forEach(b=>b.onclick=()=>{ $("#w-time").value=b.dataset.s; });
-  $("#w-addslot").onclick=async()=>{ const t=$("#w-time").value; if(!t) return; syncW(); try{ await saveSlots([...(S.settings.slots||[]),t]); toast(`已加入常用時段 ${t}`); renderWrite(); }catch(e){ toast("失敗："+e.message); } };
+  document.querySelectorAll("[data-wdel]").forEach(b=>b.onclick=async()=>{ syncW(); try{ await saveSlots((S.settings.slots||[]).filter(x=>x!==b.dataset.wdel)); toast("已刪除時段"); renderWrite(); }catch(e){ toast("失敗："+e.message); } });
+  $("#w-addslot").onclick=async()=>{ const t=$("#w-newslot").value; if(!t) return; syncW(); try{ await saveSlots([...(S.settings.slots||[]),t]); $("#w-time").value=t; W.time=t; toast(`已新增時段 ${t}`); renderWrite(); }catch(e){ toast("失敗："+e.message); } };
   const build=approve=>{ syncW();
     const d={id:W.id,status:"pending",type:W.type,hook_id:r.hook_id||"",text:r.text.trim(),why:r.why||"",card:realCard(r.card),card_pos:r.card_pos||"first",
       topic_tag:(S.settings.topic_tags||[""])[0],images:[...W.images],publish_at:isoOf(W.date,W.time),created_at:new Date().toISOString(),created_by:W.mode==="lib"?"library":(aiKey()?"ai-console":"manual"),
@@ -436,7 +457,7 @@ async function saveLib(asNew){ syncW(); const r=W.result; const name=(W.lib_name
   if(!name){ toast("先取個名字，例：若山牧水地獄底價"); $("#w-lname").focus(); return; }
   if(!r.text.trim()) return toast("文案是空的");
   const id=(!asNew&&W.lib_id)||("L"+newId());
-  const entry={id,name,type:W.type,text:r.text.trim(),images:[...W.images],card:realCard(r.card),card_pos:r.card_pos||"first",auto_reply:W.reply,updated_at:new Date().toISOString()};
+  const entry={id,name,tags:W.lib_tags||[],type:W.type,text:r.text.trim(),images:[...W.images],card:realCard(r.card),card_pos:r.card_pos||"first",auto_reply:W.reply,updated_at:new Date().toISOString()};
   try{ S.library=await updateJSON("data/library.json", arr=>{ arr=Array.isArray(arr)?arr:[]; const i=arr.findIndex(x=>x.id===id); if(i>=0) arr[i]=entry; else arr.unshift(entry); return arr; }, `中控台：文案庫 ${name}`, []);
     W.lib_id=id; toast(`已存到文案庫「${name}」`); renderWrite(); }
   catch(e){ toast("儲存失敗："+e.message); }
@@ -460,8 +481,8 @@ function bindStrip(root, lists, redraw, before){
 }
 const DEFAULT_REPLY="感謝詢問！這間的資料先給你👇\n{link}\n想看屋、問價格細節，LINE {line} 傳「物件名稱」給我，我第一時間回你";
 const blankReply=()=>({enabled:false,text:DEFAULT_REPLY,images:[],link:"",keywords:[]});
-function replyFields(rep,p){ rep=rep||blankReply();
-  return `<details class="cardbox" ${rep.enabled?"open":""}><summary>💬 留言自動回覆${rep.enabled?"（已開啟）":""}</summary>
+function replyFields(rep,p,open){ rep=rep||blankReply();
+  return `<details class="cardbox replybox" ${rep.enabled||open?"open":""}><summary>💬 留言自動回覆${rep.enabled?"（已開啟）":""}</summary>
     <div class="small">有人在這篇留言，機器人約 15 分鐘內自動在他的留言底下回覆這份資料（每人回一次）。Threads 不開放私訊功能，所以是公開回覆在留言下面。</div>
     <label class="check"><input type="checkbox" id="${p}-ron" ${rep.enabled?"checked":""}><span>開啟這篇的留言自動回覆</span></label>
     <div class="field"><label>回覆文字（{line} 會換成 LINE ID，{link} 會換成下面的連結）</label><textarea id="${p}-rtext" style="min-height:100px">${esc(rep.text||"")}</textarea></div>
