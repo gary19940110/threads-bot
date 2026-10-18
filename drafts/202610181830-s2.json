@@ -17,7 +17,9 @@
   },
   "card_pos": "first",
   "topic_tag": "台中買房",
-  "images": [],
+  "images": [
+    "images/card-202610181830-s2.png"
+  ],
   "publish_at": "2026-10-18T18:30:00+08:00",
   "created_at": "2026-10-18T16:35:00+08:00",
   "created_by": "claude",
