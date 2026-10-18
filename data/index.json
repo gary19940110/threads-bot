@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-18T16:35:09.091044+08:00",
+  "updated_at": "2026-10-18T16:37:26.820334+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
@@ -185,12 +185,12 @@
     },
     {
       "id": "202610181640-s1",
-      "status": "approved",
+      "status": "posted",
       "type": "market",
       "hook_id": "H10",
-      "publish_at": "2026-10-18T16:40:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "publish_at": "2026-10-18T16:30:00+08:00",
+      "posted_at": "2026-10-18T16:37:26.818561+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/DeoRSF_nBWz",
       "first_line": "明天台股，可能是煉獄級開盤。",
       "metrics": null,
       "error": "",
