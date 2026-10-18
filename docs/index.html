@@ -101,6 +101,21 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 .evt{font-weight:700;margin-right:6px;font-variant-numeric:tabular-nums}.evtype{font-size:11px;color:var(--muted)}
 .evx{margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .nothing{padding:6px 0}
+.seg{display:flex;gap:6px;margin-bottom:14px;background:var(--grid);padding:4px;border-radius:12px}
+.seg button{flex:1;border:0;background:none;padding:10px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--ink2)}
+.seg button.on{background:var(--card);color:var(--accent);box-shadow:var(--shadow)}
+.libitem{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px}
+.libitem.on{border-color:var(--accent);background:var(--accent-weak)}
+.libsave{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.libsave input{flex:1;min-width:200px}
+.thumb{width:84px;height:84px}
+.thumb .trm{position:absolute;top:2px;right:2px}
+.tnum{position:absolute;top:2px;left:2px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;border-radius:6px;padding:0 5px;line-height:18px}
+.tmove{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;background:linear-gradient(transparent,rgba(0,0,0,.55))}
+.tmove button{position:static;border:0;background:none;color:#fff;font-size:15px;width:30px;height:24px;cursor:pointer;padding:0}
+.addimg{width:84px;height:84px}
+.slotchip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 12px;font-variant-numeric:tabular-nums;font-weight:600}
+.slotchip button{border:0;background:var(--grid);border-radius:50%;width:22px;height:22px;cursor:pointer;padding:0}
 .cardprev{width:100%;max-width:260px;border-radius:10px;margin-top:8px;display:block;box-shadow:var(--shadow)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
 @media(min-width:700px){.modal{align-items:center}}
@@ -175,11 +190,11 @@ const rawURL = rel => rel.startsWith("http") ? rel : `https://raw.githubusercont
 // ---------- 載入 ----------
 async function loadAll(){
   $("#sync").textContent = "同步中…";
-  const [settings, hooks, index, stats, inbox, listings, followers, token] = await Promise.all([
+  const [settings, hooks, index, stats, inbox, listings, followers, token, library] = await Promise.all([
     getJSON("config/settings.json",{}), getJSON("config/hooks.json",[]), getJSON("data/index.json",{drafts:[]}),
     getJSON("data/stats.json",{}), getJSON("data/inbox.json",[]), getJSON("data/listings.json",[]),
-    getJSON("data/followers.json",[]), getJSON("data/token_status.json",{})]);
-  Object.assign(S,{settings,hooks,index,stats,inbox,listings,followers,token});
+    getJSON("data/followers.json",[]), getJSON("data/token_status.json",{}), getJSON("data/library.json",[])]);
+  Object.assign(S,{settings,hooks,index,stats,inbox,listings,followers,token,library:Array.isArray(library)?library:[]});
   const dir = await gh(`/contents/drafts?ref=main&t=${Date.now()}`) || [];
   const known = Object.fromEntries((index.drafts||[]).map(d=>[d.id,d]));
   const want = dir.filter(f=>f.name.endsWith(".json")).map(f=>f.name.replace(".json",""))
@@ -316,58 +331,147 @@ function checkReady(d){
 }
 
 // ---------- ① 寫文案 ----------
-const W = { type:"knowledge", brief:"", result:null, date:"", time:"" };
+const W = { mode:"ai", type:"knowledge", brief:"", result:null, date:"", time:"", id:"", images:[], reply:null, lib_id:"", lib_name:"" };
+function resetW(){ Object.assign(W,{brief:"",result:null,id:newId(),images:[],reply:null,lib_id:"",lib_name:""}); }
+const NOCARD={none:true,label:"",title:"",points:[]};
+const realCard=c=>c&&!c.none&&c.title?c:null;
+function syncW(){ // 重畫前把畫面上的內容存回來
+  const r=W.result; if(!r||!$("#w-text")) return;
+  r.text=$("#w-text").value; r.card=readCard("w")||{...NOCARD,label:$("#w-cl").value,title:$("#w-ct").value,points:$("#w-cp").value.split("\n").filter(Boolean)};
+  r.card_pos=$("#w-cardlast")&&$("#w-cardlast").checked?"last":"first";
+  if($("#w-sign")) r.commission_signed=$("#w-sign").checked;
+  if($("#w-type")) W.type=$("#w-type").value;
+  W.reply=readReply("w", W.reply); W.lib_name=$("#w-lname").value; W.date=$("#w-date").value; W.time=$("#w-time").value;
+}
+function libList(){
+  const L=S.library||[];
+  return `<div class="card"><h2>📁 我的文案庫</h2><h3>自己寫好的文案、照片、留言自動回覆都存在這裡。要重複發同一個案件，按「用這份」就好。</h3>
+    ${L.length?L.map(e=>`<div class="libitem ${e.id===W.lib_id?"on":""}"><div style="flex:1;min-width:0"><b>${esc(e.name)}</b>
+      <div class="row" style="margin-top:2px"><span class="chip gray">${esc(typeName(e.type))}</span>${(e.images||[]).length?`<span class="chip gray">📷 ${e.images.length} 張</span>`:""}${e.auto_reply&&e.auto_reply.enabled?`<span class="chip good">💬 自動回覆</span>`:""}</div>
+      <div class="small evx">${esc((e.text||"").split("\n")[0])}</div></div>
+      <div class="row"><button class="btn primary" data-use="${esc(e.id)}">用這份</button><button class="btn ghost" data-del="${esc(e.id)}">刪除</button></div></div>`).join("")
+      :`<div class="empty">還沒有存過。按下面「寫一份新的」，寫好後按「💾 存到我的文案庫」。</div>`}
+    <div class="btns"><button class="btn" id="w-new">＋ 寫一份新的</button></div></div>`;
+}
 function renderWrite(){
+  if(!W.id) W.id=newId();
   if(!W.date){ const s=nextFreeSlot(); W.date=s.date; W.time=s.time; }
   const r=W.result;
   const last=W.last; W.last=null;
+  const slots=S.settings.slots||[];
   $("#main").innerHTML=`${last?`<div class="card" style="border-color:var(--good)">✅ 已排入 <b>${fmtTime(last.publish_at)}</b>（${last.status==="approved"?"時間到自動發出":"草稿，記得審核"}）。<button class="btn ghost" id="w-go">到週曆看</button> 可以直接寫下一篇。</div>`:""}
-  <div class="card"><h2>① 選文章類型</h2>
+  <div class="seg"><button data-mode="ai" class="${W.mode==="ai"?"on":""}">✨ AI 幫我寫</button><button data-mode="lib" class="${W.mode==="lib"?"on":""}">📁 我的文案庫（自己寫的）</button></div>
+  ${W.mode==="ai"?`<div class="card"><h2>① 選文章類型</h2>
     <div class="types">${Object.entries(TYPES).map(([k,t])=>`<button class="tbtn ${k===W.type?"on":""}" data-type="${k}"><span>${t.icon}</span>${t.name}</button>`).join("")}</div>
     <div class="small" style="margin-top:8px">${esc(TYPES[W.type].guide)}</div></div>
   <div class="card"><h2>② 給 AI 方向，或貼上你自己寫的文案</h2>
     <textarea id="w-brief" style="min-height:110px" placeholder="例：北屯透天屋主，想換屋但怕賣太便宜&#10;或直接貼上你寫好的文案，按「AI 優化」">${esc(W.brief)}</textarea>
     <div class="btns"><button class="btn primary" id="w-gen">✨ AI 幫我寫</button><button class="btn" id="w-imp">AI 優化我貼的文案</button><button class="btn ghost" id="w-raw">不用 AI，直接用這段</button></div>
     ${aiKey()?"":`<div class="warnbox">AI 按鈕要先到「設定」貼上 Claude API 金鑰。沒有金鑰也能自己寫，或回 Claude 對話請助理寫。</div>`}
-  </div>
-  ${r?`<div class="card"><h2>③ 確認內容</h2>
-    <textarea id="w-text">${esc(r.text)}</textarea>
+  </div>`:libList()}
+  ${r?`<div class="card"><h2>③ 內容${W.lib_id?`（文案庫：${esc(W.lib_name)}）`:""}</h2>
+    ${W.mode==="lib"?`<div class="field"><label>文章類型</label><select id="w-type">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===W.type?"selected":""}>${t.icon} ${t.name}</option>`).join("")}</select></div>`:""}
+    <textarea id="w-text" placeholder="在這裡寫你的文案">${esc(r.text)}</textarea>
     <div class="row" style="justify-content:space-between"><span class="count" id="w-count"></span><span class="small">發布時自動加署名</span></div>
-    <div class="btns quick">${Object.entries({all:"整體優化",oral:"更口語",hook:"標題更有力",short:"縮短",line:"加強導 LINE"}).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
+    <div class="btns quick">${Object.entries({all:"AI 整體優化",oral:"更口語",hook:"標題更有力",short:"縮短",line:"加強導 LINE"}).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
+    <div class="field"><label>📷 照片（照這個順序發出；◀ ▶ 調整順序，× 移除）</label>${imgStrip(W.images,"w")}</div>
     ${cardFields(r.card,"w")}
-    <div class="small" style="margin-top:8px">🖼️ 圖片預覽（發文時會自動附上這張圖卡，可在上面「圖卡文字」修改）</div><canvas id="w-prev" class="cardprev" width="1080" height="1350"></canvas>
-    ${W.type==="listing"?`<label class="check"><input type="checkbox" id="w-sign" ${r.commission_signed?"checked":""}><span>已和屋主簽好委託（經紀業管理條例第21條）</span></label>`:""}
+    <canvas id="w-prev" class="cardprev" width="1080" height="1350"></canvas>
+    ${W.images.length?`<label class="check"><input type="checkbox" id="w-cardlast" ${r.card_pos==="last"?"checked":""}><span>圖卡放在照片最後（沒勾＝圖卡當第一張）</span></label>`:""}
+    ${W.type==="listing"?`<label class="check"><input type="checkbox" id="w-sign" ${r.commission_signed?"checked":""}><span>已和屋主簽好委託，且委託還在有效期內（經紀業管理條例第21條）</span></label>`:""}
+    ${replyFields(W.reply,"w")}
+    <div class="libsave"><input type="text" id="w-lname" placeholder="存到文案庫的名稱，例：若山牧水地獄底價" value="${esc(W.lib_name)}">
+      <button class="btn" id="w-lib">💾 ${W.lib_id?"更新文案庫":"存到我的文案庫"}</button>${W.lib_id?`<button class="btn ghost" id="w-libnew">另存一份新的</button>`:""}</div>
   </div>
-  <div class="card"><h2>④ 什麼時候發？</h2><h3>系統建議：${W.date.slice(5).replace("-","/")} ${W.time}（最近的空檔）。也可以改成任何日期時間。</h3>
+  <div class="card"><h2>④ 什麼時候發？</h2><h3>系統建議：${W.date.slice(5).replace("-","/")} ${W.time}（最近的空檔）。任何日期、任何時間都可以，一天發幾篇都行。</h3>
     <div class="row"><input type="date" id="w-date" value="${W.date}"><input type="time" id="w-time" value="${W.time}">
-    ${(S.settings.slots||[]).map(s=>`<button class="btn ghost slot" data-s="${s}">${s}</button>`).join("")}</div>
+    ${slots.map(s=>`<button class="btn ghost slot" data-s="${s}">${s}</button>`).join("")}<button class="btn ghost" id="w-addslot" title="把現在選的時間加入常用時段">☆ 存成常用時段</button></div>
     <div class="btns"><button class="btn primary" id="w-now">⚡ 立即發布</button><button class="btn good" id="w-approve">✅ 照這個時間排程</button><button class="btn" id="w-save">先存草稿（之後再審）</button></div>
     <div class="small" style="margin-top:6px">立即發布：15 分鐘內發出。排程：時間到自動發出。草稿：放進週曆，之後再看。</div>
   </div>`:""}`;
   if($("#w-go")) $("#w-go").onclick=()=>{ S.tab="cal"; render(); };
-  document.querySelectorAll("[data-type]").forEach(b=>b.onclick=()=>{ W.brief=$("#w-brief").value; W.type=b.dataset.type; renderWrite(); });
-  const brief=()=>(W.brief=$("#w-brief").value.trim());
-  $("#w-gen").onclick=()=>runAI($("#w-gen"),()=>aiWrite(W.type,brief()));
-  $("#w-imp").onclick=()=>{ if(!brief()) return toast("先在框裡貼上你的文案"); runAI($("#w-imp"),()=>aiImprove(W.brief,"all",W.type)); };
-  $("#w-raw").onclick=()=>{ if(!brief()) return toast("先在框裡寫文案"); W.result={text:W.brief,card:autoCard(W.brief),why:"自己寫的"}; renderWrite(); };
+  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ syncW(); if(W.mode===b.dataset.mode) return; W.mode=b.dataset.mode; if(!W.result||!W.result.text) W.result=null; renderWrite(); });
+  if(W.mode==="ai"){
+    document.querySelectorAll("[data-type]").forEach(b=>b.onclick=()=>{ syncW(); W.brief=$("#w-brief").value; W.type=b.dataset.type; renderWrite(); });
+    const brief=()=>(W.brief=$("#w-brief").value.trim());
+    $("#w-gen").onclick=()=>{ syncW(); runAI($("#w-gen"),()=>aiWrite(W.type,brief())); };
+    $("#w-imp").onclick=()=>{ if(!brief()) return toast("先在框裡貼上你的文案"); syncW(); runAI($("#w-imp"),()=>aiImprove(W.brief,"all",W.type)); };
+    $("#w-raw").onclick=()=>{ if(!brief()) return toast("先在框裡寫文案"); syncW(); W.result={...(W.result||{}),text:W.brief,card:autoCard(W.brief),why:"自己寫的"}; renderWrite(); };
+  } else {
+    $("#w-new").onclick=()=>{ resetW(); W.mode="lib"; W.type="listing"; W.result={text:"",card:{...NOCARD},why:"自己寫的"}; W.reply={enabled:true,text:DEFAULT_REPLY,images:[],link:"",keywords:[]}; renderWrite(); setTimeout(()=>$("#w-text")&&$("#w-text").focus(),50); };
+    document.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{ const e=(S.library||[]).find(x=>x.id===b.dataset.use); if(!e) return;
+      resetW(); W.mode="lib"; W.type=e.type||"listing"; W.lib_id=e.id; W.lib_name=e.name; W.images=[...(e.images||[])];
+      W.reply=e.auto_reply?structuredClone(e.auto_reply):null;
+      W.result={text:e.text||"",card:e.card||{...NOCARD},card_pos:e.card_pos||"first",commission_signed:false,why:"文案庫："+e.name};
+      renderWrite(); $("#w-text").scrollIntoView({behavior:"smooth",block:"center"}); toast(`已載入「${e.name}」，選好時間就能發`); });
+    document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{ const e=(S.library||[]).find(x=>x.id===b.dataset.del); if(!e||!confirm(`從文案庫刪除「${e.name}」？（已排程的貼文不受影響）`)) return;
+      try{ S.library=await updateJSON("data/library.json", arr=>arr.filter(x=>x.id!==e.id), `中控台：文案庫刪除 ${e.name}`, []); if(W.lib_id===e.id) W.lib_id=""; renderWrite(); toast("已刪除"); }
+      catch(err){ toast("刪除失敗："+err.message); } });
+  }
   if(!r) return;
   const ta=$("#w-text"), cnt=()=>{ const n=fullLen(ta.value), m=S.settings.max_chars||500; $("#w-count").textContent=`含署名 ${n} / ${m} 字`; $("#w-count").classList.toggle("over",n>m); };
   ta.oninput=()=>{ r.text=ta.value; cnt(); }; cnt(); bindPreview("w");
-  document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ r.text=ta.value; r.card=readCard("w"); runAI(b,()=>aiImprove(r.text,b.dataset.q,W.type)); });
+  if($("#w-type")) $("#w-type").onchange=()=>{ syncW(); renderWrite(); };
+  document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ if(!ta.value.trim()) return toast("先寫一點內容"); syncW(); runAI(b,()=>aiImprove(r.text,b.dataset.q,W.type)); });
+  bindStrip($("#main"), {w:{arr:W.images,id:W.id}, wr:{arr:(W.reply=W.reply||blankReply()).images,id:W.id+"-r"}}, renderWrite, syncW);
+  $("#w-rcopy").onclick=()=>{ syncW(); W.reply.images=[...W.images]; renderWrite(); };
+  $("#w-lib").onclick=()=>saveLib(false); if($("#w-libnew")) $("#w-libnew").onclick=()=>saveLib(true);
   document.querySelectorAll(".slot").forEach(b=>b.onclick=()=>{ $("#w-time").value=b.dataset.s; });
-  const build=approve=>{ r.text=ta.value; W.date=$("#w-date").value; W.time=$("#w-time").value;
-    const d={id:newId(),status:"pending",type:W.type,hook_id:r.hook_id||"",text:r.text.trim(),why:r.why||"",card:readCard("w"),
-      topic_tag:(S.settings.topic_tags||[""])[0],images:[],publish_at:isoOf(W.date,W.time),created_at:new Date().toISOString(),created_by:aiKey()?"ai-console":"manual",
-      commission_signed:W.type==="listing"?!!($("#w-sign")||{}).checked:false};
-    if(approve){ const why=checkReady(d); if(why) return toast(why); d.status="approved"; }
+  $("#w-addslot").onclick=async()=>{ const t=$("#w-time").value; if(!t) return; syncW(); try{ await saveSlots([...(S.settings.slots||[]),t]); toast(`已加入常用時段 ${t}`); renderWrite(); }catch(e){ toast("失敗："+e.message); } };
+  const build=approve=>{ syncW();
+    const d={id:W.id,status:"pending",type:W.type,hook_id:r.hook_id||"",text:r.text.trim(),why:r.why||"",card:realCard(r.card),card_pos:r.card_pos||"first",
+      topic_tag:(S.settings.topic_tags||[""])[0],images:[...W.images],publish_at:isoOf(W.date,W.time),created_at:new Date().toISOString(),created_by:W.mode==="lib"?"library":(aiKey()?"ai-console":"manual"),
+      commission_signed:W.type==="listing"?!!r.commission_signed:false, auto_reply:W.reply&&W.reply.enabled?W.reply:null, lib_id:W.lib_id||""};
+    if(d.images.length>20) { toast("照片最多 20 張"); return null; }
+    if(approve){ const why=checkReady(d); if(why){ toast(why); return null; } d.status="approved"; }
     return d; };
   const put=async approve=>{ const d=build(approve); if(!d) return;
     try{ await saveDraft(d, approve?"新增並核准":"新增草稿"); toast(`已放進 ${fmtTime(d.publish_at)}${approve?"，會自動發出":"，記得審核"}`);
-      W.result=null; W.brief=""; W.last=d; const s=nextFreeSlot(W.date); W.date=s.date; W.time=s.time; S.week=mondayOf(new Date(d.publish_at)); renderWrite(); window.scrollTo(0,0); }
+      W.last=d; resetW(); const s=nextFreeSlot(W.date); W.date=s.date; W.time=s.time; S.week=mondayOf(new Date(d.publish_at)); renderWrite(); window.scrollTo(0,0); }
     catch(e){ toast("存檔失敗："+e.message); } };
   $("#w-save").onclick=()=>put(false); $("#w-approve").onclick=()=>put(true);
   $("#w-now").onclick=()=>{ const n=new Date(); $("#w-date").value=ymd(n); $("#w-time").value=`${pad(n.getHours())}:${pad(n.getMinutes())}`; put(true); };
 }
+async function saveLib(asNew){ syncW(); const r=W.result; const name=(W.lib_name||"").trim();
+  if(!name){ toast("先取個名字，例：若山牧水地獄底價"); $("#w-lname").focus(); return; }
+  if(!r.text.trim()) return toast("文案是空的");
+  const id=(!asNew&&W.lib_id)||("L"+newId());
+  const entry={id,name,type:W.type,text:r.text.trim(),images:[...W.images],card:realCard(r.card),card_pos:r.card_pos||"first",auto_reply:W.reply,updated_at:new Date().toISOString()};
+  try{ S.library=await updateJSON("data/library.json", arr=>{ arr=Array.isArray(arr)?arr:[]; const i=arr.findIndex(x=>x.id===id); if(i>=0) arr[i]=entry; else arr.unshift(entry); return arr; }, `中控台：文案庫 ${name}`, []);
+    W.lib_id=id; toast(`已存到文案庫「${name}」`); renderWrite(); }
+  catch(e){ toast("儲存失敗："+e.message); }
+}
+async function saveSlots(list){
+  const slots=[...new Set(list.map(s=>s.trim()))].filter(s=>/^\d\d:\d\d$/.test(s)).sort();
+  S.settings=await updateJSON("config/settings.json", cur=>({...cur, slots}), "中控台：更新發文時段", {});
+}
+
+// ---------- 圖片排列、留言自動回覆（寫文案和編輯視窗共用） ----------
+const LOCAL_IMG={};
+const imgSrc=p=>LOCAL_IMG[p]||rawURL(p);
+function imgStrip(list,key){
+  return `<div class="thumbs">${list.map((im,i)=>`<div class="thumb"><img src="${esc(imgSrc(im))}" alt=""><span class="tnum">${/card-/.test(im)?"卡":i+1}</span><button class="trm" data-rm="${key}:${i}" title="移除">×</button>
+    <div class="tmove">${i>0?`<button data-mv="${key}:${i}:-1" title="往前">◀</button>`:"<i></i>"}${i<list.length-1?`<button data-mv="${key}:${i}:1" title="往後">▶</button>`:"<i></i>"}</div></div>`).join("")}
+    <button class="btn ghost addimg" data-add="${key}" type="button">＋照片</button></div>`; }
+function bindStrip(root, lists, redraw, before){
+  root.querySelectorAll("[data-rm]").forEach(b=>{ const [k,i]=b.dataset.rm.split(":"); const L=lists[k]; if(!L) return; b.onclick=()=>{ before&&before(); L.arr.splice(+i,1); redraw(); }; });
+  root.querySelectorAll("[data-mv]").forEach(b=>{ const [k,i,dir]=b.dataset.mv.split(":"); const L=lists[k]; if(!L) return; b.onclick=()=>{ before&&before(); const a=L.arr, x=+i, y=x+(+dir); [a[x],a[y]]=[a[y],a[x]]; redraw(); }; });
+  root.querySelectorAll("[data-add]").forEach(b=>{ const L=lists[b.dataset.add]; if(!L) return; b.onclick=()=>{ before&&before(); pickImages({id:L.id,images:L.arr}, redraw); }; });
+}
+const DEFAULT_REPLY="感謝詢問！這間的資料先給你👇\n{link}\n想看屋、問價格細節，LINE {line} 傳「物件名稱」給我，我第一時間回你";
+const blankReply=()=>({enabled:false,text:DEFAULT_REPLY,images:[],link:"",keywords:[]});
+function replyFields(rep,p){ rep=rep||blankReply();
+  return `<details class="cardbox" ${rep.enabled?"open":""}><summary>💬 留言自動回覆${rep.enabled?"（已開啟）":""}</summary>
+    <div class="small">有人在這篇留言，機器人約 15 分鐘內自動在他的留言底下回覆這份資料（每人回一次）。Threads 不開放私訊功能，所以是公開回覆在留言下面。</div>
+    <label class="check"><input type="checkbox" id="${p}-ron" ${rep.enabled?"checked":""}><span>開啟這篇的留言自動回覆</span></label>
+    <div class="field"><label>回覆文字（{line} 會換成 LINE ID，{link} 會換成下面的連結）</label><textarea id="${p}-rtext" style="min-height:100px">${esc(rep.text||"")}</textarea></div>
+    <div class="field"><label>連結（物件網頁、影片、地圖…可空白）</label><input type="text" id="${p}-rlink" value="${esc(rep.link||"")}" placeholder="https://"></div>
+    <div class="field"><label>回覆附的圖片（最多 10 張，可排順序）</label>${imgStrip(rep.images||[],p+"r")}<div><button class="btn ghost" id="${p}-rcopy" type="button">直接用貼文的照片</button></div></div>
+    <div class="field"><label>只回含這些字的留言（逗號分隔；空白＝每則新留言都回）</label><input type="text" id="${p}-rkw" value="${esc((rep.keywords||[]).join(", "))}" placeholder="例：多少, 資料, +1, 私訊, 地址"></div>
+  </details>`; }
+function readReply(p, old){ old=old||blankReply(); if(!$(`#${p}-ron`)) return old;
+  return {enabled:$(`#${p}-ron`).checked, text:$(`#${p}-rtext`).value.trim(), link:$(`#${p}-rlink`).value.trim(), images:old.images||[],
+    keywords:$(`#${p}-rkw`).value.split(/[,，、]/).map(s=>s.trim()).filter(Boolean)}; }
 async function runAI(btn, fn){
   const old=btn.textContent; btn.disabled=true; btn.textContent="AI 撰寫中…";
   try{ const out=await fn(); W.result={...(W.result||{}), ...out}; renderWrite(); }
@@ -449,7 +553,7 @@ function renderCal(){
 
 // ---------- 編輯視窗 ----------
 function openEditor(id){
-  const d=structuredClone(S.drafts[id]); if(!d) return;
+  const d=structuredClone(S.drafts[id]); if(!d) return; d.images=d.images||[]; d.auto_reply=d.auto_reply||blankReply(); d.auto_reply.images=d.auto_reply.images||[];
   const box=document.createElement("div"); box.className="modal";
   const draw=()=>{ const [st,cls]=STATUS[d.status]||[d.status,"gray"]; const why=checkReady(d);
     box.innerHTML=`<div class="sheet">
@@ -461,8 +565,9 @@ function openEditor(id){
     ${d.error?`<div class="errbox">${esc(d.error)}</div>`:""}
     ${cardFields(d.card||(d.card===null?{none:true,label:"",title:"",points:[]}:null),"e")}
     <canvas id="e-prev" class="cardprev" width="1080" height="1350"></canvas>
-    <div class="thumbs">${(d.images||[]).map((im,i)=>`<div class="thumb"><img src="${esc(rawURL(im))}" alt=""><button data-rm="${i}">×</button></div>`).join("")}<button class="btn ghost" data-addimg style="width:72px;height:72px">＋照片</button></div>
+    <div class="field"><label>📷 照片（照這個順序發出；◀ ▶ 調整順序）</label>${imgStrip(d.images,"e")}</div>
     ${d.type==="listing"?`<label class="check"><input type="checkbox" id="e-sign" ${d.commission_signed?"checked":""}><span>已和屋主簽好委託（經紀業管理條例第21條）</span></label>`:""}
+    ${replyFields(d.auto_reply,"e")}
     <div class="field"><label>發文時間（任何日期時間都可以）</label><div class="row"><input type="date" id="e-date" value="${dayOf(d.publish_at)}"><input type="time" id="e-time" value="${timeOf(d.publish_at)}">
       ${(S.settings.slots||[]).map(s=>`<button class="btn ghost slot" data-s="${s}">${s}</button>`).join("")}</div></div>
     ${why&&d.status!=="approved"?`<div class="warnbox">核准前要先處理：${esc(why)}</div>`:""}
@@ -470,14 +575,14 @@ function openEditor(id){
       <button class="btn" data-a="save">存檔</button><button class="btn ghost" data-a="reject">刪除（不發）</button></div></div>`;
     const ta=box.querySelector("#e-text"), cnt=()=>{ const n=fullLen(ta.value),m=S.settings.max_chars||500; const c=box.querySelector("#e-count"); c.textContent=`含署名 ${n} / ${m} 字`; c.classList.toggle("over",n>m); };
     ta.oninput=()=>{ d.text=ta.value; cnt(); }; cnt(); bindPreview("e", box);
-    const collect=()=>{ d.text=ta.value; d.publish_at=isoOf(box.querySelector("#e-date").value,box.querySelector("#e-time").value); d.card=readCard("e"); const s=box.querySelector("#e-sign"); if(s) d.commission_signed=s.checked; };
+    const collect=()=>{ d.auto_reply=readReply("e", d.auto_reply); d.text=ta.value; d.publish_at=isoOf(box.querySelector("#e-date").value,box.querySelector("#e-time").value); d.card=readCard("e"); const s=box.querySelector("#e-sign"); if(s) d.commission_signed=s.checked; };
     box.querySelector("[data-x]").onclick=()=>box.remove();
     box.querySelectorAll(".slot").forEach(b=>b.onclick=()=>{ box.querySelector("#e-time").value=b.dataset.s; });
     box.querySelectorAll("[data-q]").forEach(b=>b.onclick=async()=>{ collect(); const old=b.textContent; b.disabled=true; b.textContent="AI 撰寫中…";
       try{ const out=await aiImprove(d.text,b.dataset.q,d.type); d.text=out.text; if(out.card) d.card=out.card; if(out.hook_id) d.hook_id=out.hook_id; draw(); toast("已優化，看過沒問題記得存檔或核准"); }
       catch(e){ aiError(e); b.disabled=false; b.textContent=old; } });
-    box.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{ collect(); d.images.splice(+b.dataset.rm,1); draw(); });
-    box.querySelector("[data-addimg]").onclick=()=>{ collect(); pickImages(d, draw); };
+    bindStrip(box, {e:{arr:d.images,id:d.id}, er:{arr:d.auto_reply.images,id:d.id+"-r"}}, draw, collect);
+    box.querySelector("#e-rcopy").onclick=()=>{ collect(); d.auto_reply.images=(d.images||[]).filter(x=>!/card-/.test(x)); draw(); };
     box.querySelectorAll("[data-a]").forEach(b=>b.onclick=async()=>{ collect(); const a=b.dataset.a;
       if(a==="approve"){ const why=checkReady(d); if(why) return toast(why); d.status="approved"; d.error=""; d.tries=0; d.approved_at=new Date().toISOString();
         if(new Date(d.publish_at)<new Date()) toast("時間已過，機器人會在 15 分鐘內發出"); }
@@ -495,8 +600,8 @@ $("#file").onchange = async e => {
   const files=[...e.target.files]; if(!files.length||!imgTarget) return;
   const d=imgTarget; d.images=d.images||[];
   toast(`上傳 ${files.length} 張照片中…`);
-  try{ for(const [i,f] of files.entries()){ const path=`images/${d.id}-${Date.now()}-${i}.jpg`; await putRaw(path, await shrink(f), `中控台：上傳照片 ${d.id}`); d.images.push(path); }
-    toast("照片已上傳，記得按存檔"); imgDone&&imgDone(); }
+  try{ for(const [i,f] of files.entries()){ const path=`images/${d.id}-${Date.now()}-${i}.jpg`; const b64=await shrink(f); await putRaw(path, b64, `中控台：上傳照片 ${d.id}`); LOCAL_IMG[path]="data:image/jpeg;base64,"+b64; d.images.push(path); }
+    toast("照片已上傳"); imgDone&&imgDone(); }
   catch(err){ toast("上傳失敗："+err.message); }
 };
 function shrink(file){ // 長邊 1440、JPEG，符合 Threads 圖片規格
@@ -607,11 +712,13 @@ function renderSettings(){
   const s=S.settings;
   $("#main").innerHTML=`<div class="card"><h2>發文設定</h2>
     <div class="field"><label>每篇自動加的署名（法規要求註明經紀業名稱）</label><input type="text" id="s-footer" value="${esc(s.brand_footer)}"></div>
-    <div class="field"><label>每天發文時段（逗號分隔）</label><input type="text" id="s-slots" value="${esc((s.slots||[]).join(", "))}"></div>
-    <div class="field"><label>每天產幾篇草稿</label><input type="number" id="s-n" min="1" max="5" value="${s.drafts_per_day||3}"></div>
+    <div class="field"><label>常用發文時段（想加幾個就加幾個；寫文案、週曆都會出現這些快速按鈕。不在這裡的時間也可以隨時手動選）</label>
+      <div class="row">${(s.slots||[]).map(t=>`<span class="slotchip">${t}<button data-delslot="${t}" title="移除">×</button></span>`).join("")||`<span class="small">還沒有常用時段</span>`}</div>
+      <div class="row" style="margin-top:6px"><input type="time" id="s-newslot" value="19:00"><button class="btn" id="s-addslot">＋新增時段</button></div></div>
+    <div class="field"><label>每天產幾篇草稿</label><input type="number" id="s-n" min="1" max="10" value="${s.drafts_per_day||3}"></div>
     <div class="field"><label>話題標籤（逗號分隔）</label><input type="text" id="s-tags" value="${esc((s.topic_tags||[]).join(", "))}"></div>
     <div class="field"><label>熱門話題追蹤關鍵字（逗號分隔，最多 10 個）</label><input type="text" id="s-kw" value="${esc((s.search_keywords||[]).join(", "))}"></div>
-    <label class="check"><input type="checkbox" id="s-reply" ${s.reply?.enabled!==false?"checked":""}><span>自動回覆留言（問價、地點、看屋、貸款等導 LINE ${esc(s.line_id)}）</span></label>
+    <label class="check"><input type="checkbox" id="s-reply" ${s.reply?.enabled!==false?"checked":""}><span>自動回覆留言（有設定「留言自動回覆」的貼文用你的預設資料回；其他貼文問價、地點、看屋、貸款等導 LINE ${esc(s.line_id)}）</span></label>
     <div class="btns"><button class="btn primary" id="s-save">儲存設定</button></div></div>
     <div class="card"><h2>AI 寫文案金鑰</h2><h3>Claude API 金鑰（sk-ant- 開頭），只存在這台裝置的瀏覽器，不會上傳。有了它，「寫文案」和週曆裡的 AI 按鈕才能用。</h3>
       <div class="row"><input type="password" id="s-ai" placeholder="sk-ant-…" style="flex:1" value="${aiKey()?"••••••••（已設定）":""}"><button class="btn primary" id="s-ai-save">儲存</button><button class="btn ghost" id="s-ai-del">清除</button></div></div>
@@ -621,8 +728,10 @@ function renderSettings(){
       <div class="btns"><button class="btn ghost" id="logout">登出這台手機</button></div></div>`;
   const list=v=>v.split(/[,，]/).map(x=>x.trim()).filter(Boolean);
   $("#s-save").onclick=async()=>{ try{ S.settings=await updateJSON("config/settings.json", cur=>({...cur, brand_footer:$("#s-footer").value.trim(),
-      slots:list($("#s-slots").value), drafts_per_day:+$("#s-n").value||3, topic_tags:list($("#s-tags").value), search_keywords:list($("#s-kw").value).slice(0,10),
+      drafts_per_day:+$("#s-n").value||3, topic_tags:list($("#s-tags").value), search_keywords:list($("#s-kw").value).slice(0,10),
       reply:{...(cur.reply||{}), enabled:$("#s-reply").checked}}), "中控台：更新設定", {}); toast("設定已儲存"); }catch(e){ toast("儲存失敗："+e.message); } };
+  $("#s-addslot").onclick=async()=>{ const t=$("#s-newslot").value; if(!t) return; try{ await saveSlots([...(s.slots||[]),t]); toast(`已新增 ${t}`); renderSettings(); }catch(e){ toast("失敗："+e.message); } };
+  document.querySelectorAll("[data-delslot]").forEach(b=>b.onclick=async()=>{ try{ await saveSlots((s.slots||[]).filter(x=>x!==b.dataset.delslot)); toast("已移除"); renderSettings(); }catch(e){ toast("失敗："+e.message); } });
   $("#run-pub").onclick=()=>dispatch("publish.yml",undefined,"已啟動，約 1 分鐘");
   $("#s-ai-save").onclick=()=>{ const v=$("#s-ai").value.trim(); if(!v.startsWith("sk-")) return toast("金鑰應該是 sk-ant- 開頭"); store.set("tb_ai_key",v); toast("AI 金鑰已儲存在這台裝置"); renderSettings(); };
   $("#s-ai-del").onclick=()=>{ store.del("tb_ai_key"); toast("已清除"); renderSettings(); };
