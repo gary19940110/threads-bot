@@ -186,6 +186,8 @@ def cmd_publish():
             mid, link = publish_one(d)
             d.update(status="posted", threads_id=mid, permalink=link, posted_at=now().isoformat(), error="")
             p("已發布", d["id"], link)
+            if first_comment(d):
+                d["first_comment_pending"] = True
         except Exception as e:  # noqa: BLE001
             d["tries"] = d.get("tries", 0) + 1
             d["error"] = str(e)[:400]
@@ -193,7 +195,42 @@ def cmd_publish():
                 d["status"] = "failed"
             p("發布失敗", d["id"], e)
         save_draft(d)
+    # 發文後自己留言（第一則留言）
+    for d in drafts():
+        if d.get("status") == "posted" and d.get("first_comment_pending") and d.get("threads_id"):
+            fc = first_comment(d)
+            try:
+                if not DRY:
+                    time.sleep(8)
+                send_reply(d["threads_id"], fc[0], fc[1])
+                d.pop("first_comment_pending", None)
+                d["first_comment_done"] = now().isoformat()
+                p("已自己留言", d["id"])
+            except Exception as e:  # noqa: BLE001
+                d["first_comment_tries"] = d.get("first_comment_tries", 0) + 1
+                if d["first_comment_tries"] >= 3:
+                    d.pop("first_comment_pending", None)
+                p("自己留言失敗", d["id"], e)
+            save_draft(d)
     cmd_index()
+
+
+def first_comment(d):
+    """回傳 (文字, 圖片) 或 None。草稿沒設定就用設定裡的預設留言。"""
+    fc = d.get("first_comment")
+    dflt = SETTINGS.get("first_comment") or {}
+    if fc is None:
+        if not dflt.get("enabled"):
+            return None
+        fc = {"enabled": True}
+    if not fc.get("enabled"):
+        return None
+    text = (fc.get("text") or "").strip() or (dflt.get("text") or "").strip()
+    link = (fc.get("link") or "").strip() or ("" if fc.get("text") else (dflt.get("link") or "").strip())
+    imgs = fc.get("images") or ([] if fc.get("text") else dflt.get("images") or [])
+    if not text and not imgs:
+        return None
+    return ar_text({"text": text, "link": link}), imgs
 
 
 # ---------- 自動回覆 ----------
