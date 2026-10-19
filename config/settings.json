@@ -5,8 +5,8 @@
   "phone": "0966-228-528",
   "timezone": "Asia/Taipei",
   "slots": [
-    "13:30",
     "16:00",
+    "16:40",
     "21:30"
   ],
   "drafts_per_day": 3,
