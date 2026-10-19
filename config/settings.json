@@ -4,13 +4,43 @@
   "line_url": "https://line.me/R/ti/p/@a0110",
   "phone": "0966-228-528",
   "timezone": "Asia/Taipei",
-  "slots": ["08:30", "12:30", "21:00"],
+  "slots": [
+    "08:30",
+    "12:30",
+    "19:00",
+    "21:00"
+  ],
   "drafts_per_day": 3,
-  "mix": { "listing": 1, "knowledge": 2 },
+  "mix": {
+    "listing": 1,
+    "knowledge": 2
+  },
   "explore_ratio": 0.3,
-  "topic_tags": ["台中買房", "台中房地產", "北屯買房"],
-  "search_keywords": ["台中買房", "北屯", "台中 首購", "台中 預售屋", "台中 房價", "水湳", "台中 換屋", "台中 透天"],
-  "reply": { "enabled": true, "max_per_run": 15, "max_post_age_days": 14, "min_delay_sec": 20, "max_delay_sec": 45 },
-  "models": ["claude-sonnet-5-5", "claude-sonnet-4-5"],
+  "topic_tags": [
+    "台中買房",
+    "台中房地產",
+    "北屯買房"
+  ],
+  "search_keywords": [
+    "台中買房",
+    "北屯",
+    "台中 首購",
+    "台中 預售屋",
+    "台中 房價",
+    "水湳",
+    "台中 換屋",
+    "台中 透天"
+  ],
+  "reply": {
+    "enabled": true,
+    "max_per_run": 15,
+    "max_post_age_days": 14,
+    "min_delay_sec": 20,
+    "max_delay_sec": 45
+  },
+  "models": [
+    "claude-sonnet-5-5",
+    "claude-sonnet-4-5"
+  ],
   "max_chars": 500
 }
