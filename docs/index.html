@@ -121,6 +121,10 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 .libtag .lt-x:hover{background:var(--bad);color:#fff}
 .sheet.wide{max-width:760px}
 .askbox{z-index:40;align-items:center}
+.ev input.evtime{display:block;border:1px solid transparent;background:transparent;font-weight:800;font-variant-numeric:tabular-nums;padding:0 2px;border-radius:6px;width:100%;max-width:130px;margin:0 0 2px -2px;color:inherit;font-size:14px}
+.ev input.evtime:hover,.ev input.evtime:focus{border-color:var(--accent);background:var(--card)}
+.slotbar{padding:10px 14px}
+.slotchip .sedit{background:none;width:20px;color:var(--muted)}
 .btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
 .edtitle{font-size:17px;font-weight:800}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.row2{grid-template-columns:1fr}}
@@ -439,13 +443,13 @@ function renderLib(){
   $("#l-new").onclick=()=>openEdit("lib", newLibEntry());
 }
 // 網頁內的確認視窗（不用瀏覽器內建跳窗，避免被擋）
-function ask(msg, okText, input){ return new Promise(res=>{ const box=document.createElement("div"); box.className="modal askbox";
-  box.innerHTML=`<div class="sheet" style="max-width:420px"><div style="white-space:pre-wrap;font-weight:700;margin-bottom:10px">${esc(msg)}</div>${input!==undefined?`<input type="text" id="ask-in" style="width:100%" value="${esc(input)}">`:""}
+function ask(msg, okText, input, itype){ return new Promise(res=>{ const box=document.createElement("div"); box.className="modal askbox";
+  box.innerHTML=`<div class="sheet" style="max-width:420px"><div style="white-space:pre-wrap;font-weight:700;margin-bottom:10px">${esc(msg)}</div>${input!==undefined?`<input type="${itype||"text"}" id="ask-in" style="width:100%;font-size:18px" value="${esc(input)}">`:""}
     <div class="btns"><button class="btn ${/刪/.test(okText)?"danger":"primary"}" data-ok>${esc(okText||"確定")}</button><button class="btn ghost" data-no>取消</button></div></div>`;
   document.body.appendChild(box); const done=v=>{ box.remove(); res(v); };
   box.querySelector("[data-ok]").onclick=()=>done(input!==undefined?box.querySelector("#ask-in").value.trim():true);
   box.querySelector("[data-no]").onclick=()=>done(input!==undefined?"":false);
-  box.onclick=e=>{ if(e.target===box) done(input!==undefined?"":false); }; if(input!==undefined) setTimeout(()=>box.querySelector("#ask-in").select(),30); }); }
+  box.onclick=e=>{ if(e.target===box) done(input!==undefined?"":false); }; if(input!==undefined) setTimeout(()=>{ const i=box.querySelector("#ask-in"); i.focus(); if(i.select) try{ i.select(); }catch(_){} },30); }); }
 const typeIcon=t=>(TYPES[t]||{}).icon||"";
 function newLibEntry(){ return {id:"",name:"",tags:[],type:"listing",text:"",images:[],card:{...NOCARD},card_pos:"first",auto_reply:{...blankReply(),enabled:true}}; }
 function draftFrom(e, date, time){
@@ -456,10 +460,14 @@ function draftFrom(e, date, time){
 
 // ---------- 時段（排程時直接增減） ----------
 function slotRow(p){ const slots=S.settings.slots||[];
-  return `<div class="row">${slots.map(s=>`<span class="slotchip"><button class="sbtn" data-s="${s}">${s}</button><button data-sdel="${s}" title="刪除這個常用時段">×</button></span>`).join("")}
+  return `<div class="row">${slots.map(s=>`<span class="slotchip"><button class="sbtn" data-s="${s}" title="套用這個時間">${s}</button><button class="sedit" data-sedit="${s}" title="修改這個時段">✎</button><button data-sdel="${s}" title="刪除這個常用時段">×</button></span>`).join("")}
     <span class="row" style="gap:4px"><input type="time" id="${p}-newslot" value="19:00"><button class="btn ghost" data-sadd="${p}">＋常用時段</button></span></div>`; }
+async function editSlot(old, redraw){
+  const t=await ask(`把常用時段 ${old} 改成幾點？`,"儲存",old,"time"); if(!t||t===old) return;
+  try{ await saveSlots((S.settings.slots||[]).map(x=>x===old?t:x)); toast(`已改成 ${t}`); redraw(); }catch(e){ toast("失敗："+e.message); } }
 function bindSlots(root, p, setTime, redraw){
   root.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>setTime(b.dataset.s));
+  root.querySelectorAll("[data-sedit]").forEach(b=>b.onclick=()=>editSlot(b.dataset.sedit, redraw));
   root.querySelectorAll("[data-sdel]").forEach(b=>b.onclick=async()=>{ try{ await saveSlots((S.settings.slots||[]).filter(x=>x!==b.dataset.sdel)); toast("已刪除時段"); redraw(); }catch(e){ toast("失敗："+e.message); } });
   const add=root.querySelector(`[data-sadd="${p}"]`); if(add) add.onclick=async()=>{ const t=root.querySelector(`#${p}-newslot`).value; if(!t) return;
     try{ await saveSlots([...(S.settings.slots||[]),t]); setTime(t); toast(`已新增時段 ${t}`); redraw(); }catch(e){ toast("失敗："+e.message); } };
@@ -602,6 +610,7 @@ function renderCal(){
   <div class="calbar"><button class="btn" id="c-prev">◀</button>
     <div class="calttl"><b>${days[0].getMonth()+1}/${days[0].getDate()} – ${days[6].getMonth()+1}/${days[6].getDate()}</b><button class="btn ghost" id="c-today">回本週</button></div>
     <button class="btn" id="c-next">▶</button></div>
+  <div class="card slotbar"><div class="row" style="justify-content:space-between"><b>⏰ 常用發文時段</b><span class="small">點時間或 ✎ 修改，× 刪除，想加幾個都可以</span></div><div style="margin-top:8px">${slotRow("c")}</div></div>
   <div class="row" style="justify-content:space-between;margin-bottom:10px">
     <div class="legend"><span class="dot warn"></span>待審 <span class="dot good"></span>已核准 <span class="dot gray"></span>已發布 <span class="dot bad"></span>失敗</div>
     <button class="btn good" id="c-all" ${pend.length?"":"disabled"}>整週核准（${pend.length}）</button></div>
@@ -609,9 +618,13 @@ function renderCal(){
     return `<div class="day ${k===today?"today":""} ${k<today?"past":""}" data-day="${k}">
       <div class="dhead"><span>週${W2[i]} <b>${d.getMonth()+1}/${d.getDate()}</b></span>${k>=today?`<button class="addbtn" data-add="${k}" title="在這天新增">＋</button>`:""}</div>
       ${list.map(x=>{ const [st,cls]=STATUS[x.status]||["","gray"]; const first=(x.text||"").trim().split("\n")[0];
-        return `<div class="ev ${cls}" draggable="${x.status!=="posted"}" data-ev="${esc(x.id)}"><span class="evt">${timeOf(x.publish_at)}</span><span class="evtype">${esc(typeName(x.type))}</span><div class="evx">${esc(first)}</div>${x.metrics?`<div class="small">👁 ${x.metrics.views||0}　💬 ${x.metrics.replies||0}</div>`:""}</div>`; }).join("")||`<div class="small nothing">${k>=today?"點 ＋ 新增":""}</div>`}
+        return `<div class="ev ${cls}" draggable="${x.status!=="posted"}" data-ev="${esc(x.id)}">${x.status==="posted"?`<span class="evt">${timeOf(x.publish_at)}</span>`:`<input type="time" class="evtime" data-evt="${esc(x.id)}" value="${timeOf(x.publish_at)}" title="直接改發文時間">`}<span class="evtype">${esc(typeName(x.type))}</span><div class="evx">${esc(first)}</div>${x.metrics?`<div class="small">👁 ${x.metrics.views||0}　💬 ${x.metrics.replies||0}</div>`:""}</div>`; }).join("")||`<div class="small nothing">${k>=today?"點 ＋ 新增":""}</div>`}
     </div>`; }).join("")}</div>
   <div class="small" style="margin-top:10px">點 ＋ 選文案庫的文案＋時間就排好；點貼文可以修改、核准；電腦上也可以把貼文拖到別天。</div>`;
+  bindSlots($("#main"),"c",t=>editSlot(t, renderCal),renderCal);
+  document.querySelectorAll("[data-evt]").forEach(inp=>{ inp.onclick=e=>e.stopPropagation(); inp.onmousedown=e=>e.stopPropagation();
+    inp.onchange=async()=>{ const d=S.drafts[inp.dataset.evt]; if(!d||!inp.value) return; const nd={...d,publish_at:isoOf(dayOf(d.publish_at),inp.value)};
+      try{ await saveDraft(nd,"改時間"); toast(`已改到 ${fmtTime(nd.publish_at)}`); renderCal(); }catch(err){ toast("失敗："+err.message); } }; });
   const shift=n=>{ const d=new Date(S.week); d.setDate(d.getDate()+n); S.week=d; renderCal(); };
   $("#c-prev").onclick=()=>shift(-7); $("#c-next").onclick=()=>shift(7); $("#c-today").onclick=()=>{ S.week=mondayOf(new Date()); renderCal(); };
   document.querySelectorAll("[data-add]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openPick(b.dataset.add); });
