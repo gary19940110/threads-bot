@@ -120,6 +120,8 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 .libtag .lt-x{border:0;background:var(--grid);border-radius:50%;width:22px;height:22px;cursor:pointer;padding:0;margin-left:2px;color:var(--ink2)}
 .libtag .lt-x:hover{background:var(--bad);color:#fff}
 .sheet.wide{max-width:760px}
+.askbox{z-index:40;align-items:center}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
 .edtitle{font-size:17px;font-weight:800}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.row2{grid-template-columns:1fr}}
 .row2 .field{margin:6px 0}
@@ -431,11 +433,19 @@ function renderLib(){
     ${L.length?"":`<div class="small" style="margin-top:10px">還沒有文案。按「＋ 新增一份」，可以自己寫，也可以讓 AI 幫你寫。</div>`}</div>`;
   document.querySelectorAll("[data-ftag]").forEach(b=>b.onclick=()=>{ S.libTag=b.dataset.ftag; renderLib(); });
   document.querySelectorAll("[data-lopen]").forEach(b=>b.onclick=()=>{ const e=L.find(x=>x.id===b.dataset.lopen); if(e) openEdit("lib", structuredClone(e)); });
-  document.querySelectorAll("[data-ldel]").forEach(b=>b.onclick=async()=>{ const e=L.find(x=>x.id===b.dataset.ldel); if(!e||!confirm(`刪除「${e.name}」？\n（已經排好的貼文不受影響）`)) return;
+  document.querySelectorAll("[data-ldel]").forEach(b=>b.onclick=async()=>{ const e=L.find(x=>x.id===b.dataset.ldel); if(!e||!(await ask(`刪除「${e.name}」？\n（已經排好的貼文不受影響）`,"🗑 刪除"))) return;
     try{ S.library=await updateJSON("data/library.json", arr=>(Array.isArray(arr)?arr:[]).filter(x=>x.id!==e.id), `中控台：文案庫刪除 ${e.name}`, []); toast("已刪除"); renderLib(); }
     catch(err){ toast("刪除失敗："+err.message); } });
   $("#l-new").onclick=()=>openEdit("lib", newLibEntry());
 }
+// 網頁內的確認視窗（不用瀏覽器內建跳窗，避免被擋）
+function ask(msg, okText, input){ return new Promise(res=>{ const box=document.createElement("div"); box.className="modal askbox";
+  box.innerHTML=`<div class="sheet" style="max-width:420px"><div style="white-space:pre-wrap;font-weight:700;margin-bottom:10px">${esc(msg)}</div>${input!==undefined?`<input type="text" id="ask-in" style="width:100%" value="${esc(input)}">`:""}
+    <div class="btns"><button class="btn ${/刪/.test(okText)?"danger":"primary"}" data-ok>${esc(okText||"確定")}</button><button class="btn ghost" data-no>取消</button></div></div>`;
+  document.body.appendChild(box); const done=v=>{ box.remove(); res(v); };
+  box.querySelector("[data-ok]").onclick=()=>done(input!==undefined?box.querySelector("#ask-in").value.trim():true);
+  box.querySelector("[data-no]").onclick=()=>done(input!==undefined?"":false);
+  box.onclick=e=>{ if(e.target===box) done(input!==undefined?"":false); }; if(input!==undefined) setTimeout(()=>box.querySelector("#ask-in").select(),30); }); }
 const typeIcon=t=>(TYPES[t]||{}).icon||"";
 function newLibEntry(){ return {id:"",name:"",tags:[],type:"listing",text:"",images:[],card:{...NOCARD},card_pos:"first",auto_reply:{...blankReply(),enabled:true}}; }
 function draftFrom(e, date, time){
@@ -532,7 +542,7 @@ function openEdit(mode, d){
   const act=async(a)=>{ collect();
     try{
       if(a==="libsave"||a==="libcopy"){ lock(true); if(await saveLibEntry(a==="libcopy")){ toast(`已存到文案庫「${d.name}」`); box.remove(); if(S.tab==="lib") renderLib(); } else lock(false); return; }
-      if(a==="tolib"){ const name=prompt("存到文案庫的名稱：", (d.text||"").split("\n")[0].slice(0,16)); if(!name) return;
+      if(a==="tolib"){ const name=await ask("存到文案庫的名稱：","📁 存到文案庫",(d.text||"").split("\n")[0].slice(0,16)); if(!name) return;
         const e={...d,name,tags:[],id:""}; lock(true); const keep=d; d=e; const ok=await saveLibEntry(true); d=keep; lock(false); if(ok) toast(`已存到文案庫「${name}」`); return; }
       if(mode==="lib"){ // 用文案庫這份排程
         const iso0=a==="now"?new Date():null; const nd=draftFrom(d, iso0?ymd(iso0):when.date, iso0?`${pad(iso0.getHours())}:${pad(iso0.getMinutes())}`:when.time);
@@ -544,7 +554,7 @@ function openEdit(mode, d){
       if(a==="now"){ const n=new Date(); d.publish_at=isoOf(ymd(n),`${pad(n.getHours())}:${pad(n.getMinutes())}`); a="approve"; var now=true; }
       if(a==="approve"){ const why=checkReady(d); if(why) return toast(why); d.status="approved"; d.error=""; d.tries=0; d.approved_at=new Date().toISOString(); }
       if(a==="unapprove") d.status="pending";
-      if(a==="reject"){ if(!confirm("確定刪除這篇？刪除後不會發出。")) return; d.status="rejected"; }
+      if(a==="reject"){ if(!(await ask("確定刪除這篇？刪除後不會發出。","🗑 刪除"))) return; d.status="rejected"; }
       if(!d.status) d.status="pending";
       if(!d.created_at){ d.created_at=new Date().toISOString(); d.created_by=aiKey()?"ai-console":"manual"; d.topic_tag=(S.settings.topic_tags||[""])[0]; }
       lock(true); const out={...d,card:realCard(d.card),auto_reply:d.auto_reply&&d.auto_reply.enabled?d.auto_reply:null};
@@ -614,7 +624,7 @@ function renderCal(){
       const nd={...d,publish_at:isoOf(day.dataset.day,timeOf(d.publish_at))}; try{ await saveDraft(nd,"改日期"); toast(`改到 ${fmtTime(nd.publish_at)}`); renderCal(); }catch(err){ toast("失敗："+err.message); } }; });
   $("#c-all").onclick=async()=>{ const ok=[],bad=[]; for(const x of pend){ const why=checkReady(x); if(why) bad.push(timeOf(x.publish_at)+" "+why); else ok.push(x); }
     if(!ok.length) return toast("沒有可核准的："+bad.join("；"));
-    if(!confirm(`要核准這週 ${ok.length} 篇嗎？${bad.length?`\n另有 ${bad.length} 篇還要修改，先不核准。`:""}`)) return;
+    if(!(await ask(`要核准這週 ${ok.length} 篇嗎？${bad.length?`\n另有 ${bad.length} 篇還要修改，先不核准。`:""}`,"✅ 全部核准"))) return;
     $("#c-all").disabled=true; let n=0;
     for(const x of ok){ try{ await saveDraft({...x,status:"approved",error:"",tries:0,approved_at:new Date().toISOString()},"整週核准"); n++; }catch(e){} }
     toast(`已核准 ${n} 篇${bad.length?`，${bad.length} 篇待修改`:""}`); renderCal(); };
