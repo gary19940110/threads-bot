@@ -124,6 +124,17 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 .ev input.evtime{display:block;border:1px solid transparent;background:transparent;font-weight:800;font-variant-numeric:tabular-nums;padding:0 2px;border-radius:6px;width:100%;max-width:130px;margin:0 0 2px -2px;color:inherit;font-size:14px}
 .ev input.evtime:hover,.ev input.evtime:focus{border-color:var(--accent);background:var(--card)}
 .slotbar{padding:10px 14px}
+.liblist{display:flex;flex-direction:column;gap:8px}
+.librow{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;background:var(--bg)}
+.librow:hover{border-color:var(--accent)}
+.lthumb{flex:none;width:64px;height:64px;border-radius:10px;overflow:hidden;background:var(--grid);display:flex;align-items:center;justify-content:center;font-size:26px}
+.lthumb img{width:100%;height:100%;object-fit:cover}
+.lmain{flex:1;min-width:0}.lname{font-weight:800;font-size:16px}
+.lmeta{font-size:12px;color:var(--muted);margin-top:2px}.ltag{background:var(--grid);border-radius:999px;padding:0 6px;color:var(--ink2)}
+.lfirst{font-size:13px;color:var(--ink2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lact{display:flex;flex-direction:column;gap:6px;flex:none}.lact .btn{padding:6px 10px;font-size:13px}
+.danger-t{color:var(--bad)}
+@media(max-width:560px){.lact{flex-direction:row}.librow{flex-wrap:wrap}.lact{width:100%;justify-content:flex-end}}
 .slotchip .sedit{background:none;width:20px;color:var(--muted)}
 .btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
 .edtitle{font-size:17px;font-weight:800}
@@ -429,15 +440,20 @@ function libEntries(){ return Array.isArray(S.library)?S.library:[]; }
 function renderLib(){
   const L=libEntries(); const tags=[...new Set(L.flatMap(e=>e.tags||[]))]; const f=S.libTag||"";
   const shown=L.filter(e=>!f||(e.tags||[]).includes(f));
-  $("#main").innerHTML=`<div class="card"><h2>📁 我的文案庫</h2><h3>每一份文案（文字、照片、圖卡、留言自動回覆）存在這裡。點標籤可以修改、直接排程發文；× 刪除。</h3>
+  $("#main").innerHTML=`<div class="card"><h2>📁 我的文案庫</h2><h3>每一份文案（文字、照片、圖卡、留言自動回覆）存在這裡。點任一列就能修改、排程發文；🗑 刪除。</h3>
     ${tags.length?`<div class="row tagbar"><span class="small">分類：</span><button class="ftag ${!f?"on":""}" data-ftag="">全部 ${L.length}</button>${tags.map(t=>`<button class="ftag ${t===f?"on":""}" data-ftag="${esc(t)}">#${esc(t)}</button>`).join("")}</div>`:""}
-    <div class="libtags">${shown.map(e=>`<span class="libtag"><button class="lt-open" data-lopen="${esc(e.id)}" title="${esc((e.text||"").split("\n")[0])}">
-      <b>${esc(e.name)}</b><span>${typeIcon(e.type)}${(e.images||[]).length?` 📷${e.images.length}`:""}${e.auto_reply&&e.auto_reply.enabled?" 💬":""}</span></button><button class="lt-x" data-ldel="${esc(e.id)}" title="刪除">×</button></span>`).join("")}
-      <button class="libtag add" id="l-new">＋ 新增一份</button></div>
+    <div class="btns" style="margin:10px 0 4px"><button class="btn primary" id="l-new">＋ 新增一份</button></div>
+    <div class="liblist">${shown.map(e=>{ const im=(e.images||[])[0];
+      return `<div class="librow" data-lopen="${esc(e.id)}">
+        <div class="lthumb">${im?`<img src="${esc(imgSrc(im))}" alt="">`:`<span>${typeIcon(e.type)||"📝"}</span>`}</div>
+        <div class="lmain"><div class="lname">${esc(e.name)}</div>
+          <div class="lmeta">${esc(typeName(e.type))}${(e.images||[]).length?` · 📷 ${e.images.length} 張`:""}${e.auto_reply&&e.auto_reply.enabled?` · 💬 自動回覆`:""}${(e.tags||[]).map(t=>` <span class="ltag">#${esc(t)}</span>`).join("")}</div>
+          <div class="lfirst">${esc((e.text||"").split("\n")[0])}</div></div>
+        <div class="lact"><button class="btn" data-lopen2="${esc(e.id)}">編輯／排程</button><button class="btn ghost danger-t" data-ldel="${esc(e.id)}">🗑 刪除</button></div></div>`; }).join("")}</div>
     ${L.length?"":`<div class="small" style="margin-top:10px">還沒有文案。按「＋ 新增一份」，可以自己寫，也可以讓 AI 幫你寫。</div>`}</div>`;
   document.querySelectorAll("[data-ftag]").forEach(b=>b.onclick=()=>{ S.libTag=b.dataset.ftag; renderLib(); });
-  document.querySelectorAll("[data-lopen]").forEach(b=>b.onclick=()=>{ const e=L.find(x=>x.id===b.dataset.lopen); if(e) openEdit("lib", structuredClone(e)); });
-  document.querySelectorAll("[data-ldel]").forEach(b=>b.onclick=async()=>{ const e=L.find(x=>x.id===b.dataset.ldel); if(!e||!(await ask(`刪除「${e.name}」？\n（已經排好的貼文不受影響）`,"🗑 刪除"))) return;
+  document.querySelectorAll("[data-lopen]").forEach(b=>b.onclick=ev=>{ if(ev.target.closest("[data-ldel]")) return; const e=L.find(x=>x.id===b.dataset.lopen); if(e) openEdit("lib", structuredClone(e)); });
+  document.querySelectorAll("[data-ldel]").forEach(b=>b.onclick=async(ev)=>{ ev.stopPropagation(); const e=L.find(x=>x.id===b.dataset.ldel); if(!e||!(await ask(`刪除「${e.name}」？\n（已經排好的貼文不受影響）`,"🗑 刪除"))) return;
     try{ S.library=await updateJSON("data/library.json", arr=>(Array.isArray(arr)?arr:[]).filter(x=>x.id!==e.id), `中控台：文案庫刪除 ${e.name}`, []); toast("已刪除"); renderLib(); }
     catch(err){ toast("刪除失敗："+err.message); } });
   $("#l-new").onclick=()=>openEdit("lib", newLibEntry());
