@@ -115,7 +115,9 @@ def save_draft(d):
 def full_text(d):
     body = d["text"].strip()
     footer = SETTINGS.get("brand_footer", "").strip()
-    return f"{body}\n\n{footer}" if footer and footer not in body else body
+    if not footer or footer in body or "經紀字" in body:
+        return body
+    return f"{body}\n\n{footer}"
 
 
 def image_url(rel):
@@ -521,7 +523,7 @@ def cmd_index():
             "id": d["id"], "status": d.get("status"), "type": d.get("type"), "hook_id": d.get("hook_id"),
             "publish_at": d.get("publish_at"), "posted_at": d.get("posted_at"), "permalink": d.get("permalink"),
             "first_line": d.get("text", "").strip().split("\n")[0][:60], "metrics": d.get("metrics"),
-            "error": d.get("error", ""), "images": len(d.get("images") or []),
+            "error": d.get("error", ""), "images": len(d.get("images") or []), "lib_id": d.get("lib_id", ""),
         })
     idx.sort(key=lambda x: x.get("publish_at") or "", reverse=True)
     save("data/index.json", {"updated_at": now().isoformat(), "drafts": idx})
