@@ -11,7 +11,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -38,3 +38,22 @@ jobs:
         run: |
           git add -A drafts data
           git diff --cached --quiet || (git commit -m "bot: 發文/回覆 $(TZ=Asia/Taipei date '+%m-%d %H:%M')" && git pull --rebase && git push)
+      - name: 等待接下來 25 分鐘內要發的貼文（減少 GitHub 排程延遲）
+        env:
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ "$(python bot.py wait)" = "yes" ]; then
+            git pull --rebase -q
+            if [ "$(python cards.py check)" = "yes" ]; then
+              sudo apt-get install -y -qq fonts-noto-cjk > /dev/null
+              pip install -q pillow
+              python cards.py
+              git add -A images drafts
+              git commit -m "bot: 產生圖卡" -q && git pull --rebase -q && git push -q && sleep 20
+            fi
+            python bot.py publish
+            git add -A drafts data
+            git diff --cached --quiet || (git commit -m "bot: 準時發文 $(TZ=Asia/Taipei date '+%m-%d %H:%M')" && git pull --rebase && git push)
+          fi
