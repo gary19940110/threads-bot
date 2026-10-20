@@ -728,7 +728,7 @@ function pubStatus(){
   const posted=(S.index.drafts||[]).filter(d=>d.status==="posted"&&d.posted_at&&now-new Date(d.posted_at)<48*3600e3).sort((a,b)=>b.posted_at.localeCompare(a.posted_at)).slice(0,5);
   const line=x=>esc(((x.text||x.first_line||"").trim().split("\n")[0]).slice(0,40));
   return `<div class="card pubbox"><div class="row" style="justify-content:space-between"><b>📣 發布狀態</b><button class="btn ghost" id="c-refresh" style="padding:4px 10px">↻ 更新</button></div>
-    ${sending.map(x=>`<div class="pr"><span class="chip warn">⏳ 發送中</span><span class="t">${line(x)}</span><span class="small">約 1～3 分鐘</span></div>`).join("")}
+    ${sending.map(x=>`<div class="pr"><span class="chip warn">⏳ 發送中</span><span class="t">${line(x)}</span><span class="small">等機器人發送（最晚約半小時）</span></div>`).join("")}
     ${failed.map(x=>`<div class="pr"><span class="chip bad">❌ 失敗</span><span class="t">${line(x)}</span><button class="btn ghost" data-ev2="${esc(x.id)}" style="padding:4px 10px">看原因</button></div>`).join("")}
     ${posted.map(x=>`<div class="pr"><span class="chip good">✅ 已發布</span><span class="small">${fmtTime(x.posted_at)}</span><span class="t">${line(x)}</span>${x.permalink?`<a class="btn ghost" href="${esc(x.permalink)}" target="_blank" rel="noopener" style="padding:4px 10px">到 Threads 看</a>`:""}</div>`).join("")}
     ${!sending.length&&!failed.length&&!posted.length?`<div class="small" style="margin-top:4px">最近 48 小時沒有發文</div>`:""}</div>`;
