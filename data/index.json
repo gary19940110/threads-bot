@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-20T10:04:11.268218+08:00",
+  "updated_at": "2026-10-20T10:50:21.854476+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
@@ -146,12 +146,12 @@
     },
     {
       "id": "202610200954-47p",
-      "status": "approved",
+      "status": "posted",
       "type": "listing",
       "hook_id": "",
       "publish_at": "2026-10-20T10:31:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "posted_at": "2026-10-20T10:49:46.467036+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/DeszGS9ESGr",
       "first_line": "專任♠14期全聯旗艦店旁商五精華大角地",
       "metrics": null,
       "error": "",
