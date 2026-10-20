@@ -1,6 +1,6 @@
 {
   "id": "202610201230-w",
-  "status": "approved",
+  "status": "posted",
   "type": "knowledge",
   "hook_id": "H08",
   "listing_id": null,
@@ -25,5 +25,8 @@
   },
   "error": "",
   "tries": 0,
-  "approved_at": "2026-10-16T06:01:33.942Z"
+  "approved_at": "2026-10-16T06:01:33.942Z",
+  "threads_id": "18074515658754375",
+  "permalink": "https://www.threads.com/@jng01.10/post/DetArR0DvWJ",
+  "posted_at": "2026-10-20T12:48:32.091212+08:00"
 }
