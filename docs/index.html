@@ -159,6 +159,9 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 .ftag.on{background:var(--accent);color:#fff}
 .titlein{font-size:17px;font-weight:700;padding:10px 12px !important}
 #w-text{min-height:180px}
+.prows{display:flex;flex-direction:column;gap:8px}
+.prow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.prow select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
 .fcbox{border-style:solid;border-color:var(--accent)}
 .replybox{border-style:solid;border-color:var(--good)}
 .slotchip .sbtn{width:auto;height:auto;border-radius:6px;background:none;font-weight:700;padding:2px 4px}
@@ -620,21 +623,53 @@ function kick(){ gh(`/actions/workflows/publish.yml/dispatches`,{method:"POST",b
     if(busy&&Date.now()<S.watchUntil) S.watchT=setTimeout(tick,45e3); else if(!busy) toast("✅ 已發布到 Threads，可以在「發布狀態」點連結看"); };
   S.watchT=setTimeout(tick,60e3); }
 
-// ---------- 排程：在某一天新增（選文案庫＋選時間） ----------
+// ---------- 排程：一次排好一天的多個時段（每個時段選一份文案） ----------
 function openPick(day){
-  const s=nextFreeSlot(day); let time=s.date===day?s.time:"21:00";
-  const box=document.createElement("div"); box.className="modal"; const L=libEntries();
-  const draw=()=>{ box.innerHTML=`<div class="sheet">
-    <div class="row" style="justify-content:space-between"><div class="edtitle">📅 ${day.slice(5).replace("-","/")} 新增貼文</div><button class="btn ghost" data-x>✕</button></div>
-    <div class="field"><label>① 時間</label><div class="row"><input type="time" id="p-time" value="${time}"></div><div style="margin-top:8px">${slotRow("p")}</div></div>
-    <div class="field"><label>② 選一份文案庫的文案（選了會打開讓你確認再核准）</label>
-      <div class="libtags">${L.map(e=>`<button class="libtag" data-pick="${esc(e.id)}"><b>${esc(e.name)}</b><span>${typeIcon(e.type)}${(e.images||[]).length?` 📷${e.images.length}`:""}</span></button>`).join("")||`<span class="small">文案庫還是空的</span>`}</div></div>
-    <div class="btns"><button class="btn primary" id="p-new">✍️ 寫一篇新的</button></div></div>`;
-    box.querySelector("[data-x]").onclick=()=>box.remove();
-    const tm=()=>(time=box.querySelector("#p-time").value||time);
-    bindSlots(box,"p",t=>{ box.querySelector("#p-time").value=t; time=t; },()=>{ tm(); draw(); });
-    box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{ const e=L.find(x=>x.id===b.dataset.pick); tm(); box.remove(); openEdit("draft", draftFrom(e, day, time)); });
-    box.querySelector("#p-new").onclick=()=>{ tm(); box.remove(); openEdit("draft",{id:newId(),status:"",type:"knowledge",text:"",images:[],publish_at:isoOf(day,time)}); };
+  const L=libEntries(); const used=new Set(calItems().filter(x=>dayOf(x.publish_at)===day).map(x=>timeOf(x.publish_at)));
+  const nowHM=day===ymd(new Date())?timeOf(new Date().toISOString()):"00:00";
+  let rows=(S.settings.slots||[]).filter(t=>!used.has(t)&&t>nowHM).map(t=>({time:t,lib:""}));
+  if(!rows.length) rows=[{time:nextFreeSlot(day).date===day?nextFreeSlot(day).time:"21:00",lib:""}];
+  let date=day, signed=false;
+  const box=document.createElement("div"); box.className="modal";
+  const collect=()=>{ box.querySelectorAll("[data-rt]").forEach(i=>rows[+i.dataset.rt].time=i.value); box.querySelectorAll("[data-rl]").forEach(s=>rows[+s.dataset.rl].lib=s.value);
+    const dt=box.querySelector("#p-date"); if(dt) date=dt.value||date; const sg=box.querySelector("#p-sign"); if(sg) signed=sg.checked; };
+  const draw=()=>{ const exist=calItems().filter(x=>dayOf(x.publish_at)===date).sort((a,b)=>a.publish_at.localeCompare(b.publish_at));
+    const anyListing=rows.some(r=>{ const e=L.find(x=>x.id===r.lib); return e&&e.type==="listing"; });
+    const n=rows.filter(r=>r.lib).length;
+    box.innerHTML=`<div class="sheet wide">
+    <div class="row" style="justify-content:space-between"><div class="edtitle">📅 一次排好這天的貼文</div><button class="btn ghost" data-x>✕</button></div>
+    <div class="row" style="margin:8px 0"><span class="small">日期</span><input type="date" id="p-date" value="${date}"></div>
+    ${exist.length?`<div class="small" style="margin-bottom:6px">這天已經排了：${exist.map(x=>`${timeOf(x.publish_at)} ${esc(((x.text||"").split("\n")[0]).slice(0,12))}`).join("、")}</div>`:""}
+    <div class="prows">${rows.map((r,i)=>`<div class="prow"><input type="time" data-rt="${i}" value="${r.time}">
+      <select data-rl="${i}"><option value="">— 選一份文案 —</option>${L.map(e=>`<option value="${esc(e.id)}" ${e.id===r.lib?"selected":""}>${typeIcon(e.type)} ${esc(e.name)}</option>`).join("")}</select>
+      <button class="btn ghost" data-rx="${i}" title="移除這個時段">×</button></div>`).join("")}</div>
+    <div class="btns" style="margin-top:6px"><button class="btn ghost" id="p-add">＋ 加一個時段</button>${(S.settings.slots||[]).length?`<button class="btn ghost" id="p-fill">⏰ 帶入全部常用時段</button>`:""}</div>
+    ${anyListing?`<label class="check"><input type="checkbox" id="p-sign" ${signed?"checked":""}><span>上面選的物件文都已和屋主簽好委託，且委託還在有效期內（經紀業管理條例第21條）</span></label>`:""}
+    ${L.length?"":`<div class="warnbox">文案庫還是空的，先到「📁 文案庫」新增文案，或按下面「寫一篇新的」。</div>`}
+    <div class="btns" style="border-top:1px solid var(--line);padding-top:12px;margin-top:12px">
+      <button class="btn good" id="p-go" ${n?"":"disabled"}>✅ 一次排程 ${n} 篇</button><button class="btn" id="p-pend" ${n?"":"disabled"}>先放週曆（待審）</button>
+      <button class="btn ghost" id="p-new">✍️ 寫一篇新的</button></div>
+    <div class="small" style="margin-top:6px">每一列＝一個發文時間＋一份文案。沒選文案的列會略過。時間到機器人自動發出。</div></div>`;
+    const q=s=>box.querySelector(s);
+    q("[data-x]").onclick=()=>box.remove();
+    box.querySelectorAll("[data-rl]").forEach(s=>s.onchange=()=>{ collect(); draw(); });
+    box.querySelectorAll("[data-rx]").forEach(b=>b.onclick=()=>{ collect(); rows.splice(+b.dataset.rx,1); if(!rows.length) rows.push({time:"21:00",lib:""}); draw(); });
+    q("#p-add").onclick=()=>{ collect(); const last=rows[rows.length-1]; let [h,m]=(last?last.time:"20:00").split(":").map(Number); h=Math.min(23,h+1); rows.push({time:`${pad(h)}:${pad(m)}`,lib:""}); draw(); };
+    if(q("#p-fill")) q("#p-fill").onclick=()=>{ collect(); const have=new Set(rows.map(r=>r.time)); (S.settings.slots||[]).forEach(t=>{ if(!have.has(t)) rows.push({time:t,lib:""}); }); rows.sort((a,b)=>a.time.localeCompare(b.time)); draw(); };
+    q("#p-date").onchange=()=>{ collect(); draw(); };
+    q("#p-new").onclick=()=>{ collect(); box.remove(); openEdit("draft",{id:newId(),status:"",type:"knowledge",text:"",images:[],publish_at:isoOf(date,(rows[0]||{}).time||"21:00")}); };
+    const go=async approve=>{ collect(); const pick=rows.filter(r=>r.lib&&r.time);
+      const ds=pick.map(r=>{ const e=L.find(x=>x.id===r.lib); const nd=draftFrom(e,date,r.time); nd.commission_signed=e.type==="listing"?signed:false; return nd; });
+      if(approve){ const bad=ds.map(d=>{ const w=checkReady(d); return w?`${timeOf(d.publish_at)}：${w}`:""; }).filter(Boolean);
+        if(bad.length){ if(q("#p-sign")&&bad.some(x=>/委託/.test(x))){ const l=q("#p-sign").closest("label"); l.classList.add("flash"); }
+          await ask("這幾篇還不能排程 ⚠️\n"+bad.join("\n")+(bad.some(x=>/委託/.test(x))?"\n\n請勾選紅框的「已簽委託」再按一次。":""),"知道了"); return; }
+        const t0=new Date().toISOString(); ds.forEach(d=>{ d.status="approved"; d.approved_at=t0; }); }
+      box.querySelectorAll("button").forEach(b=>b.disabled=true); let ok=0;
+      for(const d of ds){ try{ await saveDraft(d, approve?"一次排程":"一次排入（待審）"); ok++; }catch(e){ toast("有一篇存檔失敗："+e.message); } }
+      if(approve&&ds.some(d=>new Date(d.publish_at)<=new Date())) kick();
+      toast(`已排好 ${ok} 篇（${date.slice(5).replace("-","/")}）${approve?"，時間到自動發出":"，記得審核"}`);
+      box.remove(); S.week=mondayOf(new Date(date+"T12:00")); S.tab="cal"; render(); };
+    q("#p-go").onclick=()=>go(true); q("#p-pend").onclick=()=>go(false);
   };
   document.body.appendChild(box); draw();
 }
