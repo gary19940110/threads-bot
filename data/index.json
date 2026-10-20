@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-20T15:53:39.931853+08:00",
+  "updated_at": "2026-10-20T16:33:16.813748+08:00",
   "drafts": [
     {
       "id": "202610232100-w",
@@ -172,12 +172,12 @@
     },
     {
       "id": "202610191634-081",
-      "status": "approved",
+      "status": "posted",
       "type": "listing",
       "hook_id": "",
       "publish_at": "2026-10-20T16:00:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "posted_at": "2026-10-20T16:32:28.911788+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/DetaSwhlUap",
       "first_line": "✅十期重劃區、景賢路",
       "metrics": null,
       "error": "",
