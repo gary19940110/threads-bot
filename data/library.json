@@ -46,8 +46,8 @@
     "auto_reply": {
       "enabled": false,
       "text": "感謝詢問！這間的資料先給你👇\n{link}\n想看屋、問價格細節，LINE {line} 傳「物件名稱」給我，我第一時間回你",
-      "link": "",
       "images": [],
+      "link": "",
       "keywords": []
     },
     "first_comment": {
@@ -56,7 +56,8 @@
       "link": "",
       "images": []
     },
-    "updated_at": "2026-10-20T01:41:18.218Z"
+    "updated_at": "2026-10-20T06:31:12.067Z",
+    "topic_tag": "賣房"
   },
   {
     "id": "L202610191308-sww",
