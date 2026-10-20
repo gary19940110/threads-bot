@@ -170,6 +170,7 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 .prows{display:flex;flex-direction:column;gap:8px}
 .prow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
 .prow select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.evwarn{display:inline-block;font-size:11px;font-weight:700;color:var(--bad);background:var(--bad-weak);border-radius:6px;padding:0 5px;margin-top:3px}
 .syncbox{background:var(--accent-weak);border-radius:10px;padding:8px 10px;margin-top:10px}
 .fcbox{border-style:solid;border-color:var(--accent)}
 .replybox{border-style:solid;border-color:var(--good)}
@@ -268,7 +269,7 @@ async function loadAll(){
 // ---------- 共用 ----------
 const hookName = id => (S.hooks.find(h=>h.id===id)||{}).name || id || "—";
 const footer = () => (S.settings.brand_footer||"").trim();
-const fullLen = t => (t.trim() + (footer() ? "\n\n"+footer() : "")).length;
+const fullLen = t => { t=t.trim(); const f=footer(); return (f&&!t.includes(f)&&!/經紀字/.test(t) ? t+"\n\n"+f : t).length; };
 const toLocalInput = iso => { if(!iso) return ""; const d=new Date(iso); const p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
 const fromLocalInput = v => { const d=new Date(v); const off=-d.getTimezoneOffset(); const s=off>=0?"+":"-"; const p=n=>String(Math.floor(Math.abs(n))).padStart(2,"0");
   return `${v}:00${s}${p(off/60)}:${p(off%60)}`; };
@@ -640,11 +641,12 @@ function openEdit(mode, d){
         const iso0=a==="now"?new Date():null; const nd=draftFrom(d, iso0?ymd(iso0):when.date, iso0?`${pad(iso0.getHours())}:${pad(iso0.getMinutes())}`:when.time);
         nd.commission_signed=d.type==="listing"?!!d.commission_signed:false;
         if(a!=="draft"){ const why=checkReady(nd); if(why){ await blocked(why); return; } nd.status="approved"; nd.approved_at=new Date().toISOString(); }
+        if(!(await confirmWarn([nd]))) return;
         lock(true); await saveDraft(nd, a==="draft"?"文案庫排入（待審）":"文案庫排程"); if(a==="now") kick();
         return finish(a==="now"?"已送出！約 1～3 分鐘發到 Threads，看「發布狀態」":a==="draft"?`已放進 ${fmtTime(nd.publish_at)}（待審）`:`已排程 ${fmtTime(nd.publish_at)}，時間到自動發出`, nd.publish_at); }
       // 排程上的貼文
       if(a==="now"){ const n=new Date(); d.publish_at=isoOf(ymd(n),`${pad(n.getHours())}:${pad(n.getMinutes())}`); a="approve"; var now=true; }
-      if(a==="approve"){ const why=checkReady(d); if(why){ await blocked(why); return; } d.status="approved"; d.error=""; d.tries=0; d.approved_at=new Date().toISOString(); }
+      if(a==="approve"){ const why=checkReady(d); if(why){ await blocked(why); return; } if(!(await confirmWarn([d]))) return; d.status="approved"; d.error=""; d.tries=0; d.approved_at=new Date().toISOString(); }
       if(a==="unapprove") d.status="pending";
       if(a==="reject"){ if(!(await ask("確定刪除這篇？刪除後不會發出。","🗑 刪除"))) return; d.status="rejected"; }
       if(!d.status) d.status="pending";
@@ -703,6 +705,7 @@ function openPick(day){
         if(bad.length){ if(q("#p-sign")&&bad.some(x=>/委託/.test(x))){ const l=q("#p-sign").closest("label"); l.classList.add("flash"); }
           await ask("這幾篇還不能排程 ⚠️\n"+bad.join("\n")+(bad.some(x=>/委託/.test(x))?"\n\n請勾選紅框的「已簽委託」再按一次。":""),"知道了"); return; }
         const t0=new Date().toISOString(); ds.forEach(d=>{ d.status="approved"; d.approved_at=t0; }); }
+      if(!(await confirmWarn(ds))) return;
       box.querySelectorAll("button").forEach(b=>b.disabled=true); let ok=0;
       for(const d of ds){ try{ await saveDraft(d, approve?"一次排程":"一次排入（待審）"); ok++; }catch(e){ toast("有一篇存檔失敗："+e.message); } }
       if(approve&&ds.some(d=>new Date(d.publish_at)<=new Date())) kick();
@@ -720,6 +723,21 @@ function calItems(){
   (S.index.drafts||[]).forEach(d=>{ if(!seen.has(d.id)&&d.status==="posted"&&(d.posted_at||d.publish_at)) out.push({...d,publish_at:d.posted_at||d.publish_at,text:d.first_line}); });
   return out;
 }
+// ---------- 發文前提醒：同一篇太密、沒有照片 ----------
+const firstLine=x=>((x.text||x.first_line||"").trim().split("\n")[0]||"").slice(0,30);
+const sameContent=(a,b)=>(a.lib_id&&b.lib_id&&a.lib_id===b.lib_id)||(firstLine(a)&&firstLine(a)===firstLine(b));
+const dupDays=()=>+(S.settings.dup_days||3);
+const noPhoto=d=>!(d.images||[]).filter(x=>!/card-/.test(x)).length&&(d.type==="listing"||!realCard(d.card));
+function tooClose(d, pool){ const t=new Date(d.publish_at), lim=dupDays()*864e5; return pool.filter(x=>x.id!==d.id&&x.status!=="rejected"&&x.publish_at&&sameContent(x,d)&&Math.abs(new Date(x.publish_at)-t)<lim); }
+function preWarn(list){ const ids=new Set(list.map(x=>x.id)); const pool=[...calItems().filter(x=>!ids.has(x.id)),...list]; const out=[];
+  list.forEach(d=>{ const nm=evName(d,firstLine(d)); const near=tooClose(d,pool);
+    if(near.length) out.push(`🔁 ${fmtTime(d.publish_at)}「${nm}」\n　 跟 ${near.map(x=>fmtTime(x.publish_at)).join("、")} 是同一篇，間隔不到 ${dupDays()} 天`);
+    if(noPhoto(d)) out.push(`📷 ${fmtTime(d.publish_at)}「${nm}」沒有放照片`); });
+  return out; }
+async function confirmWarn(list){ const w=preWarn(list); if(!w.length) return true;
+  return await ask("發之前提醒你 ⚠️\n\n"+w.join("\n")+"\n\n建議把同一篇拉開到 "+dupDays()+" 天以上、物件文放上照片。\n要照樣排程嗎？（按取消可以回去調整）","照樣排程"); }
+function evWarn(x, items){ const w=[]; if(tooClose(x,items).length) w.push(`<span class="evwarn" title="同一篇間隔不到 ${dupDays()} 天">🔁 太密</span>`);
+  if(S.drafts[x.id]&&noPhoto(S.drafts[x.id])) w.push(`<span class="evwarn" title="這篇沒有照片">📷 沒照片</span>`); return w.length?`<div>${w.join(" ")}</div>`:""; }
 function evName(x, first){ const e=x.lib_id&&libEntries().find(l=>l.id===x.lib_id); return e?e.name:(first||"").slice(0,20); }
 function pubStatus(){
   const now=new Date(), items=calItems();
@@ -753,7 +771,7 @@ function renderCal(){
     return `<div class="day ${k===today?"today":""} ${k<today?"past":""}" data-day="${k}">
       <div class="dhead"><span>週${W2[i]} <b>${d.getMonth()+1}/${d.getDate()}</b></span>${k>=today?`<button class="addbtn" data-add="${k}" title="在這天新增">＋</button>`:""}</div>
       ${list.map(x=>{ const [st,cls]=STATUS[x.status]||["","gray"]; const first=(x.text||"").trim().split("\n")[0];
-        return `<div class="ev ${cls}" draggable="${x.status!=="posted"}" data-ev="${esc(x.id)}">${x.status==="posted"?`<span class="evt">${timeOf(x.publish_at)}</span>`:`<button class="evtbtn" data-evt="${esc(x.id)}" title="改發文時間">${timeOf(x.publish_at)} <span>✎</span></button>`}${x.status!=="posted"?`<button class="evdel" data-evdel="${esc(x.id)}" title="刪除這篇排程">×</button>`:""}<div class="evx">${esc(evName(x,first))}</div>${x.metrics?`<div class="small">👁 ${x.metrics.views||0}　💬 ${x.metrics.replies||0}</div>`:""}</div>`; }).join("")||`<div class="small nothing">${k>=today?"點 ＋ 新增":""}</div>`}
+        return `<div class="ev ${cls}" draggable="${x.status!=="posted"}" data-ev="${esc(x.id)}">${x.status==="posted"?`<span class="evt">${timeOf(x.publish_at)}</span>`:`<button class="evtbtn" data-evt="${esc(x.id)}" title="改發文時間">${timeOf(x.publish_at)} <span>✎</span></button>`}${x.status!=="posted"?`<button class="evdel" data-evdel="${esc(x.id)}" title="刪除這篇排程">×</button>`:""}<div class="evx">${esc(evName(x,first))}</div>${x.status!=="posted"?evWarn(x,items):""}${x.metrics?`<div class="small">👁 ${x.metrics.views||0}　💬 ${x.metrics.replies||0}</div>`:""}</div>`; }).join("")||`<div class="small nothing">${k>=today?"點 ＋ 新增":""}</div>`}
     </div>`; }).join("")}</div>
   <div class="small" style="margin-top:10px">點 ＋ 選文案庫的文案＋時間就排好；點貼文可以修改、核准；電腦上也可以把貼文拖到別天。</div>`;
   bindSlots($("#main"),"c",t=>editSlot(t, renderCal),renderCal);
@@ -901,7 +919,8 @@ function renderInbox(){
 function renderSettings(){
   const s=S.settings;
   $("#main").innerHTML=`<div class="card"><h2>發文設定</h2>
-    <div class="field"><label>每篇自動加的署名（法規要求註明經紀業名稱）</label><input type="text" id="s-footer" value="${esc(s.brand_footer)}"></div>
+    <div class="field"><label>每篇自動加的署名（法規要求註明經紀業名稱；文案裡已經寫了「經紀字」字號的，不會重複加）</label><input type="text" id="s-footer" value="${esc(s.brand_footer)}"></div>
+    <div class="field"><label>🔁 同一篇文案間隔少於幾天就提醒</label><input type="number" id="s-dup" min="1" max="30" value="${s.dup_days||3}"></div>
     <div class="field"><label>每天產幾篇草稿</label><input type="number" id="s-n" min="1" max="10" value="${s.drafts_per_day||3}"></div>
     <div class="field"><label>🏷️ 常用主題（逗號分隔，第一個是預設；寫文案時可以點選）</label><input type="text" id="s-tags" value="${esc((s.topic_tags||[]).join(", "))}"></div>
     <div class="field"><label>熱門話題追蹤關鍵字（逗號分隔，最多 10 個）</label><input type="text" id="s-kw" value="${esc((s.search_keywords||[]).join(", "))}"></div>
@@ -920,7 +939,7 @@ function renderSettings(){
       <div class="btns"><button class="btn ghost" id="logout">登出這台手機</button></div></div>`;
   const list=v=>v.split(/[,，]/).map(x=>x.trim()).filter(Boolean);
   $("#s-save").onclick=async()=>{ try{ S.settings=await updateJSON("config/settings.json", cur=>({...cur, brand_footer:$("#s-footer").value.trim(),
-      drafts_per_day:+$("#s-n").value||3, topic_tags:list($("#s-tags").value), search_keywords:list($("#s-kw").value).slice(0,10),
+      drafts_per_day:+$("#s-n").value||3, dup_days:+$("#s-dup").value||3, topic_tags:list($("#s-tags").value), search_keywords:list($("#s-kw").value).slice(0,10),
       reply:{...(cur.reply||{}), enabled:$("#s-reply").checked}}), "中控台：更新設定", {}); toast("設定已儲存"); }catch(e){ toast("儲存失敗："+e.message); } };
   $("#s-fcsave").onclick=async()=>{ try{ S.settings=await updateJSON("config/settings.json", cur=>({...cur, first_comment:{...(cur.first_comment||{}), enabled:$("#s-fcon").checked, text:$("#s-fctext").value.trim(), link:$("#s-fclink").value.trim()}}), "中控台：預設自己留言", {}); toast("預設留言已儲存"); }catch(e){ toast("儲存失敗："+e.message); } };
   $("#run-pub").onclick=()=>dispatch("publish.yml",undefined,"已啟動，約 1 分鐘");
