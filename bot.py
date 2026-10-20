@@ -114,10 +114,9 @@ def save_draft(d):
 
 def full_text(d):
     body = d["text"].strip()
-    footer = SETTINGS.get("brand_footer", "").strip()
-    if not footer or footer in body or "經紀字" in body:
-        return body
-    return f"{body}\n\n{footer}"
+    lines = [x.strip() for x in SETTINGS.get("brand_footer", "").split("\n")]
+    keep = [x for x in lines if x and x not in body and not ("經紀字" in x and "經紀字" in body)]
+    return f"{body}\n\n" + "\n".join(keep) if keep else body
 
 
 def image_url(rel):
