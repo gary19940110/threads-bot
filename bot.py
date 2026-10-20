@@ -527,7 +527,20 @@ def cmd_index():
     save("data/index.json", {"updated_at": now().isoformat(), "drafts": idx})
 
 
-COMMANDS = {"publish": cmd_publish, "replies": cmd_replies, "insights": cmd_insights,
+def cmd_wait():
+    """GitHub 排程常延遲 30~45 分鐘；若接下來 25 分鐘內有要發的貼文，就在這裡等到時間（只印 yes / no）。"""
+    lim = now() + dt.timedelta(minutes=int(os.environ.get("WAIT_MIN", "25")))
+    ups = [parse_time(d["publish_at"]) for d in drafts()
+           if d.get("status") == "approved" and d.get("publish_at") and now() < parse_time(d["publish_at"]) <= lim]
+    if not ups:
+        print("no")
+        return
+    if not DRY:
+        time.sleep(max(0, (min(ups) - now()).total_seconds() + 5))
+    print("yes")
+
+
+COMMANDS = {"wait": cmd_wait, "publish": cmd_publish, "replies": cmd_replies, "insights": cmd_insights,
             "trends": cmd_trends, "refresh": cmd_refresh, "index": cmd_index}
 
 if __name__ == "__main__":
