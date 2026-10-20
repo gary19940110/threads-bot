@@ -1,6 +1,6 @@
 {
   "id": "202610191644-97o",
-  "status": "approved",
+  "status": "rejected",
   "type": "listing",
   "hook_id": "",
   "text": "✅十期重劃區、景賢路\n✅景賢路、東山高中\n【大面寬7.5米】三車位\n臨路雙併別墅\n地坪:37.38坪\n樓層：1-4樓\n只售：2980萬",
@@ -19,5 +19,11 @@
   "lib_id": "L202610191634-b6o",
   "error": "",
   "tries": 0,
-  "approved_at": "2026-10-19T08:45:06.621Z"
+  "approved_at": "2026-10-19T08:45:06.621Z",
+  "first_comment": {
+    "enabled": false,
+    "text": "",
+    "link": "",
+    "images": []
+  }
 }
