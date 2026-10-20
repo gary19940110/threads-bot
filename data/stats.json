@@ -1,43 +1,43 @@
 {
-  "updated_at": "2026-10-20T06:55:39.817423+08:00",
+  "updated_at": "2026-10-21T06:55:34.699081+08:00",
   "hooks": {
     "H06": {
       "n": 2,
       "avg_views": 198,
       "avg_eng": 2.0,
-      "avg_score": 237.5,
+      "avg_score": 238.5,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
     "H01": {
       "n": 2,
-      "avg_views": 290,
+      "avg_views": 292,
       "avg_eng": 6.5,
-      "avg_score": 419.5,
+      "avg_score": 421.5,
       "name": "反常識",
       "status": "主力"
     },
     "H05": {
       "n": 3,
-      "avg_views": 62,
+      "avg_views": 66,
       "avg_eng": 7.3,
-      "avg_score": 208.7,
+      "avg_score": 212.7,
       "name": "二選一",
       "status": "觀察"
     },
     "H08": {
-      "n": 1,
-      "avg_views": 83,
-      "avg_eng": 0.0,
-      "avg_score": 83.0,
+      "n": 2,
+      "avg_views": 82,
+      "avg_eng": 1.0,
+      "avg_score": 101.5,
       "name": "身分點名",
-      "status": "測試中"
+      "status": "觀察"
     },
     "H07": {
-      "n": 2,
-      "avg_views": 238,
-      "avg_eng": 0.5,
-      "avg_score": 248.0,
+      "n": 3,
+      "avg_views": 220,
+      "avg_eng": 0.3,
+      "avg_score": 226.7,
       "name": "踩雷警告",
       "status": "觀察"
     },
@@ -50,44 +50,44 @@
       "status": "測試中"
     },
     "—": {
-      "n": 6,
-      "avg_views": 275,
-      "avg_eng": 5.8,
-      "avg_score": 392.0,
+      "n": 9,
+      "avg_views": 294,
+      "avg_eng": 6.6,
+      "avg_score": 424.9,
       "name": "—",
       "status": "主力"
     },
     "H02": {
       "n": 1,
-      "avg_views": 577,
+      "avg_views": 578,
       "avg_eng": 12.0,
-      "avg_score": 817.0,
+      "avg_score": 818.0,
       "name": "數字清單",
       "status": "測試中"
     },
     "H10": {
       "n": 1,
-      "avg_views": 409,
+      "avg_views": 410,
       "avg_eng": 0.0,
-      "avg_score": 409.0,
+      "avg_score": 410.0,
       "name": "稀缺錯失",
       "status": "測試中"
     },
     "H11": {
       "n": 1,
-      "avg_views": 177,
+      "avg_views": 197,
       "avg_eng": 1.0,
-      "avg_score": 197.0,
+      "avg_score": 217.0,
       "name": "老鳥自白",
       "status": "測試中"
     }
   },
   "types": {
     "knowledge": {
-      "n": 11,
-      "avg_views": 207,
-      "avg_eng": 4.5,
-      "avg_score": 295.7
+      "n": 13,
+      "avg_views": 198,
+      "avg_eng": 3.9,
+      "avg_score": 276.2
     },
     "area": {
       "n": 2,
@@ -97,63 +97,67 @@
     },
     "market": {
       "n": 1,
-      "avg_views": 409,
+      "avg_views": 410,
       "avg_eng": 0.0,
-      "avg_score": 409.0
+      "avg_score": 410.0
     },
     "owner": {
       "n": 1,
-      "avg_views": 437,
+      "avg_views": 440,
       "avg_eng": 11.0,
-      "avg_score": 657.0
+      "avg_score": 660.0
     },
     "poll": {
       "n": 1,
-      "avg_views": 48,
+      "avg_views": 51,
       "avg_eng": 0.0,
-      "avg_score": 48.0
+      "avg_score": 51.0
     },
     "listing": {
-      "n": 4,
-      "avg_views": 255,
-      "avg_eng": 4.0,
-      "avg_score": 335.0
+      "n": 7,
+      "avg_views": 287,
+      "avg_eng": 5.7,
+      "avg_score": 401.7
     }
   },
-  "median_views": 217,
+  "median_views": 197,
   "low_posts": [],
   "hours": {
     "13": {
       "n": 5,
-      "avg_views": 304
+      "avg_views": 310
     },
     "21": {
-      "n": 5,
-      "avg_views": 198
+      "n": 6,
+      "avg_views": 200
     },
     "8": {
       "n": 1,
-      "avg_views": 83
+      "avg_views": 85
     },
     "12": {
-      "n": 3,
-      "avg_views": 281
+      "n": 4,
+      "avg_views": 233
     },
     "16": {
-      "n": 1,
-      "avg_views": 409
+      "n": 2,
+      "avg_views": 302
     },
     "18": {
       "n": 1,
-      "avg_views": 266
+      "avg_views": 268
     },
     "22": {
       "n": 2,
-      "avg_views": 132
+      "avg_views": 208
     },
     "10": {
-      "n": 2,
-      "avg_views": 221
+      "n": 3,
+      "avg_views": 170
+    },
+    "9": {
+      "n": 1,
+      "avg_views": 553
     }
   }
 }
