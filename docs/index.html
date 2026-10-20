@@ -158,6 +158,7 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 .aibox textarea{margin-top:8px;background:var(--card)}
 .schedbox{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;position:sticky;bottom:-16px;background:var(--card);padding-bottom:12px}
 #e-text{min-height:170px}
+@media(max-width:700px),(max-height:820px){.schedbox{position:static}}
 .libtag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:14px}
 .libtag span{font-size:12px;color:var(--muted)}
 .libtag.on{border-color:var(--accent);background:var(--accent-weak);color:var(--accent)}
@@ -492,10 +493,14 @@ const typeIcon=t=>(TYPES[t]||{}).icon||"";
 function newLibEntry(){ return {id:"",name:"",tags:[],type:"listing",text:"",images:[],card:{...NOCARD},card_pos:"first",auto_reply:{...blankReply(),enabled:true}}; }
 function draftFrom(e, date, time){
   return {id:newId(),status:"pending",type:e.type||"knowledge",hook_id:e.hook_id||"",text:(e.text||"").trim(),why:e.why||(e.name?"文案庫："+e.name:""),
-    card:realCard(e.card),card_pos:e.card_pos||"first",topic_tag:(S.settings.topic_tags||[""])[0],images:[...(e.images||[])],
+    card:realCard(e.card),card_pos:e.card_pos||"first",topic_tag:e.topic_tag||(S.settings.topic_tags||[""])[0],images:[...(e.images||[])],
     publish_at:isoOf(date,time),created_at:new Date().toISOString(),created_by:e.name?"library":(aiKey()?"ai-console":"manual"),
     commission_signed:e.type==="listing"?!!e.commission_signed:false,auto_reply:e.auto_reply&&e.auto_reply.enabled?structuredClone(e.auto_reply):null,lib_id:e.id||"",
     ...(e.first_comment?{first_comment:structuredClone(e.first_comment)}:{})}; }
+function topicField(cur){ const tags=S.settings.topic_tags||[]; if(cur===undefined) cur=tags[0]||"";
+  return `<div class="field"><label>🏷️ 發到哪個主題（Threads 的「社群或主題」，選對主題能推給在看這個主題的人）</label>
+    <div class="row">${tags.map(t=>`<button type="button" class="ftag ${t===cur?"on":""}" data-topic="${esc(t)}">#${esc(t)}</button>`).join("")}<button type="button" class="ftag ${!cur?"on":""}" data-topic="">不加主題</button></div>
+    <input type="text" id="e-topic" value="${esc(cur||"")}" placeholder="也可以自己打一個主題，例：北屯買房" style="margin-top:6px"></div>`; }
 function fcFields(fc){ const dflt=(S.settings.first_comment||{});
   return `<details class="cardbox fcbox" ${fc.enabled?"open":""}><summary>📝 發文後我自己留言${fc.enabled?"（已開啟）":""}</summary>
     <div class="small">貼文發出後，機器人會用你的帳號在這篇底下留第一則留言（例如補充資料、導 LINE、放連結）。</div>
@@ -537,6 +542,7 @@ function openEdit(mode, d){
     if(q("#e-sign")) d.commission_signed=q("#e-sign").checked;
     d.auto_reply=readReply("e", d.auto_reply);
     if(q("#e-fcon")) d.first_comment={enabled:q("#e-fcon").checked,text:q("#e-fctext").value.trim(),link:q("#e-fclink").value.trim(),images:d.first_comment.images};
+    if(q("#e-topic")) d.topic_tag=q("#e-topic").value.trim().replace(/^#/,"").replace(/[.&]/g,"").slice(0,50);
     if(mode==="lib"){ d.name=q("#e-name").value.trim(); d.tags=tagList(q("#e-tags").value); }
     if(q("#e-brief")) brief=q("#e-brief").value;
     when={date:q("#e-date").value,time:q("#e-time").value};
@@ -554,6 +560,7 @@ function openEdit(mode, d){
     <details class="aibox" ${!d.text?"open":""}><summary>✨ 讓 AI 幫我寫${aiKey()?"":"（要先到設定貼 AI 金鑰）"}</summary>
       <textarea id="e-brief" style="min-height:70px" placeholder="給 AI 方向，例：北屯透天屋主，想換屋但怕賣太便宜">${esc(brief)}</textarea>
       <div class="btns"><button class="btn primary" data-ai="write">✨ 幫我寫一篇</button></div></details>
+    ${topicField(d.topic_tag)}
     <div class="row2"><div class="field"><label>文章類型</label><select id="e-type">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===d.type?"selected":""}>${t.icon} ${t.name}</option>`).join("")}</select></div><div></div></div>
     <div class="field"><label>標題（貼文第一行，最吸睛的一句）</label><input type="text" id="e-title" class="titlein" placeholder="例：這間一樓大到可以做密室逃脫" value="${esc(t1)}"></div>
     <div class="field"><label>內文</label><textarea id="e-text" placeholder="在這裡寫內文">${esc(t2)}</textarea></div>
@@ -584,6 +591,7 @@ function openEdit(mode, d){
     bindStrip(box, {e:{arr:d.images,id:d.id||("L"+newId())}, er:{arr:d.auto_reply.images,id:(d.id||"L")+"-r"}, efc:{arr:d.first_comment.images,id:(d.id||"L")+"-c"}}, draw, collect);
     q("#e-rcopy").onclick=()=>{ collect(); d.auto_reply.images=d.images.filter(x=>!/card-/.test(x)); draw(); };
     bindSlots(box,"e",t=>{ q("#e-time").value=t; },()=>{ collect(); draw(); });
+    box.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ q("#e-topic").value=b.dataset.topic; box.querySelectorAll("[data-topic]").forEach(x=>x.classList.toggle("on",x===b)); });
     const ai=async(b,fn)=>{ collect(); const old=b.textContent; b.disabled=true; b.textContent="AI 撰寫中…";
       try{ const out=await fn(); d.text=out.text||d.text; if(out.card) d.card=out.card; if(out.hook_id) d.hook_id=out.hook_id; if(out.why) d.why=out.why; draw(); toast("AI 寫好了，看過再存"); }
       catch(e){ aiError(e); b.disabled=false; b.textContent=old; } };
@@ -593,7 +601,7 @@ function openEdit(mode, d){
   };
   const lock=on=>box.querySelectorAll("button").forEach(x=>x.disabled=on);
   const saveLibEntry=async asNew=>{ if(!d.name){ toast("先取個名字，例：若山牧水地獄底價"); q("#e-name").focus(); return false; } if(!d.text.trim()){ toast("文案是空的"); return false; }
-    const e={id:(!asNew&&d.id)||("L"+newId()),name:d.name,tags:d.tags||[],type:d.type,text:d.text.trim(),images:[...d.images],card:realCard(d.card),card_pos:d.card_pos||"first",auto_reply:d.auto_reply,first_comment:d.first_comment,updated_at:new Date().toISOString()};
+    const e={id:(!asNew&&d.id)||("L"+newId()),name:d.name,tags:d.tags||[],type:d.type,text:d.text.trim(),images:[...d.images],card:realCard(d.card),card_pos:d.card_pos||"first",topic_tag:d.topic_tag||"",auto_reply:d.auto_reply,first_comment:d.first_comment,updated_at:new Date().toISOString()};
     S.library=await updateJSON("data/library.json", arr=>{ arr=Array.isArray(arr)?arr:[]; const i=arr.findIndex(x=>x.id===e.id); if(i>=0) arr[i]=e; else arr.unshift(e); return arr; }, `中控台：文案庫 ${e.name}`, []);
     d.id=e.id; return true; };
   const blocked=async why=>{ const sg=q("#e-sign"); const isSign=/委託/.test(why);
@@ -617,7 +625,7 @@ function openEdit(mode, d){
       if(a==="unapprove") d.status="pending";
       if(a==="reject"){ if(!(await ask("確定刪除這篇？刪除後不會發出。","🗑 刪除"))) return; d.status="rejected"; }
       if(!d.status) d.status="pending";
-      if(!d.created_at){ d.created_at=new Date().toISOString(); d.created_by=aiKey()?"ai-console":"manual"; d.topic_tag=(S.settings.topic_tags||[""])[0]; }
+      if(!d.created_at){ d.created_at=new Date().toISOString(); d.created_by=aiKey()?"ai-console":"manual"; if(d.topic_tag===undefined) d.topic_tag=(S.settings.topic_tags||[""])[0]; }
       lock(true); const out={...d,card:realCard(d.card),auto_reply:d.auto_reply&&d.auto_reply.enabled?d.auto_reply:null};
       await saveDraft(out,{approve:"核准",unapprove:"取消核准",reject:"刪除",save:"編輯"}[a]||"編輯"); if(now) kick();
       finish(now?"已送出！約 1～3 分鐘發到 Threads，看「發布狀態」":{approve:`已核准，${fmtTime(d.publish_at)} 自動發出`,unapprove:"已取消核准",reject:"已刪除",save:"已存檔"}[a], d.publish_at);
@@ -871,7 +879,7 @@ function renderSettings(){
   $("#main").innerHTML=`<div class="card"><h2>發文設定</h2>
     <div class="field"><label>每篇自動加的署名（法規要求註明經紀業名稱）</label><input type="text" id="s-footer" value="${esc(s.brand_footer)}"></div>
     <div class="field"><label>每天產幾篇草稿</label><input type="number" id="s-n" min="1" max="10" value="${s.drafts_per_day||3}"></div>
-    <div class="field"><label>話題標籤（逗號分隔）</label><input type="text" id="s-tags" value="${esc((s.topic_tags||[]).join(", "))}"></div>
+    <div class="field"><label>🏷️ 常用主題（逗號分隔，第一個是預設；寫文案時可以點選）</label><input type="text" id="s-tags" value="${esc((s.topic_tags||[]).join(", "))}"></div>
     <div class="field"><label>熱門話題追蹤關鍵字（逗號分隔，最多 10 個）</label><input type="text" id="s-kw" value="${esc((s.search_keywords||[]).join(", "))}"></div>
     <label class="check"><input type="checkbox" id="s-reply" ${s.reply?.enabled!==false?"checked":""}><span>自動回覆留言（有設定「留言自動回覆」的貼文用你的預設資料回；其他貼文問價、地點、看屋、貸款等導 LINE ${esc(s.line_id)}）</span></label>
     <div class="btns"><button class="btn primary" id="s-save">儲存設定</button></div></div>
