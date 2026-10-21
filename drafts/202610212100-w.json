@@ -23,7 +23,7 @@
       "同步｜最理想，時間要卡準"
     ]
   },
-  "error": "",
-  "tries": 0,
+  "error": "400 {\"error\": {\"message\": \"The requested resource does not exist\", \"type\": \"OAuthException\", \"code\": 24, \"error_subcode\": 4279009, \"is_transient\": false, \"error_user_title\": \"Media Not Found\", \"error_user_msg\": \"The media with id 17951612763317785 cannot be found.\", \"fbtrace_id\": \"AnxIEv_dmgi6QokKhcJHMOk\"}}",
+  "tries": 1,
   "approved_at": "2026-10-16T06:01:27.070Z"
 }
