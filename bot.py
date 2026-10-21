@@ -114,6 +114,8 @@ def save_draft(d):
 
 def full_text(d):
     body = d["text"].strip()
+    if SETTINGS.get("footer_in_comment"):
+        return body
     lines = [x.strip() for x in SETTINGS.get("brand_footer", "").split("\n")]
     keep = [x for x in lines if x and x not in body and not ("經紀字" in x and "經紀字" in body)]
     return f"{body}\n\n" + "\n".join(keep) if keep else body
@@ -217,21 +219,28 @@ def cmd_publish():
 
 
 def first_comment(d):
-    """回傳 (文字, 圖片) 或 None。草稿沒設定就用設定裡的預設留言。"""
+    """回傳 (文字, 圖片) 或 None。草稿沒設定就用預設留言；署名設定放留言時，一定附上署名。"""
     fc = d.get("first_comment")
     dflt = SETTINGS.get("first_comment") or {}
+    in_c = bool(SETTINGS.get("footer_in_comment"))
     if fc is None:
-        if not dflt.get("enabled"):
-            return None
-        fc = {"enabled": True}
-    if not fc.get("enabled"):
+        fc = {"enabled": bool(dflt.get("enabled"))}
+    text, link, imgs = "", "", []
+    if fc.get("enabled"):
+        text = (fc.get("text") or "").strip() or (dflt.get("text") or "").strip()
+        link = (fc.get("link") or "").strip() or ("" if fc.get("text") else (dflt.get("link") or "").strip())
+        imgs = fc.get("images") or ([] if fc.get("text") else dflt.get("images") or [])
+    elif not in_c:
         return None
-    text = (fc.get("text") or "").strip() or (dflt.get("text") or "").strip()
-    link = (fc.get("link") or "").strip() or ("" if fc.get("text") else (dflt.get("link") or "").strip())
-    imgs = fc.get("images") or ([] if fc.get("text") else dflt.get("images") or [])
-    if not text and not imgs:
+    out = ar_text({"text": text, "link": link}) if (text or link) else ""
+    if in_c:
+        lines = [x.strip() for x in SETTINGS.get("brand_footer", "").split("\n")]
+        foot = "\n".join(x for x in lines if x and x not in out and not ("經紀字" in x and "經紀字" in out))
+        if foot:
+            out = (out[: 500 - len(foot) - 2].rstrip() + "\n\n" + foot).strip() if out else foot
+    if not out and not imgs:
         return None
-    return ar_text({"text": text, "link": link}), imgs
+    return out, imgs
 
 
 # ---------- 自動回覆 ----------
