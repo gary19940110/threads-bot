@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-21T21:09:54.132491+08:00",
+  "updated_at": "2026-10-21T21:54:50.257782+08:00",
   "drafts": [
     {
       "id": "202610201224-kd9",
@@ -87,15 +87,15 @@
     },
     {
       "id": "202610212100-w",
-      "status": "approved",
+      "status": "posted",
       "type": "knowledge",
       "hook_id": "H12",
       "publish_at": "2026-10-21T21:00:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "posted_at": "2026-10-21T21:54:50.253798+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/DewkA4BlDCf",
       "first_line": "要換屋的人，最常卡在這題：",
       "metrics": null,
-      "error": "400 {\"error\": {\"message\": \"The requested resource does not exist\", \"type\": \"OAuthException\", \"code\": 24, \"error_subcode\": 4279009, \"is_transient\": false, \"error_user_title\": \"Media Not Found\", \"error_user_msg\": \"The media with id 17951612763317785 cannot be found.\", \"fbtrace_id\": \"AnxIEv_dmgi6QokKhcJHMOk\"}}",
+      "error": "",
       "images": 1,
       "lib_id": ""
     },
