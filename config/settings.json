@@ -42,5 +42,11 @@
     "claude-sonnet-4-5"
   ],
   "max_chars": 500,
-  "dup_days": 3
+  "dup_days": 3,
+  "footer_in_comment": true,
+  "first_comment": {
+    "enabled": true,
+    "text": "想看更多照片、約看屋👇\n📱 0966-228-528 阿正\nLINE：@a0110",
+    "link": ""
+  }
 }
