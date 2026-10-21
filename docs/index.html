@@ -269,7 +269,7 @@ async function loadAll(){
 // ---------- 共用 ----------
 const hookName = id => (S.hooks.find(h=>h.id===id)||{}).name || id || "—";
 const footer = () => (S.settings.brand_footer||"").trim();
-const footerFor = t => footer().split("\n").map(l=>l.trim()).filter(l=>l&&!t.includes(l)&&!(/經紀字/.test(l)&&/經紀字/.test(t))).join("\n");
+const footerFor = t => S.settings.footer_in_comment ? "" : footer().split("\n").map(l=>l.trim()).filter(l=>l&&!t.includes(l)&&!(/經紀字/.test(l)&&/經紀字/.test(t))).join("\n");
 const fullLen = t => { t=t.trim(); const f=footerFor(t); return (f ? t+"\n\n"+f : t).length; };
 const toLocalInput = iso => { if(!iso) return ""; const d=new Date(iso); const p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
 const fromLocalInput = v => { const d=new Date(v); const off=-d.getTimezoneOffset(); const s=off>=0?"+":"-"; const p=n=>String(Math.floor(Math.abs(n))).padStart(2,"0");
@@ -920,7 +920,8 @@ function renderInbox(){
 function renderSettings(){
   const s=S.settings;
   $("#main").innerHTML=`<div class="card"><h2>發文設定</h2>
-    <div class="field"><label>每篇自動加的署名（法規要求註明經紀業名稱；文案裡已經寫了「經紀字」字號的，不會重複加）</label><textarea id="s-footer" style="min-height:70px">${esc(s.brand_footer)}</textarea><div class="small">一行一個：例如第一行你的聯絡方式、第二行經紀業名稱與字號。文案裡已經有的那一行不會重複加。</div></div>
+    <div class="field"><label>每篇自動加的署名（法規要求註明經紀業名稱；文案裡已經寫了「經紀字」字號的，不會重複加）</label><textarea id="s-footer" style="min-height:70px">${esc(s.brand_footer)}</textarea><div class="small">一行一個：例如第一行你的聯絡方式、第二行經紀業名稱與字號。文案裡已經有的那一行不會重複加。</div>
+      <label class="check"><input type="checkbox" id="s-fic" ${s.footer_in_comment?"checked":""}><span>署名不放主文，改放在發文後「我自己的留言」裡（主文更乾淨、不像廣告）</span></label></div>
     <div class="field"><label>🔁 同一篇文案間隔少於幾天就提醒</label><input type="number" id="s-dup" min="1" max="30" value="${s.dup_days||3}"></div>
     <div class="field"><label>每天產幾篇草稿</label><input type="number" id="s-n" min="1" max="10" value="${s.drafts_per_day||3}"></div>
     <div class="field"><label>🏷️ 常用主題（逗號分隔，第一個是預設；寫文案時可以點選）</label><input type="text" id="s-tags" value="${esc((s.topic_tags||[]).join(", "))}"></div>
@@ -940,7 +941,7 @@ function renderSettings(){
       <div class="btns"><button class="btn ghost" id="logout">登出這台手機</button></div></div>`;
   const list=v=>v.split(/[,，]/).map(x=>x.trim()).filter(Boolean);
   $("#s-save").onclick=async()=>{ try{ S.settings=await updateJSON("config/settings.json", cur=>({...cur, brand_footer:$("#s-footer").value.trim(),
-      drafts_per_day:+$("#s-n").value||3, dup_days:+$("#s-dup").value||3, topic_tags:list($("#s-tags").value), search_keywords:list($("#s-kw").value).slice(0,10),
+      drafts_per_day:+$("#s-n").value||3, footer_in_comment:$("#s-fic").checked, dup_days:+$("#s-dup").value||3, topic_tags:list($("#s-tags").value), search_keywords:list($("#s-kw").value).slice(0,10),
       reply:{...(cur.reply||{}), enabled:$("#s-reply").checked}}), "中控台：更新設定", {}); toast("設定已儲存"); }catch(e){ toast("儲存失敗："+e.message); } };
   $("#s-fcsave").onclick=async()=>{ try{ S.settings=await updateJSON("config/settings.json", cur=>({...cur, first_comment:{...(cur.first_comment||{}), enabled:$("#s-fcon").checked, text:$("#s-fctext").value.trim(), link:$("#s-fclink").value.trim()}}), "中控台：預設自己留言", {}); toast("預設留言已儲存"); }catch(e){ toast("儲存失敗："+e.message); } };
   $("#run-pub").onclick=()=>dispatch("publish.yml",undefined,"已啟動，約 1 分鐘");
