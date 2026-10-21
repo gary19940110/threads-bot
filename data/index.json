@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-21T12:09:15.160415+08:00",
+  "updated_at": "2026-10-21T12:30:14.154258+08:00",
   "drafts": [
     {
       "id": "202610201224-kd9",
@@ -115,12 +115,12 @@
     },
     {
       "id": "202610211230-w",
-      "status": "approved",
+      "status": "posted",
       "type": "knowledge",
       "hook_id": "H01",
       "publish_at": "2026-10-21T12:30:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "posted_at": "2026-10-21T12:30:14.151288+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/DevjZVjm3Vr",
       "first_line": "「房價會不會跌？」",
       "metrics": null,
       "error": "",
