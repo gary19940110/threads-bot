@@ -1,6 +1,6 @@
 {
   "id": "202610222100-w",
-  "status": "approved",
+  "status": "posted",
   "type": "knowledge",
   "hook_id": "H06",
   "listing_id": null,
@@ -25,5 +25,9 @@
   },
   "error": "",
   "tries": 0,
-  "approved_at": "2026-10-16T06:00:50.054Z"
+  "approved_at": "2026-10-16T06:00:50.054Z",
+  "threads_id": "18072261521492626",
+  "permalink": "https://www.threads.com/@jng01.10/post/DezCjhtkf7L",
+  "posted_at": "2026-10-22T21:00:24.873320+08:00",
+  "first_comment_done": "2026-10-22T21:00:54.227400+08:00"
 }
