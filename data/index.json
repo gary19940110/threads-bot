@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-23T12:16:34.260590+08:00",
+  "updated_at": "2026-10-23T12:30:51.795986+08:00",
   "drafts": [
     {
       "id": "202610201224-kd9",
@@ -31,12 +31,12 @@
     },
     {
       "id": "202610231230-w",
-      "status": "approved",
+      "status": "posted",
       "type": "knowledge",
       "hook_id": "H10",
       "publish_at": "2026-10-23T12:30:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "posted_at": "2026-10-23T12:30:25.407258+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/De0s_DhlrgQ",
       "first_line": "為什麼有些房子，總是先賣掉？",
       "metrics": null,
       "error": "",
