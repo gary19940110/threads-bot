@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-10-23T06:56:45.898389+08:00",
+  "updated_at": "2026-10-24T06:55:28.951300+08:00",
   "hooks": {
     "H06": {
       "n": 3,
-      "avg_views": 192,
+      "avg_views": 200,
       "avg_eng": 2.3,
-      "avg_score": 238.3,
+      "avg_score": 246.7,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -18,10 +18,10 @@
       "status": "觀察"
     },
     "H05": {
-      "n": 3,
-      "avg_views": 70,
-      "avg_eng": 8.3,
-      "avg_score": 237.0,
+      "n": 4,
+      "avg_views": 63,
+      "avg_eng": 7.0,
+      "avg_score": 202.8,
       "name": "二選一",
       "status": "觀察"
     },
@@ -35,17 +35,17 @@
     },
     "H07": {
       "n": 3,
-      "avg_views": 232,
+      "avg_views": 233,
       "avg_eng": 1.7,
-      "avg_score": 265.7,
+      "avg_score": 266.0,
       "name": "踩雷警告",
       "status": "觀察"
     },
     "H12": {
       "n": 2,
-      "avg_views": 184,
+      "avg_views": 185,
       "avg_eng": 6.5,
-      "avg_score": 314.5,
+      "avg_score": 315.0,
       "name": "問題開場",
       "status": "觀察"
     },
@@ -53,25 +53,25 @@
       "n": 12,
       "avg_views": 294,
       "avg_eng": 5.8,
-      "avg_score": 410.8,
+      "avg_score": 411.1,
       "name": "—",
       "status": "主力"
     },
     "H02": {
       "n": 2,
-      "avg_views": 515,
+      "avg_views": 524,
       "avg_eng": 7.5,
-      "avg_score": 665.0,
+      "avg_score": 673.5,
       "name": "數字清單",
       "status": "主力"
     },
     "H10": {
-      "n": 1,
-      "avg_views": 414,
-      "avg_eng": 0.0,
-      "avg_score": 414.0,
+      "n": 2,
+      "avg_views": 236,
+      "avg_eng": 1.5,
+      "avg_score": 265.5,
       "name": "稀缺錯失",
-      "status": "測試中"
+      "status": "觀察"
     },
     "H11": {
       "n": 1,
@@ -84,10 +84,10 @@
   },
   "types": {
     "knowledge": {
-      "n": 17,
-      "avg_views": 203,
-      "avg_eng": 3.9,
-      "avg_score": 281.6
+      "n": 19,
+      "avg_views": 189,
+      "avg_eng": 3.8,
+      "avg_score": 265.7
     },
     "area": {
       "n": 2,
@@ -117,10 +117,10 @@
       "n": 10,
       "avg_views": 289,
       "avg_eng": 5.1,
-      "avg_score": 391.0
+      "avg_score": 391.4
     }
   },
-  "median_views": 217,
+  "median_views": 218,
   "low_posts": [
     {
       "id": "202610182100-w",
@@ -145,16 +145,16 @@
       "avg_views": 344
     },
     "21": {
-      "n": 8,
-      "avg_views": 190
+      "n": 9,
+      "avg_views": 176
     },
     "8": {
       "n": 1,
       "avg_views": 88
     },
     "12": {
-      "n": 6,
-      "avg_views": 247
+      "n": 7,
+      "avg_views": 222
     },
     "16": {
       "n": 2,
@@ -178,7 +178,7 @@
     },
     "23": {
       "n": 1,
-      "avg_views": 281
+      "avg_views": 282
     }
   }
 }
