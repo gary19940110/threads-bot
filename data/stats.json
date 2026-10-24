@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-10-24T06:55:28.951300+08:00",
+  "updated_at": "2026-10-25T06:51:06.514012+08:00",
   "hooks": {
     "H06": {
       "n": 3,
-      "avg_views": 200,
+      "avg_views": 201,
       "avg_eng": 2.3,
-      "avg_score": 246.7,
+      "avg_score": 247.7,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -21,7 +21,7 @@
       "n": 4,
       "avg_views": 63,
       "avg_eng": 7.0,
-      "avg_score": 202.8,
+      "avg_score": 203.2,
       "name": "二選一",
       "status": "觀察"
     },
@@ -29,7 +29,7 @@
       "n": 2,
       "avg_views": 88,
       "avg_eng": 1.0,
-      "avg_score": 108.0,
+      "avg_score": 108.5,
       "name": "身分點名",
       "status": "觀察"
     },
@@ -37,7 +37,7 @@
       "n": 3,
       "avg_views": 233,
       "avg_eng": 1.7,
-      "avg_score": 266.0,
+      "avg_score": 266.3,
       "name": "踩雷警告",
       "status": "觀察"
     },
@@ -50,10 +50,10 @@
       "status": "觀察"
     },
     "—": {
-      "n": 12,
-      "avg_views": 294,
-      "avg_eng": 5.8,
-      "avg_score": 411.1,
+      "n": 13,
+      "avg_views": 275,
+      "avg_eng": 5.6,
+      "avg_score": 386.9,
       "name": "—",
       "status": "主力"
     },
@@ -61,7 +61,7 @@
       "n": 2,
       "avg_views": 524,
       "avg_eng": 7.5,
-      "avg_score": 673.5,
+      "avg_score": 674.0,
       "name": "數字清單",
       "status": "主力"
     },
@@ -69,7 +69,7 @@
       "n": 2,
       "avg_views": 236,
       "avg_eng": 1.5,
-      "avg_score": 265.5,
+      "avg_score": 266.5,
       "name": "稀缺錯失",
       "status": "觀察"
     },
@@ -87,7 +87,7 @@
       "n": 19,
       "avg_views": 189,
       "avg_eng": 3.8,
-      "avg_score": 265.7
+      "avg_score": 266.2
     },
     "area": {
       "n": 2,
@@ -114,13 +114,13 @@
       "avg_score": 117.0
     },
     "listing": {
-      "n": 10,
-      "avg_views": 289,
-      "avg_eng": 5.1,
-      "avg_score": 391.4
+      "n": 11,
+      "avg_views": 266,
+      "avg_eng": 4.9,
+      "avg_score": 364.6
     }
   },
-  "median_views": 218,
+  "median_views": 219,
   "low_posts": [
     {
       "id": "202610182100-w",
@@ -137,6 +137,14 @@
       "replies": 1,
       "permalink": "https://www.threads.com/@jng01.10/post/Deo3FkslNYj",
       "hook_id": "H05"
+    },
+    {
+      "id": "202610201224-mlt",
+      "first_line": "專任♠14期全聯旗艦店旁商五精華大角地",
+      "views": 28,
+      "replies": 1,
+      "permalink": "https://www.threads.com/@jng01.10/post/DevVxrsEVr_",
+      "hook_id": ""
     }
   ],
   "hours": {
@@ -150,11 +158,11 @@
     },
     "8": {
       "n": 1,
-      "avg_views": 88
+      "avg_views": 89
     },
     "12": {
       "n": 7,
-      "avg_views": 222
+      "avg_views": 223
     },
     "16": {
       "n": 2,
@@ -178,7 +186,11 @@
     },
     "23": {
       "n": 1,
-      "avg_views": 282
+      "avg_views": 283
+    },
+    "20": {
+      "n": 1,
+      "avg_views": 34
     }
   }
 }
