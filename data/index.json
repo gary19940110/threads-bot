@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-25T16:47:54.088110+08:00",
+  "updated_at": "2026-10-25T17:01:06.879004+08:00",
   "drafts": [
     {
       "id": "202610251344-5nc",
@@ -18,12 +18,12 @@
     },
     {
       "id": "202610251415-fac",
-      "status": "approved",
+      "status": "posted",
       "type": "listing",
       "hook_id": "",
       "publish_at": "2026-10-25T17:00:00+08:00",
-      "posted_at": null,
-      "permalink": null,
+      "posted_at": "2026-10-25T17:00:42.113947+08:00",
+      "permalink": "https://www.threads.com/@jng01.10/post/De6VexoFC0r",
       "first_line": "老闆，你缺的不是房間。",
       "metrics": null,
       "error": "",
