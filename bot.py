@@ -239,25 +239,32 @@ def cmd_publish():
 
 
 def first_comment(d):
-    """回傳 (文字, 圖片) 或 None。草稿沒設定就用預設留言；署名設定放留言時，一定附上署名。"""
+    """回傳 (文字, 圖片) 或 None。
+    自己留言＝額外文字＋（可勾選）聯繫方式＋（可勾選）署名。主文不放聯繫方式和署名，都放這裡；
+    主文或留言文字裡已經有的不重複加。草稿沒設定就用 settings 的預設。"""
     fc = d.get("first_comment")
     dflt = SETTINGS.get("first_comment") or {}
-    in_c = bool(SETTINGS.get("footer_in_comment"))
     if fc is None:
         fc = {"enabled": bool(dflt.get("enabled"))}
-    text, link, imgs = "", "", []
-    if fc.get("enabled"):
-        text = (fc.get("text") or "").strip() or (dflt.get("text") or "").strip()
-        link = (fc.get("link") or "").strip() or ("" if fc.get("text") else (dflt.get("link") or "").strip())
-        imgs = fc.get("images") or ([] if fc.get("text") else dflt.get("images") or [])
-    elif not in_c:
+    if not fc.get("enabled"):
         return None
+    body = d.get("text", "")
+    text = (fc.get("text") or "").strip() or (dflt.get("text") or "").strip()
+    link = (fc.get("link") or "").strip() or ("" if fc.get("text") else (dflt.get("link") or "").strip())
+    imgs = fc.get("images") or ([] if fc.get("text") else dflt.get("images") or [])
     out = ar_text({"text": text, "link": link}) if (text or link) else ""
-    if in_c and "經紀字" not in d.get("text", ""):  # 主文已有完整署名就不在留言重複補
-        lines = [x.strip() for x in SETTINGS.get("brand_footer", "").split("\n")]
-        foot = "\n".join(x for x in lines if x and x not in out and not ("經紀字" in x and "經紀字" in out))
-        if foot:
-            out = (out[: 500 - len(foot) - 2].rstrip() + "\n\n" + foot).strip() if out else foot
+    blocks = []
+    contact = (SETTINGS.get("contact_block") or "").strip()
+    phone = SETTINGS.get("phone") or "\0"
+    if contact and fc.get("contact", dflt.get("contact", True)) and phone not in out and phone not in body:
+        blocks.append(contact)
+    sign = (SETTINGS.get("brand_footer") or "").strip()
+    if sign and SETTINGS.get("footer_in_comment") and fc.get("sign", dflt.get("sign", True)) \
+            and "經紀字" not in out and "經紀字" not in body:
+        blocks.append(sign)
+    if blocks:
+        foot = "\n\n".join(blocks)
+        out = (out[: 500 - len(foot) - 2].rstrip() + "\n\n" + foot).strip() if out else foot
     if not out and not imgs:
         return None
     return out, imgs

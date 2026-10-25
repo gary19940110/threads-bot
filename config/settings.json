@@ -1,5 +1,5 @@
 {
-  "brand_footer": "台灣房屋北屯松竹十一期店｜經紀人員 黃守正\n尚峰不動產｜林建宏（103）中市經紀字00667號",
+  "brand_footer": "尚峰不動產｜林建宏（103）中市經紀字00667號",
   "line_id": "@a0110",
   "line_url": "https://line.me/R/ti/p/@a0110",
   "phone": "0966-228-528",
@@ -44,7 +44,10 @@
   "footer_in_comment": true,
   "first_comment": {
     "enabled": true,
-    "text": "想看更多照片、約看屋👇\n📱 0966-228-528 阿正\nLINE：@a0110",
-    "link": ""
-  }
+    "text": "",
+    "link": "",
+    "contact": true,
+    "sign": true
+  },
+  "contact_block": "黃守正｜阿正\n連續五年千萬經紀人\n📞 0966-228-528\nLINE｜@a0110"
 }
