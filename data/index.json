@@ -1,21 +1,6 @@
 {
-  "updated_at": "2026-10-25T16:19:26.336595+08:00",
+  "updated_at": "2026-10-25T16:47:54.088110+08:00",
   "drafts": [
-    {
-      "id": "202610251415-fac",
-      "status": "pending",
-      "type": "listing",
-      "hook_id": "",
-      "publish_at": "2026-10-26T17:00:00+08:00",
-      "posted_at": null,
-      "permalink": null,
-      "first_line": "老闆，你缺的不是房間。",
-      "metrics": null,
-      "error": "",
-      "images": 0,
-      "videos": 1,
-      "lib_id": ""
-    },
     {
       "id": "202610251344-5nc",
       "status": "approved",
@@ -29,6 +14,21 @@
       "error": "",
       "images": 3,
       "videos": 0,
+      "lib_id": ""
+    },
+    {
+      "id": "202610251415-fac",
+      "status": "approved",
+      "type": "listing",
+      "hook_id": "",
+      "publish_at": "2026-10-25T17:00:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "老闆，你缺的不是房間。",
+      "metrics": null,
+      "error": "",
+      "images": 0,
+      "videos": 1,
       "lib_id": ""
     },
     {
