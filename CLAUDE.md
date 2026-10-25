@@ -32,6 +32,7 @@
 | `data/inbox.json` / `data/replied.json` | 待人工回的留言 / 已回覆紀錄 |
 | `drafts/<id>.json` | 每一篇貼文一個檔 |
 | `images/` | 上傳的照片（中控台會縮到長邊 1440 的 JPEG）與圖卡 |
+| `docs/videos/` | 上傳的影片（70MB 內）。放 docs/ 是為了走 GitHub Pages 網址，Threads 才讀得到正確影片格式；上傳後約 2 分鐘 Pages 才更新 |
 
 所有 workflow 用同一個 `concurrency: group: bot`，不會同時跑兩個。
 
@@ -40,12 +41,12 @@
 **草稿 `drafts/<id>.json`**
 ```
 id, status(pending待審|approved已核准|posted已發布|failed失敗|rejected已刪除), type(listing物件文|knowledge|owner|market|poll|story|news|area|brand),
-text(第一行=標題), images[], card{label,title,points[]}|null, card_pos(first|last), topic_tag, publish_at(ISO +08:00),
+text(第一行=標題), images[], videos[](docs/videos/*.mp4|mov，發文時排在照片前), card{label,title,points[]}|null, card_pos(first|last), topic_tag, publish_at(ISO +08:00),
 commission_signed(物件文必須 true 才能發), lib_id(來自哪份文案庫), hook_id, why,
 auto_reply{enabled,text,link,images[],keywords[]}|null, first_comment{enabled,text,link,images[]},
 — 機器人寫入：threads_id, permalink, posted_at, metrics{views,likes,replies,...}, error, tries, first_comment_done
 ```
-**文案庫 `data/library.json`**：陣列，每份 `{id:"L…", name, tags[], type, text, images[], card, card_pos, topic_tag, auto_reply, first_comment, updated_at, prev_text?}`。
+**文案庫 `data/library.json`**：陣列，每份 `{id:"L…", name, tags[], type, text, images[], videos[], card, card_pos, topic_tag, auto_reply, first_comment, updated_at, prev_text?}`。
 從文案庫排程會複製成草稿並記 `lib_id`；改文案庫可同步所有同 `lib_id` 且 pending/approved 的草稿（中控台 `syncFromLib`）。
 
 **`config/settings.json` 重點欄位**：`brand_footer`（多行，每行一個署名）、`footer_in_comment`（true＝署名不放主文，放在自己第一則留言）、`first_comment`（預設自己留言）、`slots`（常用時段）、`topic_tags`、`dup_days`（同一篇間隔幾天內要提醒）、`reply`、`max_chars`(500)。

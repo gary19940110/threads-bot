@@ -50,7 +50,7 @@ input[type=text],input[type=password],input[type=datetime-local],select,input[ty
 .errbox{font-size:13px;background:var(--bad-weak);color:var(--bad);border-radius:8px;padding:6px 10px;margin-top:8px}
 .thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .thumb{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;background:var(--grid)}
-.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb img,.thumb video{width:100%;height:100%;object-fit:cover}
 .thumb button{position:absolute;top:2px;right:2px;border:0;border-radius:50%;width:22px;height:22px;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;line-height:22px;padding:0}
 .preview{white-space:pre-wrap;font-size:14px;color:var(--ink2);border-left:3px solid var(--line);padding-left:10px;margin-top:8px}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
@@ -200,6 +200,7 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 <main id="main"></main>
 <div class="toast" id="toast"></div>
 <input type="file" id="file" accept="image/*" multiple hidden>
+<input type="file" id="vfile" accept="video/mp4,video/quicktime,.mp4,.mov" hidden>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
 "use strict";
@@ -246,6 +247,7 @@ async function updateJSON(path, mutate, msg, fallback){
   }
   throw new Error("存檔衝突，請重新整理");
 }
+const pagesURL = rel => { const [o,n]=S.repo.split("/"); return `https://${o}.github.io/${n}/${rel.replace(/^docs\//,"")}`; };
 const rawURL = rel => rel.startsWith("http") ? rel : `https://raw.githubusercontent.com/${S.repo}/main/${rel}`;
 
 // ---------- 載入 ----------
@@ -405,15 +407,16 @@ async function saveSlots(list){
 
 // ---------- 圖片排列、留言自動回覆（寫文案和編輯視窗共用） ----------
 const LOCAL_IMG={};
-const imgSrc=p=>LOCAL_IMG[p]||rawURL(p);
-function imgStrip(list,key){
-  return `<div class="thumbs" data-strip="${key}">${list.map((im,i)=>`<div class="thumb"><img src="${esc(imgSrc(im))}" alt=""><span class="tnum">${/card-/.test(im)?"卡":i+1}</span><button class="trm" data-rm="${key}:${i}" title="移除">×</button>
+const imgSrc=p=>LOCAL_IMG[p]||(/^docs\//.test(p)?pagesURL(p):rawURL(p));
+const isVideo=p=>/\.(mp4|mov)$/i.test(p||"");
+function imgStrip(list,key,kind){
+  return `<div class="thumbs" data-strip="${key}">${list.map((im,i)=>`<div class="thumb">${isVideo(im)?`<video src="${esc(imgSrc(im))}#t=0.5" muted playsinline preload="metadata"></video>`:`<img src="${esc(imgSrc(im))}" alt="">`}<span class="tnum">${/card-/.test(im)?"卡":i+1}</span><button class="trm" data-rm="${key}:${i}" title="移除">×</button>
     <div class="tmove">${i>0?`<button data-mv="${key}:${i}:-1" title="往前">◀</button>`:"<i></i>"}${i<list.length-1?`<button data-mv="${key}:${i}:1" title="往後">▶</button>`:"<i></i>"}</div></div>`).join("")}
-    <button class="btn ghost addimg" data-add="${key}" type="button">＋照片</button></div>`; }
+    <button class="btn ghost addimg" data-add="${key}" ${kind==="video"?'data-kind="video"':""} type="button">${kind==="video"?"＋影片":"＋照片"}</button></div>`; }
 function bindStrip(root, lists, redraw, before){
   root.querySelectorAll("[data-rm]").forEach(b=>{ const [k,i]=b.dataset.rm.split(":"); const L=lists[k]; if(!L) return; b.onclick=()=>{ before&&before(); L.arr.splice(+i,1); redraw(); }; });
   root.querySelectorAll("[data-mv]").forEach(b=>{ const [k,i,dir]=b.dataset.mv.split(":"); const L=lists[k]; if(!L) return; b.onclick=()=>{ before&&before(); const a=L.arr, x=+i, y=x+(+dir); [a[x],a[y]]=[a[y],a[x]]; redraw(); }; });
-  root.querySelectorAll("[data-add]").forEach(b=>{ const L=lists[b.dataset.add]; if(!L) return; b.onclick=()=>{ before&&before(); pickImages({id:L.id,images:L.arr}, redraw); }; });
+  root.querySelectorAll("[data-add]").forEach(b=>{ const L=lists[b.dataset.add]; if(!L) return; b.onclick=()=>{ before&&before(); (b.dataset.kind==="video"?pickVideos:pickImages)({id:L.id,images:L.arr}, redraw); }; });
   if(window.Sortable) root.querySelectorAll("[data-strip]").forEach(el=>{ const L=lists[el.dataset.strip]; if(!L) return;
     Sortable.create(el,{animation:150,draggable:".thumb",filter:".trm",preventOnFilter:false,delay:150,delayOnTouchOnly:true,ghostClass:"thumb-ghost",
       onEnd:ev=>{ const a=ev.oldDraggableIndex,b=ev.newDraggableIndex; if(a===b||a==null||b==null) return; before&&before(); const [x]=L.arr.splice(a,1); L.arr.splice(b,0,x); redraw(); } }); });
@@ -473,7 +476,7 @@ function renderLib(){
       return `<div class="librow" data-lopen="${esc(e.id)}">
         <div class="lthumb">${im?`<img src="${esc(imgSrc(im))}" alt="">`:`<span>${typeIcon(e.type)||"📝"}</span>`}</div>
         <div class="lmain"><div class="lname">${esc(e.name)}</div>
-          <div class="lmeta">${esc(typeName(e.type))}${(e.images||[]).length?` · 📷 ${e.images.length} 張`:""}${e.auto_reply&&e.auto_reply.enabled?` · 💬 自動回覆`:""}${(e.tags||[]).map(t=>` <span class="ltag">#${esc(t)}</span>`).join("")}</div>
+          <div class="lmeta">${esc(typeName(e.type))}${(e.images||[]).length?` · 📷 ${e.images.length} 張`:""}${(e.videos||[]).length?` · 🎬 影片`:""}${e.auto_reply&&e.auto_reply.enabled?` · 💬 自動回覆`:""}${(e.tags||[]).map(t=>` <span class="ltag">#${esc(t)}</span>`).join("")}</div>
           <div class="lfirst">${esc((e.text||"").split("\n")[0])}</div></div>
         <div class="lact"><button class="btn" data-lopen2="${esc(e.id)}">編輯／排程</button><button class="btn ghost danger-t" data-ldel="${esc(e.id)}">🗑 刪除</button></div></div>`; }).join("")}</div>
     ${L.length?"":`<div class="small" style="margin-top:10px">還沒有文案。按「＋ 新增一份」，可以自己寫，也可以讓 AI 幫你寫。</div>`}</div>`;
@@ -496,12 +499,12 @@ const typeIcon=t=>(TYPES[t]||{}).icon||"";
 function newLibEntry(){ return {id:"",name:"",tags:[],type:"listing",text:"",images:[],card:{...NOCARD},card_pos:"first",auto_reply:{...blankReply(),enabled:true}}; }
 function draftFrom(e, date, time){
   return {id:newId(),status:"pending",type:e.type||"knowledge",hook_id:e.hook_id||"",text:(e.text||"").trim(),why:e.why||(e.name?"文案庫："+e.name:""),
-    card:realCard(e.card),card_pos:e.card_pos||"first",topic_tag:e.topic_tag||(S.settings.topic_tags||[""])[0],images:[...(e.images||[])],
+    card:realCard(e.card),card_pos:e.card_pos||"first",topic_tag:e.topic_tag||(S.settings.topic_tags||[""])[0],images:[...(e.images||[])],videos:[...(e.videos||[])],
     publish_at:isoOf(date,time),created_at:new Date().toISOString(),created_by:e.name?"library":(aiKey()?"ai-console":"manual"),
     commission_signed:e.type==="listing"?!!e.commission_signed:false,auto_reply:e.auto_reply&&e.auto_reply.enabled?structuredClone(e.auto_reply):null,lib_id:e.id||"",
     ...(e.first_comment?{first_comment:structuredClone(e.first_comment)}:{})}; }
 // ---------- 同步：文案庫 ↔ 同一個案件的所有排程 ----------
-const SYNC_KEYS=["type","text","images","card","card_pos","topic_tag","auto_reply","first_comment"];
+const SYNC_KEYS=["type","text","images","videos","card","card_pos","topic_tag","auto_reply","first_comment"];
 const siblings=(libId,except)=>Object.values(S.drafts).filter(x=>x.lib_id===libId&&x.id!==except&&["pending","approved"].includes(x.status));
 function syncBox(mode,d){ if(mode==="lib"){ if(!d.id) return ""; const n=siblings(d.id,"").length; if(!n) return "";
     return `<label class="check syncbox"><input type="checkbox" id="e-sync" checked><span>🔄 同步更新這個案件已排程、還沒發出的 <b>${n}</b> 篇（內容、照片、主題、留言都一起改）</span></label>`; }
@@ -509,12 +512,12 @@ function syncBox(mode,d){ if(mode==="lib"){ if(!d.id) return ""; const n=sibling
   return `<label class="check syncbox"><input type="checkbox" id="e-sync" checked><span>🔄 同步到文案庫「${esc(e.name)}」${n?`和同案件其他 <b>${n}</b> 篇排程`:""}（內容、照片、主題、留言都一起改）</span></label>`; }
 async function syncFromLib(e, except){ let n=0;
   for(const x of siblings(e.id,except)){ const nd={...x}; SYNC_KEYS.forEach(k=>{ if(e[k]!==undefined) nd[k]=structuredClone(e[k]); });
-    nd.images=[...(e.images||[])]; nd.card=realCard(e.card); nd.auto_reply=e.auto_reply&&e.auto_reply.enabled?structuredClone(e.auto_reply):null;
+    nd.images=[...(e.images||[])]; nd.videos=[...(e.videos||[])]; nd.card=realCard(e.card); nd.auto_reply=e.auto_reply&&e.auto_reply.enabled?structuredClone(e.auto_reply):null;
     if(nd.status==="approved"&&checkReady(nd)) nd.status="pending";
     try{ await saveDraft(nd,"同步文案庫"); n++; }catch(err){ toast("有一篇同步失敗："+err.message); } }
   return n; }
 async function syncDraftToLib(d){ const e0=libEntries().find(x=>x.id===d.lib_id); if(!e0) return -1;
-  const upd={type:d.type,text:(d.text||"").trim(),images:(d.images||[]).filter(x=>!/card-/.test(x)),card:realCard(d.card),card_pos:d.card_pos||"first",topic_tag:d.topic_tag||"",
+  const upd={type:d.type,text:(d.text||"").trim(),images:(d.images||[]).filter(x=>!/card-/.test(x)),videos:[...(d.videos||[])],card:realCard(d.card),card_pos:d.card_pos||"first",topic_tag:d.topic_tag||"",
     auto_reply:d.auto_reply||{...blankReply(),enabled:false},first_comment:d.first_comment,updated_at:new Date().toISOString()};
   try{ S.library=await updateJSON("data/library.json", arr=>(Array.isArray(arr)?arr:[]).map(x=>x.id===e0.id?{...x,...upd}:x), `中控台：同步文案庫 ${e0.name}`, []); }
   catch(err){ toast("同步文案庫失敗："+err.message); return -1; }
@@ -551,7 +554,7 @@ function bindSlots(root, p, setTime, redraw){
 const QUICK3={all:"✨ AI 整體優化",hook:"標題更有力",short:"縮短"};
 function openEdit(mode, d){
   // mode: "lib" 文案庫的一份；"draft" 排程上的一篇貼文
-  d.images=d.images||[]; d.auto_reply=d.auto_reply||blankReply(); d.auto_reply.images=d.auto_reply.images||[]; d.card=d.card||{...NOCARD};
+  d.images=d.images||[]; d.videos=d.videos||[]; d.auto_reply=d.auto_reply||blankReply(); d.auto_reply.images=d.auto_reply.images||[]; d.card=d.card||{...NOCARD};
   d.first_comment=d.first_comment||{enabled:!!(S.settings.first_comment||{}).enabled,text:"",link:"",images:[]}; d.first_comment.images=d.first_comment.images||[];
   const isNew=mode==="lib"?!d.id:!S.drafts[d.id];
   let when; if(mode==="draft"&&d.publish_at) when={date:dayOf(d.publish_at),time:timeOf(d.publish_at)}; else when=nextFreeSlot();
@@ -589,6 +592,7 @@ function openEdit(mode, d){
     <div class="row" style="justify-content:space-between"><span class="count" id="e-count"></span><span class="small">發布時自動加署名</span></div>
     <div class="btns quick">${Object.entries(QUICK3).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
     <div class="field"><label>📷 照片（照這個順序發出；用滑鼠或手指拖拉照片調整順序，× 移除）</label>${imgStrip(d.images,"e")}</div>
+    <div class="field"><label>🎬 影片（mp4／mov，最長 5 分鐘、檔案 70MB 內；有影片時放在照片前面發出）</label>${imgStrip(d.videos,"ev","video")}</div>
     ${cardFields(d.card,"e")}
     <canvas id="e-prev" class="cardprev" width="1080" height="1350"></canvas>
     ${d.images.filter(x=>!/card-/.test(x)).length?`<label class="check"><input type="checkbox" id="e-cardlast" ${d.card_pos==="last"?"checked":""}><span>圖卡放在照片最後（沒勾＝第一張）</span></label>`:""}
@@ -611,7 +615,7 @@ function openEdit(mode, d){
     ta.oninput=tin.oninput=cnt; cnt(); bindPreview("e", box);
     q("[data-x]").onclick=()=>box.remove();
     q("#e-type").onchange=()=>{ collect(); draw(); };
-    bindStrip(box, {e:{arr:d.images,id:d.id||("L"+newId())}, er:{arr:d.auto_reply.images,id:(d.id||"L")+"-r"}, efc:{arr:d.first_comment.images,id:(d.id||"L")+"-c"}}, draw, collect);
+    bindStrip(box, {e:{arr:d.images,id:d.id||("L"+newId())}, ev:{arr:d.videos,id:d.id||("L"+newId())}, er:{arr:d.auto_reply.images,id:(d.id||"L")+"-r"}, efc:{arr:d.first_comment.images,id:(d.id||"L")+"-c"}}, draw, collect);
     q("#e-rcopy").onclick=()=>{ collect(); d.auto_reply.images=d.images.filter(x=>!/card-/.test(x)); draw(); };
     bindSlots(box,"e",t=>{ q("#e-time").value=t; },()=>{ collect(); draw(); });
     box.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ q("#e-topic").value=b.dataset.topic; box.querySelectorAll("[data-topic]").forEach(x=>x.classList.toggle("on",x===b)); });
@@ -624,7 +628,7 @@ function openEdit(mode, d){
   };
   const lock=on=>box.querySelectorAll("button").forEach(x=>x.disabled=on);
   const saveLibEntry=async asNew=>{ if(!d.name){ toast("先取個名字，例：若山牧水地獄底價"); q("#e-name").focus(); return false; } if(!d.text.trim()){ toast("文案是空的"); return false; }
-    const e={id:(!asNew&&d.id)||("L"+newId()),name:d.name,tags:d.tags||[],type:d.type,text:d.text.trim(),images:[...d.images],card:realCard(d.card),card_pos:d.card_pos||"first",topic_tag:d.topic_tag||"",auto_reply:d.auto_reply,first_comment:d.first_comment,updated_at:new Date().toISOString()};
+    const e={id:(!asNew&&d.id)||("L"+newId()),name:d.name,tags:d.tags||[],type:d.type,text:d.text.trim(),images:[...d.images],videos:[...d.videos],card:realCard(d.card),card_pos:d.card_pos||"first",topic_tag:d.topic_tag||"",auto_reply:d.auto_reply,first_comment:d.first_comment,updated_at:new Date().toISOString()};
     S.library=await updateJSON("data/library.json", arr=>{ arr=Array.isArray(arr)?arr:[]; const i=arr.findIndex(x=>x.id===e.id); if(i>=0) arr[i]=e; else arr.unshift(e); return arr; }, `中控台：文案庫 ${e.name}`, []);
     d.id=e.id; return true; };
   const blocked=async why=>{ const sg=q("#e-sign"); const isSign=/委託/.test(why);
@@ -728,7 +732,7 @@ function calItems(){
 const firstLine=x=>((x.text||x.first_line||"").trim().split("\n")[0]||"").slice(0,30);
 const sameContent=(a,b)=>(a.lib_id&&b.lib_id&&a.lib_id===b.lib_id)||(firstLine(a)&&firstLine(a)===firstLine(b));
 const dupDays=()=>+(S.settings.dup_days||3);
-const noPhoto=d=>!(d.images||[]).filter(x=>!/card-/.test(x)).length&&(d.type==="listing"||!realCard(d.card));
+const noPhoto=d=>!(d.images||[]).filter(x=>!/card-/.test(x)).length&&!(d.videos||[]).length&&(d.type==="listing"||!realCard(d.card));
 function tooClose(d, pool){ const t=new Date(d.publish_at), lim=dupDays()*864e5; return pool.filter(x=>x.id!==d.id&&x.status!=="rejected"&&x.publish_at&&sameContent(x,d)&&Math.abs(new Date(x.publish_at)-t)<lim); }
 function preWarn(list){ const ids=new Set(list.map(x=>x.id)); const pool=[...calItems().filter(x=>!ids.has(x.id)),...list]; const out=[];
   list.forEach(d=>{ const nm=evName(d,firstLine(d)); const near=tooClose(d,pool);
@@ -812,6 +816,20 @@ $("#file").onchange = async e => {
   try{ for(const [i,f] of files.entries()){ const path=`images/${d.id}-${Date.now()}-${i}.jpg`; const b64=await shrink(f); await putRaw(path, b64, `中控台：上傳照片 ${d.id}`); LOCAL_IMG[path]="data:image/jpeg;base64,"+b64; d.images.push(path); }
     toast("照片已上傳"); imgDone&&imgDone(); }
   catch(err){ toast("上傳失敗："+err.message); }
+};
+function pickVideos(d, done){ imgTarget=d; imgDone=done; $("#vfile").value=""; $("#vfile").click(); }
+$("#vfile").onchange = async e => {
+  const f=e.target.files[0]; if(!f||!imgTarget) return;
+  const d=imgTarget, ext=/\.mov$/i.test(f.name)||f.type==="video/quicktime"?"mov":"mp4";
+  if(f.size>70*1024*1024) return ask(`影片 ${(f.size/1048576).toFixed(0)}MB，超過 70MB 傳不上去。
+
+請先用手機剪輯 App 輸出成 1080p 或縮短再上傳。`,"知道了");
+  toast(`上傳影片中（${(f.size/1048576).toFixed(1)}MB），請不要關掉…`);
+  try{ const b64=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(",")[1]); r.onerror=rej; r.readAsDataURL(f); });
+    const path=`docs/videos/${d.id}-${Date.now()}.${ext}`; await putRaw(path, b64, `中控台：上傳影片 ${d.id}`);
+    LOCAL_IMG[path]=URL.createObjectURL(f); d.images.push(path);
+    toast("影片已上傳（約 2 分鐘後機器人才抓得到）"); imgDone&&imgDone(); }
+  catch(err){ toast("影片上傳失敗："+err.message); }
 };
 function shrink(file){ // 長邊 1440、JPEG，符合 Threads 圖片規格
   return new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>{ const k=Math.min(1,1440/Math.max(img.width,img.height));

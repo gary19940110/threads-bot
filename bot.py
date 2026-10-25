@@ -129,6 +129,24 @@ def image_url(rel):
     return f"https://raw.githubusercontent.com/{repo}/{branch}/{rel.lstrip('/')}"
 
 
+def media_url(rel):
+    """影片放在 docs/videos/，走 GitHub Pages 網址（Threads 需要正確的影片格式標頭）。"""
+    if rel.startswith("docs/"):
+        owner, name = os.environ["REPO"].split("/")
+        return f"https://{owner}.github.io/{name}/{rel[5:]}"
+    return image_url(rel)
+
+
+def is_video(rel):
+    return rel.lower().endswith((".mp4", ".mov"))
+
+
+def media_params(rel):
+    if is_video(rel):
+        return {"media_type": "VIDEO", "video_url": media_url(rel)}
+    return {"media_type": "IMAGE", "image_url": image_url(rel)}
+
+
 def wait_ready(container_id, tries=12):
     for _ in range(tries):
         st = call("GET", container_id, fields="status,error_message")
@@ -148,23 +166,25 @@ def publish_one(d):
         raise ThreadsError(f"字數 {len(text)} 超過 {limit}")
     if "[待填" in text:
         raise ThreadsError("文案還有 [待填] 沒填")
-    imgs = d.get("images") or []
+    vids = d.get("videos") or []
+    imgs = (vids + (d.get("images") or []))[:20]  # 影片排在照片前面
+    tries = 36 if vids else 12  # 影片要等 Threads 轉檔，最多約 6 分鐘
     base = {}
     if d.get("topic_tag"):
         base["topic_tag"] = d["topic_tag"].replace(".", "").replace("&", "")
     if not imgs:
         c = call("POST", f"{USER_ID}/threads", media_type="TEXT", text=text, **base)
     elif len(imgs) == 1:
-        c = call("POST", f"{USER_ID}/threads", media_type="IMAGE", image_url=image_url(imgs[0]), text=text, **base)
+        c = call("POST", f"{USER_ID}/threads", **media_params(imgs[0]), text=text, **base)
     else:
         kids = []
-        for rel in imgs[:20]:
-            k = call("POST", f"{USER_ID}/threads", media_type="IMAGE", image_url=image_url(rel), is_carousel_item="true")
+        for rel in imgs:
+            k = call("POST", f"{USER_ID}/threads", **media_params(rel), is_carousel_item="true")
             kids.append(k["id"])
         for k in kids:
-            wait_ready(k)
+            wait_ready(k, tries)
         c = call("POST", f"{USER_ID}/threads", media_type="CAROUSEL", children=",".join(kids), text=text, **base)
-    wait_ready(c["id"])
+    wait_ready(c["id"], tries)
     res = call("POST", f"{USER_ID}/threads_publish", creation_id=c["id"])
     media_id = res["id"]
     link = ""
@@ -531,7 +551,7 @@ def cmd_index():
             "id": d["id"], "status": d.get("status"), "type": d.get("type"), "hook_id": d.get("hook_id"),
             "publish_at": d.get("publish_at"), "posted_at": d.get("posted_at"), "permalink": d.get("permalink"),
             "first_line": d.get("text", "").strip().split("\n")[0][:60], "metrics": d.get("metrics"),
-            "error": d.get("error", ""), "images": len(d.get("images") or []), "lib_id": d.get("lib_id", ""),
+            "error": d.get("error", ""), "images": len(d.get("images") or []), "videos": len(d.get("videos") or []), "lib_id": d.get("lib_id", ""),
         })
     idx.sort(key=lambda x: x.get("publish_at") or "", reverse=True)
     save("data/index.json", {"updated_at": now().isoformat(), "drafts": idx})
