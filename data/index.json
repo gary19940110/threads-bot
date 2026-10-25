@@ -1,6 +1,36 @@
 {
-  "updated_at": "2026-10-25T13:27:16.867465+08:00",
+  "updated_at": "2026-10-25T14:01:59.160105+08:00",
   "drafts": [
+    {
+      "id": "202610251415-fac",
+      "status": "pending",
+      "type": "listing",
+      "hook_id": "",
+      "publish_at": "2026-10-26T17:00:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "老闆，你缺的不是房間。",
+      "metrics": null,
+      "error": "",
+      "images": 0,
+      "videos": 1,
+      "lib_id": ""
+    },
+    {
+      "id": "202610251344-5nc",
+      "status": "approved",
+      "type": "listing",
+      "hook_id": "",
+      "publish_at": "2026-10-25T22:30:00+08:00",
+      "posted_at": null,
+      "permalink": null,
+      "first_line": "200坪正松竹路30米大店面+倉儲+可停多車企業總部",
+      "metrics": null,
+      "error": "",
+      "images": 3,
+      "videos": 0,
+      "lib_id": ""
+    },
     {
       "id": "202610201224-kd9",
       "status": "posted",
@@ -22,6 +52,7 @@
       },
       "error": "",
       "images": 14,
+      "videos": 0,
       "lib_id": "L202610191634-b6o"
     },
     {
@@ -45,6 +76,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -68,6 +100,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -91,6 +124,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -114,6 +148,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -137,6 +172,7 @@
       },
       "error": "",
       "images": 12,
+      "videos": 0,
       "lib_id": "L202610191308-sww"
     },
     {
@@ -160,6 +196,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -183,6 +220,7 @@
       },
       "error": "",
       "images": 9,
+      "videos": 0,
       "lib_id": "L202610191201-5lh"
     },
     {
@@ -206,6 +244,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -229,6 +268,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": "L202610200954-fxu"
     },
     {
@@ -243,6 +283,7 @@
       "metrics": null,
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": "L202610200954-fxu"
     },
     {
@@ -266,6 +307,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -280,6 +322,7 @@
       "metrics": null,
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": "L202610191634-b6o"
     },
     {
@@ -303,6 +346,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": "L202610191634-b6o"
     },
     {
@@ -326,6 +370,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -349,6 +394,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": "L202610200954-fxu"
     },
     {
@@ -372,6 +418,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": "L202610191634-b6o"
     },
     {
@@ -395,6 +442,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -418,6 +466,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -441,6 +490,7 @@
       },
       "error": "",
       "images": 12,
+      "videos": 0,
       "lib_id": "L202610191308-sww"
     },
     {
@@ -464,6 +514,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -487,6 +538,7 @@
       },
       "error": "",
       "images": 8,
+      "videos": 0,
       "lib_id": "L202610171224-0ml"
     },
     {
@@ -510,6 +562,7 @@
       },
       "error": "",
       "images": 0,
+      "videos": 0,
       "lib_id": "L202610191003-ubt"
     },
     {
@@ -533,6 +586,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -556,6 +610,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -579,6 +634,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -602,6 +658,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -625,6 +682,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -648,6 +706,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -671,6 +730,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -694,6 +754,7 @@
       },
       "error": "",
       "images": 9,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -717,6 +778,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -740,6 +802,7 @@
       },
       "error": "",
       "images": 8,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -763,6 +826,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -786,6 +850,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -809,6 +874,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     },
     {
@@ -832,6 +898,7 @@
       },
       "error": "",
       "images": 1,
+      "videos": 0,
       "lib_id": ""
     }
   ]
