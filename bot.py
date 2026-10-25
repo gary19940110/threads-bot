@@ -253,7 +253,7 @@ def first_comment(d):
     elif not in_c:
         return None
     out = ar_text({"text": text, "link": link}) if (text or link) else ""
-    if in_c:
+    if in_c and "經紀字" not in d.get("text", ""):  # 主文已有完整署名就不在留言重複補
         lines = [x.strip() for x in SETTINGS.get("brand_footer", "").split("\n")]
         foot = "\n".join(x for x in lines if x and x not in out and not ("經紀字" in x and "經紀字" in out))
         if foot:
