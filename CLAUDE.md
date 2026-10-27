@@ -34,7 +34,7 @@
 | `images/` | 上傳的照片（中控台會縮到長邊 1440 的 JPEG）與圖卡 |
 | `tools/connect.js` | 連結 FB 粉專／IG／YouTube 的小幫手（阿正在自己電腦跑 `node tools/connect.js meta`／`youtube`，產生要貼到 Secrets 的值） |
 | `data/platforms.json` | 機器人寫入：哪些平台已連結（中控台顯示「還沒連結」用） |
-| `docs/videos/` | 上傳的影片（70MB 內）。放 docs/ 是為了走 GitHub Pages 網址，Threads 才讀得到正確影片格式；上傳後約 2 分鐘 Pages 才更新 |
+| `docs/videos/` | 上傳的影片（28MB 內；GitHub 網頁 API 實測超過約 30MB 回 422，所以超過就在瀏覽器自動壓縮）。放 docs/ 是為了走 GitHub Pages 網址，Threads 才讀得到正確影片格式；上傳後約 2 分鐘 Pages 才更新 |
 
 所有 workflow 用同一個 `concurrency: group: bot`，不會同時跑兩個。
 
