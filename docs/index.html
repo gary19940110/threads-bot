@@ -602,7 +602,7 @@ function openEdit(mode, d){
     <div class="row" style="justify-content:space-between"><span class="count" id="e-count"></span><span class="small">電話、LINE、署名放自己留言，主文不用寫</span></div>
     <div class="btns quick">${Object.entries(QUICK3).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
     <div class="field"><label>📷 照片（照這個順序發出；用滑鼠或手指拖拉照片調整順序，× 移除）</label>${imgStrip(d.images,"e")}</div>
-    <div class="field"><label>🎬 影片（mp4／mov，最長 5 分鐘、檔案 70MB 內；有影片時放在照片前面發出）</label>${imgStrip(d.videos,"ev","video")}</div>
+    <div class="field"><label>🎬 影片（mp4／mov，最長 5 分鐘；超過 70MB 會自動壓縮；有影片時放在照片前面發出）</label>${imgStrip(d.videos,"ev","video")}</div>
     ${cardFields(d.card,"e")}
     <canvas id="e-prev" class="cardprev" width="1080" height="1350"></canvas>
     ${d.images.filter(x=>!/card-/.test(x)).length?`<label class="check"><input type="checkbox" id="e-cardlast" ${d.card_pos==="last"?"checked":""}><span>圖卡放在照片最後（沒勾＝第一張）</span></label>`:""}
@@ -828,12 +828,40 @@ $("#file").onchange = async e => {
   catch(err){ toast("上傳失敗："+err.message); }
 };
 function pickVideos(d, done){ imgTarget=d; imgDone=done; $("#vfile").value=""; $("#vfile").click(); }
+// 影片超過 70MB：在瀏覽器裡邊播邊錄，轉成 1080p MP4（H.264＋AAC，Threads 要的格式）
+const VID_MAX=70*1024*1024;
+const vidMime=()=>window.MediaRecorder&&["video/mp4;codecs=avc1.640028,mp4a.40.2","video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4;codecs=avc1,mp4a.40.2","video/mp4"].find(m=>MediaRecorder.isTypeSupported(m));
+async function compressVideo(file){
+  const mime=vidMime(); const v=document.createElement("video"); v.playsInline=true; v.preload="auto"; v.src=URL.createObjectURL(file);
+  await new Promise((res,rej)=>{ v.onloadedmetadata=res; v.onerror=()=>rej(new Error("讀不到這個影片")); });
+  const dur=v.duration; if(!isFinite(dur)||dur<=0) throw new Error("讀不到影片長度");
+  if(dur>300) throw new Error(`影片 ${Math.round(dur)} 秒，Threads 自動發文最長 5 分鐘`);
+  const k=Math.min(1,1920/Math.max(v.videoWidth,v.videoHeight),1080/Math.min(v.videoWidth,v.videoHeight));
+  const c=document.createElement("canvas"); c.width=Math.round(v.videoWidth*k/2)*2; c.height=Math.round(v.videoHeight*k/2)*2; const g=c.getContext("2d");
+  const ac=new (window.AudioContext||window.webkitAudioContext)(); await ac.resume(); const dest=ac.createMediaStreamDestination(); ac.createMediaElementSource(v).connect(dest);
+  const stream=new MediaStream([...c.captureStream(30).getVideoTracks(),...dest.stream.getAudioTracks()]);
+  const vbps=Math.max(1.2e6,Math.min(6e6,Math.floor(60*1024*1024*8/dur)-160e3));
+  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:vbps,audioBitsPerSecond:128e3}); const parts=[];
+  rec.ondataavailable=e=>e.data.size&&parts.push(e.data);
+  const stopped=new Promise(res=>rec.onstop=res);
+  let on=true; const draw=()=>{ if(!on) return; g.drawImage(v,0,0,c.width,c.height); toast(`壓縮影片中… ${Math.min(99,Math.round(v.currentTime/dur*100))}%（請停在這個畫面）`);
+    v.requestVideoFrameCallback?v.requestVideoFrameCallback(draw):requestAnimationFrame(draw); };
+  g.drawImage(v,0,0,c.width,c.height); rec.start(1000); await v.play(); draw();
+  await new Promise(res=>v.onended=res); on=false; rec.stop(); await stopped;
+  stream.getTracks().forEach(t=>t.stop()); ac.close(); URL.revokeObjectURL(v.src);
+  const out=new Blob(parts,{type:"video/mp4"});
+  if(out.size>VID_MAX) throw new Error(`壓完還有 ${(out.size/1048576).toFixed(0)}MB`);
+  toast(`壓縮完成：${(file.size/1048576).toFixed(0)}MB → ${(out.size/1048576).toFixed(0)}MB`); return out;
+}
 $("#vfile").onchange = async e => {
-  const f=e.target.files[0]; if(!f||!imgTarget) return;
-  const d=imgTarget, ext=/\.mov$/i.test(f.name)||f.type==="video/quicktime"?"mov":"mp4";
-  if(f.size>70*1024*1024) return ask(`影片 ${(f.size/1048576).toFixed(0)}MB，超過 70MB 傳不上去。
-
-請先用手機剪輯 App 輸出成 1080p 或縮短再上傳。`,"知道了");
+  let f=e.target.files[0]; if(!f||!imgTarget) return;
+  const d=imgTarget; let ext=/\.mov$/i.test(f.name)||f.type==="video/quicktime"?"mov":"mp4";
+  if(f.size>VID_MAX){
+    if(!vidMime()) return ask(`影片 ${(f.size/1048576).toFixed(0)}MB，超過 70MB。\n\n這個瀏覽器不支援自動壓縮，請改用 Chrome（電腦／Android）或 iPhone Safari，或先用 CapCut 輸出 1080p 再上傳。`,"知道了");
+    if(!(await ask(`影片 ${(f.size/1048576).toFixed(0)}MB，超過 70MB，要自動壓縮成 1080p 嗎？\n\n壓縮時間約等於影片長度，期間請停在這個畫面、不要關掉或切到別的 App。`,"開始壓縮"))) return;
+    try{ f=await compressVideo(f); ext="mp4"; }
+    catch(err){ return ask("壓縮失敗："+err.message+"\n\n可以先用 CapCut 輸出 1080p 再上傳。","知道了"); }
+  }
   toast(`上傳影片中（${(f.size/1048576).toFixed(1)}MB），請不要關掉…`);
   try{ const b64=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(",")[1]); r.onerror=rej; r.readAsDataURL(f); });
     const path=`docs/videos/${d.id}-${Date.now()}.${ext}`; await putRaw(path, b64, `中控台：上傳影片 ${d.id}`);
