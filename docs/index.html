@@ -572,7 +572,7 @@ function openEdit(mode, d){
   let brief=""; const box=document.createElement("div"); box.className="modal";
   const q=s=>box.querySelector(s);
   const collect=()=>{ if(!q("#e-text")) return;
-    d.text=joinTitle(q("#e-title").value,q("#e-text").value); d.type=q("#e-type").value;
+    d.text=q("#e-text").value; d.type=q("#e-type").value;
     d.card=readCard("e")||{...NOCARD,label:q("#e-cl").value,title:q("#e-ct").value,points:q("#e-cp").value.split("\n").filter(Boolean)};
     d.card_pos=q("#e-cardlast")&&q("#e-cardlast").checked?"last":"first";
     if(q("#e-sign")) d.commission_signed=q("#e-sign").checked;
@@ -598,8 +598,7 @@ function openEdit(mode, d){
       <div class="btns"><button class="btn primary" data-ai="write">✨ 幫我寫一篇</button></div></details>
     ${topicField(d.topic_tag)}
     <div class="row2"><div class="field"><label>文章類型</label><select id="e-type">${Object.entries(TYPES).map(([k,t])=>`<option value="${k}" ${k===d.type?"selected":""}>${t.icon} ${t.name}</option>`).join("")}</select></div><div></div></div>
-    <div class="field"><label>標題（貼文第一行，最吸睛的一句）</label><input type="text" id="e-title" class="titlein" placeholder="例：這間一樓大到可以做密室逃脫" value="${esc(t1)}"></div>
-    <div class="field"><label>內文</label><textarea id="e-text" placeholder="在這裡寫內文">${esc(t2)}</textarea></div>
+    <div class="field"><label>內文（第一行就是標題，寫最吸睛的一句）</label><textarea id="e-text" placeholder="第一行：例 這間一樓大到可以做密室逃脫&#10;第二行開始寫內文">${esc(d.text)}</textarea></div>
     <div class="row" style="justify-content:space-between"><span class="count" id="e-count"></span><span class="small">電話、LINE、署名放自己留言，主文不用寫</span></div>
     <div class="btns quick">${Object.entries(QUICK3).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
     <div class="field"><label>📷 照片（照這個順序發出；用滑鼠或手指拖拉照片調整順序，× 移除）</label>${imgStrip(d.images,"e")}</div>
@@ -622,8 +621,8 @@ function openEdit(mode, d){
           <button class="btn ghost" data-a="tolib">📁 存到文案庫</button>${isNew?"":`<button class="btn ghost" data-a="reject">刪除（不發）</button>`}`}</div></div>
     </div>`;
     q(".sheet").scrollTop=sc;
-    const ta=q("#e-text"), tin=q("#e-title"), cnt=()=>{ const n=fullLen(joinTitle(tin.value,ta.value)),m=S.settings.max_chars||500; const c=q("#e-count"); c.textContent=`含署名 ${n} / ${m} 字`; c.classList.toggle("over",n>m); };
-    ta.oninput=tin.oninput=cnt; cnt(); bindPreview("e", box);
+    const ta=q("#e-text"), cnt=()=>{ const n=fullLen(ta.value),m=S.settings.max_chars||500; const c=q("#e-count"); c.textContent=`含署名 ${n} / ${m} 字`; c.classList.toggle("over",n>m); };
+    ta.oninput=cnt; cnt(); bindPreview("e", box);
     q("[data-x]").onclick=()=>box.remove();
     q("#e-type").onchange=()=>{ collect(); draw(); };
     bindStrip(box, {e:{arr:d.images,id:d.id||("L"+newId())}, ev:{arr:d.videos,id:d.id||("L"+newId())}, er:{arr:d.auto_reply.images,id:(d.id||"L")+"-r"}, efc:{arr:d.first_comment.images,id:(d.id||"L")+"-c"}}, draw, collect);
