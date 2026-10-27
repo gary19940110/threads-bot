@@ -181,6 +181,7 @@ input[type=date],input[type=time]{border:1px solid var(--line);border-radius:10p
 @media(min-width:700px){.modal{align-items:center}}
 .sheet{background:var(--card);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px}
 @media(min-width:700px){.sheet{border-radius:16px}}
+.tpick{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap}.tpick select{border:1px solid var(--line);border-radius:10px;padding:8px 6px;background:var(--bg);color:inherit;font-size:15px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -989,6 +990,23 @@ function renderLogin(err){
 $("#tabs").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; S.tab=b.dataset.t; if(S.pat) render(); };
 $("#reload").onclick=()=>S.pat?loadAll().catch(e=>toast(e.message)):null;
 if(S.repo && S.pat) loadAll().catch(e=>renderLogin("連線失敗："+e.message)); else renderLogin();
+
+// 時間選擇器：取代瀏覽器內建的上午/下午輸入框，直接選「幾點」+「幾分」
+const hourLabel=h=>`${h<6?"凌晨":h<12?"早上":h<13?"中午":h<18?"下午":"晚上"} ${h%12||12} 點（${String(h).padStart(2,"0")}）`;
+function enhanceTime(inp){ if(inp._tp) return; inp._tp=1; const desc=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value");
+  inp.type="hidden"; const w=document.createElement("span"); w.className="tpick";
+  const hs=document.createElement("select"), ms=document.createElement("select");
+  hs.innerHTML=Array.from({length:24},(_,h)=>`<option value="${pad(h)}">${hourLabel(h)}</option>`).join("");
+  w.append(hs,ms); inp.after(w);
+  const sync=v=>{ const [h,m]=(/^\d\d:\d\d/.test(v||"")?v:"21:00").split(":"); hs.value=h; let mm=Array.from({length:12},(_,i)=>pad(i*5)); if(!mm.includes(m)) mm=[...mm,m].sort();
+    ms.innerHTML=mm.map(x=>`<option value="${x}">${x} 分</option>`).join(""); ms.value=m; };
+  Object.defineProperty(inp,"value",{get(){ return desc.get.call(inp); },set(v){ desc.set.call(inp,v); sync(v); },configurable:true});
+  sync(desc.get.call(inp));
+  const upd=()=>{ desc.set.call(inp,`${hs.value}:${ms.value}`); inp.dispatchEvent(new Event("input",{bubbles:true})); inp.dispatchEvent(new Event("change",{bubbles:true})); };
+  hs.onchange=upd; ms.onchange=upd; }
+const enhanceAll=r=>r.querySelectorAll&&r.querySelectorAll("input[type=time]").forEach(enhanceTime);
+new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType!==1) return; if(n.matches("input[type=time]")) enhanceTime(n); else enhanceAll(n); }))).observe(document.body,{childList:true,subtree:true});
+enhanceAll(document);
 </script>
 </body>
 </html>
