@@ -32,6 +32,8 @@
 | `data/inbox.json` / `data/replied.json` | 待人工回的留言 / 已回覆紀錄 |
 | `drafts/<id>.json` | 每一篇貼文一個檔 |
 | `images/` | 上傳的照片（中控台會縮到長邊 1440 的 JPEG）與圖卡 |
+| `tools/connect.js` | 連結 FB 粉專／IG／YouTube 的小幫手（阿正在自己電腦跑 `node tools/connect.js meta`／`youtube`，產生要貼到 Secrets 的值） |
+| `data/platforms.json` | 機器人寫入：哪些平台已連結（中控台顯示「還沒連結」用） |
 | `docs/videos/` | 上傳的影片（70MB 內）。放 docs/ 是為了走 GitHub Pages 網址，Threads 才讀得到正確影片格式；上傳後約 2 分鐘 Pages 才更新 |
 
 所有 workflow 用同一個 `concurrency: group: bot`，不會同時跑兩個。
@@ -44,7 +46,8 @@ id, status(pending待審|approved已核准|posted已發布|failed失敗|rejected
 text(第一行=標題), images[], videos[](docs/videos/*.mp4|mov，發文時排在照片前), card{label,title,points[]}|null, card_pos(first|last), topic_tag, publish_at(ISO +08:00),
 commission_signed(物件文必須 true 才能發), lib_id(來自哪份文案庫), hook_id, why,
 auto_reply{enabled,text,link,images[],keywords[]}|null, first_comment{enabled,text,link,images[],contact(加聯繫方式,預設true),sign(加署名,預設true)},
-— 機器人寫入：threads_id, permalink, posted_at, metrics{views,likes,replies,...}, error, tries, first_comment_done
+share{fb,ig,yt,yt_title}(影片貼文發到 Threads 後同步發 FB 粉專 Reels／IG Reels／YouTube Shorts),
+— 機器人寫入：share_status{fb|ig|yt:{id,url,at}|{error,tries}}, threads_id, permalink, posted_at, metrics{views,likes,replies,...}, error, tries, first_comment_done
 ```
 **文案庫 `data/library.json`**：陣列，每份 `{id:"L…", name, tags[], type, text, images[], videos[], card, card_pos, topic_tag, auto_reply, first_comment, updated_at, prev_text?}`。
 從文案庫排程會複製成草稿並記 `lib_id`；改文案庫可同步所有同 `lib_id` 且 pending/approved 的草稿（中控台 `syncFromLib`）。
@@ -58,7 +61,7 @@ auto_reply{enabled,text,link,images[],keywords[]}|null, first_comment{enabled,te
 3. **不編造數字**：價格、坪數、成交行情、利率、政策沒有提供就寫 `[待填:…]`；含 `[待填` 的貼文機器人拒發。
 4. **留言不自動刪、低流量貼文只標記不刪**（留言可能是客戶）。
 5. **不對別人的貼文大量留言**；自動回覆只回自己貼文底下的留言，每人每篇一次。
-6. **repo 是公開的**：不放客戶個資、門牌樓層、權杖。密鑰只放 GitHub Secrets（`THREADS_TOKEN`、`GH_PAT`、`ANTHROPIC_API_KEY`），**絕對不要寫進程式或 commit**。
+6. **repo 是公開的**：不放客戶個資、門牌樓層、權杖。密鑰只放 GitHub Secrets（`THREADS_TOKEN`、`GH_PAT`、`ANTHROPIC_API_KEY`、`FB_PAGE_TOKEN`、`FB_PAGE_ID`、`IG_USER_ID`、`YT_CLIENT_ID`、`YT_CLIENT_SECRET`、`YT_REFRESH_TOKEN`），**絕對不要寫進程式或 commit**。
 7. 對外發送（立即發布、核准排程）由阿正自己按；Claude 幫他寫好、排好，要先給他看。
 
 ## 怎麼改、怎麼上線
@@ -80,6 +83,7 @@ auto_reply{enabled,text,link,images[],keywords[]}|null, first_comment{enabled,te
 - 圖卡在 `publish.yml` 第一步產生；草稿改了 `card` 會清掉舊圖卡讓它重畫。
 - 照片排序用 SortableJS（cdnjs）；確認視窗用頁內 `ask()`，**不要用 `confirm()/prompt()`**（在某些 Chrome 分頁會被擋）。
 - Threads 一篇只能掛一個主題（`topic_tag`，不能有 `.` `&`）；回覆／自己留言用 `reply_to_id`，圖片最多 10 張輪播。
+- 同步發文（`bot.py cmd_share`，publish 結束時跑）：只處理 2 天內發出、有影片、有勾 share 的貼文；FB 直接上傳影片檔，IG 用 GitHub Pages 影片網址，YouTube 用 refresh token 上傳。FB／IG 聯繫方式＋署名放自己第一則留言，YouTube 放說明欄。每平台失敗最多重試 3 次，不影響 Threads。Google 未審核的 API 專案上傳的影片會被強制設為私人，要申請 YouTube API 稽核才會公開；OAuth 同意畫面要設「正式版」不然 refresh token 7 天失效。
 - 權杖 60 天到期，每週一自動續；`data/token_status.json` 可看狀態。
 
 ## 阿正的文案偏好（寫／改貼文時照這個）

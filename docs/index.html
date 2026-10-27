@@ -261,11 +261,11 @@ const rawURL = rel => rel.startsWith("http") ? rel : `https://raw.githubusercont
 // ---------- 載入 ----------
 async function loadAll(){
   $("#sync").textContent = "同步中…";
-  const [settings, hooks, index, stats, inbox, listings, followers, token, library] = await Promise.all([
+  const [settings, hooks, index, stats, inbox, listings, followers, token, library, platforms] = await Promise.all([
     getJSON("config/settings.json",{}), getJSON("config/hooks.json",[]), getJSON("data/index.json",{drafts:[]}),
     getJSON("data/stats.json",{}), getJSON("data/inbox.json",[]), getJSON("data/listings.json",[]),
-    getJSON("data/followers.json",[]), getJSON("data/token_status.json",{}), getJSON("data/library.json",[])]);
-  Object.assign(S,{settings,hooks,index,stats,inbox,listings,followers,token,library:Array.isArray(library)?library:[]});
+    getJSON("data/followers.json",[]), getJSON("data/token_status.json",{}), getJSON("data/library.json",[]), getJSON("data/platforms.json",{})]);
+  Object.assign(S,{settings,hooks,index,stats,inbox,listings,followers,token,platforms,library:Array.isArray(library)?library:[]});
   const dir = await gh(`/contents/drafts?ref=main&t=${Date.now()}`) || [];
   const known = Object.fromEntries((index.drafts||[]).map(d=>[d.id,d]));
   const want = dir.filter(f=>f.name.endsWith(".json")).map(f=>f.name.replace(".json",""))
@@ -510,9 +510,9 @@ function draftFrom(e, date, time){
     card:realCard(e.card),card_pos:e.card_pos||"first",topic_tag:e.topic_tag||(S.settings.topic_tags||[""])[0],images:[...(e.images||[])],videos:[...(e.videos||[])],
     publish_at:isoOf(date,time),created_at:new Date().toISOString(),created_by:e.name?"library":(aiKey()?"ai-console":"manual"),
     commission_signed:e.type==="listing"?!!e.commission_signed:false,auto_reply:e.auto_reply&&e.auto_reply.enabled?structuredClone(e.auto_reply):null,lib_id:e.id||"",
-    ...(e.first_comment?{first_comment:structuredClone(e.first_comment)}:{})}; }
+    ...(e.first_comment?{first_comment:structuredClone(e.first_comment)}:{}),...(e.share?{share:structuredClone(e.share)}:{})}; }
 // ---------- 同步：文案庫 ↔ 同一個案件的所有排程 ----------
-const SYNC_KEYS=["type","text","images","videos","card","card_pos","topic_tag","auto_reply","first_comment"];
+const SYNC_KEYS=["type","text","images","videos","card","card_pos","topic_tag","auto_reply","first_comment","share"];
 const siblings=(libId,except)=>Object.values(S.drafts).filter(x=>x.lib_id===libId&&x.id!==except&&["pending","approved"].includes(x.status));
 function syncBox(mode,d){ if(mode==="lib"){ if(!d.id) return ""; const n=siblings(d.id,"").length; if(!n) return "";
     return `<label class="check syncbox"><input type="checkbox" id="e-sync" checked><span>🔄 同步更新這個案件已排程、還沒發出的 <b>${n}</b> 篇（內容、照片、主題、留言都一起改）</span></label>`; }
@@ -526,7 +526,7 @@ async function syncFromLib(e, except){ let n=0;
   return n; }
 async function syncDraftToLib(d){ const e0=libEntries().find(x=>x.id===d.lib_id); if(!e0) return -1;
   const upd={type:d.type,text:(d.text||"").trim(),images:(d.images||[]).filter(x=>!/card-/.test(x)),videos:[...(d.videos||[])],card:realCard(d.card),card_pos:d.card_pos||"first",topic_tag:d.topic_tag||"",
-    auto_reply:d.auto_reply||{...blankReply(),enabled:false},first_comment:d.first_comment,updated_at:new Date().toISOString()};
+    auto_reply:d.auto_reply||{...blankReply(),enabled:false},first_comment:d.first_comment,share:d.share,updated_at:new Date().toISOString()};
   try{ S.library=await updateJSON("data/library.json", arr=>(Array.isArray(arr)?arr:[]).map(x=>x.id===e0.id?{...x,...upd}:x), `中控台：同步文案庫 ${e0.name}`, []); }
   catch(err){ toast("同步文案庫失敗："+err.message); return -1; }
   const e=libEntries().find(x=>x.id===e0.id); return e?await syncFromLib(e,d.id):0; }
@@ -534,6 +534,17 @@ function topicField(cur){ const tags=S.settings.topic_tags||[]; if(cur===undefin
   return `<div class="field"><label>🏷️ 發到哪個主題（Threads 的「社群或主題」，選對主題能推給在看這個主題的人）</label>
     <div class="row">${tags.map(t=>`<button type="button" class="ftag ${t===cur?"on":""}" data-topic="${esc(t)}">#${esc(t)}</button>`).join("")}<button type="button" class="ftag ${!cur?"on":""}" data-topic="">不加主題</button></div>
     <input type="text" id="e-topic" value="${esc(cur||"")}" placeholder="也可以自己打一個主題，例：北屯買房" style="margin-top:6px"></div>`; }
+// ---------- 影片同步發到 FB／IG／YouTube ----------
+const SHARE_NAMES={fb:"FB 粉專 Reels",ig:"IG Reels",yt:"YouTube Shorts"};
+function shareDefault(){ const s=S.settings.share||{}; return {fb:s.fb!==false,ig:s.ig!==false,yt:s.yt!==false}; }
+function shareFields(d){ const sh=d.share, st=d.share_status||{}, con=(S.platforms||{}).connected||{};
+  const row=k=>{ const r=st[k]||{}; const done=r.url?` <a href="${esc(r.url)}" target="_blank">✅ 已發，看貼文</a>`:r.id?" ✅ 已發":r.error?` <span class="over">❌ ${esc(r.error.slice(0,80))}</span>`:"";
+    return `<label class="check"><input type="checkbox" id="e-s${k}" ${sh[k]?"checked":""}><span>${SHARE_NAMES[k]}${con[k]?"":` <span class="small">（還沒連結，勾了也不會發）</span>`}${done}</span></label>`; };
+  return `<details class="cardbox" open><summary>📣 影片同步發到其他平台（發到 Threads 後接著自動發）</summary>
+    <div class="small">同一支影片、同一段文字。FB、IG 也把聯繫方式和署名放在自己第一則留言；YouTube 放影片說明欄。影片要直式，FB Reels 限 90 秒內、YouTube Shorts 限 3 分鐘內。</div>
+    ${["fb","ig","yt"].map(row).join("")}
+    <div class="field"><label>YouTube 標題（空白＝用內文第一行；會自動加 #Shorts）</label><input type="text" id="e-sytt" maxlength="90" value="${esc(sh.yt_title||"")}" placeholder="${esc((d.text||"").split("\n")[0].slice(0,90))}"></div>
+  </details>`; }
 function fcFields(fc){ const dflt=(S.settings.first_comment||{});
   return `<details class="cardbox fcbox" ${fc.enabled?"open":""}><summary>📝 發文後我自己留言${fc.enabled?"（已開啟）":""}</summary>
     <div class="small">貼文發出後，機器人會用你的帳號在這篇底下留第一則留言。主文不放電話、LINE、署名，都放這裡。</div>
@@ -567,6 +578,7 @@ function openEdit(mode, d){
   // mode: "lib" 文案庫的一份；"draft" 排程上的一篇貼文
   d.images=d.images||[]; d.videos=d.videos||[]; d.auto_reply=d.auto_reply||blankReply(); d.auto_reply.images=d.auto_reply.images||[]; d.card=d.card||{...NOCARD};
   d.first_comment=d.first_comment||{enabled:!!(S.settings.first_comment||{}).enabled,text:"",link:"",images:[],contact:(S.settings.first_comment||{}).contact!==false,sign:(S.settings.first_comment||{}).sign!==false}; d.first_comment.images=d.first_comment.images||[];
+  d.share=d.share||{...shareDefault(),yt_title:""};
   const isNew=mode==="lib"?!d.id:!S.drafts[d.id];
   let when; if(mode==="draft"&&d.publish_at) when={date:dayOf(d.publish_at),time:timeOf(d.publish_at)}; else when=nextFreeSlot();
   let brief=""; const box=document.createElement("div"); box.className="modal";
@@ -578,6 +590,7 @@ function openEdit(mode, d){
     if(q("#e-sign")) d.commission_signed=q("#e-sign").checked;
     d.auto_reply=readReply("e", d.auto_reply);
     if(q("#e-fcon")) d.first_comment={enabled:q("#e-fcon").checked,text:q("#e-fctext").value.trim(),link:q("#e-fclink").value.trim(),images:d.first_comment.images,contact:q("#e-fccontact").checked,sign:q("#e-fcsign").checked};
+    if(q("#e-sfb")) d.share={fb:q("#e-sfb").checked,ig:q("#e-sig").checked,yt:q("#e-syt").checked,yt_title:q("#e-sytt").value.trim()};
     if(q("#e-topic")) d.topic_tag=q("#e-topic").value.trim().replace(/^#/,"").replace(/[.&]/g,"").slice(0,50);
     if(mode==="lib"){ d.name=q("#e-name").value.trim(); d.tags=tagList(q("#e-tags").value); }
     if(q("#e-brief")) brief=q("#e-brief").value;
@@ -603,6 +616,7 @@ function openEdit(mode, d){
     <div class="btns quick">${Object.entries(QUICK3).map(([k,v])=>`<button class="btn" data-q="${k}">${v}</button>`).join("")}</div>
     <div class="field"><label>📷 照片（照這個順序發出；用滑鼠或手指拖拉照片調整順序，× 移除）</label>${imgStrip(d.images,"e")}</div>
     <div class="field"><label>🎬 影片（mp4／mov，最長 5 分鐘；超過 70MB 會自動壓縮；有影片時放在照片前面發出）</label>${imgStrip(d.videos,"ev","video")}</div>
+    ${d.videos.length?shareFields(d):""}
     ${cardFields(d.card,"e")}
     <canvas id="e-prev" class="cardprev" width="1080" height="1350"></canvas>
     ${d.images.filter(x=>!/card-/.test(x)).length?`<label class="check"><input type="checkbox" id="e-cardlast" ${d.card_pos==="last"?"checked":""}><span>圖卡放在照片最後（沒勾＝第一張）</span></label>`:""}
@@ -638,7 +652,7 @@ function openEdit(mode, d){
   };
   const lock=on=>box.querySelectorAll("button").forEach(x=>x.disabled=on);
   const saveLibEntry=async asNew=>{ if(!d.name){ toast("先取個名字，例：若山牧水地獄底價"); q("#e-name").focus(); return false; } if(!d.text.trim()){ toast("文案是空的"); return false; }
-    const e={id:(!asNew&&d.id)||("L"+newId()),name:d.name,tags:d.tags||[],type:d.type,text:d.text.trim(),images:[...d.images],videos:[...d.videos],card:realCard(d.card),card_pos:d.card_pos||"first",topic_tag:d.topic_tag||"",auto_reply:d.auto_reply,first_comment:d.first_comment,updated_at:new Date().toISOString()};
+    const e={id:(!asNew&&d.id)||("L"+newId()),name:d.name,tags:d.tags||[],type:d.type,text:d.text.trim(),images:[...d.images],videos:[...d.videos],card:realCard(d.card),card_pos:d.card_pos||"first",topic_tag:d.topic_tag||"",auto_reply:d.auto_reply,first_comment:d.first_comment,share:d.share,updated_at:new Date().toISOString()};
     S.library=await updateJSON("data/library.json", arr=>{ arr=Array.isArray(arr)?arr:[]; const i=arr.findIndex(x=>x.id===e.id); if(i>=0) arr[i]=e; else arr.unshift(e); return arr; }, `中控台：文案庫 ${e.name}`, []);
     d.id=e.id; return true; };
   const blocked=async why=>{ const sg=q("#e-sign"); const isSign=/委託/.test(why);

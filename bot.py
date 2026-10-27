@@ -8,8 +8,10 @@
   python bot.py trends     用關鍵字搜尋 Threads 熱門貼文，給 AI 選題參考
   python bot.py refresh    更新 Threads 長效權杖（60 天到期，每週自動續）
   python bot.py index      重建 data/index.json（中控台讀這份）
+  python bot.py share      影片貼文同步發到 FB 粉專 Reels／IG Reels／YouTube Shorts（publish 也會順便跑）
 
 環境變數：THREADS_TOKEN、THREADS_USER_ID、REPO（owner/name）、BRANCH
+同步發文（有設定才發）：FB_PAGE_TOKEN、FB_PAGE_ID、IG_USER_ID、YT_CLIENT_ID、YT_CLIENT_SECRET、YT_REFRESH_TOKEN
 """
 import datetime as dt
 import glob
@@ -235,7 +237,172 @@ def cmd_publish():
                     d.pop("first_comment_pending", None)
                 p("自己留言失敗", d["id"], e)
             save_draft(d)
+    cmd_share()
     cmd_index()
+
+
+# ---------- 同步發到 FB 粉專 Reels／IG Reels／YouTube Shorts ----------
+# 影片貼文發到 Threads 之後，照草稿的 share{fb,ig,yt,yt_title} 再發到其他平台。
+# 結果寫在 share_status{fb|ig|yt:{id,url,at}|{error,tries}}，失敗最多重試 3 次，不影響 Threads 那篇。
+
+GRAPH = "https://graph.facebook.com/v23.0"
+PLATFORMS = {"fb": "FB 粉專", "ig": "IG", "yt": "YouTube"}
+
+
+def connected():
+    e = os.environ.get
+    return {"fb": bool(e("FB_PAGE_TOKEN") and e("FB_PAGE_ID")),
+            "ig": bool(e("FB_PAGE_TOKEN") and e("IG_USER_ID")),
+            "yt": bool(e("YT_CLIENT_ID") and e("YT_CLIENT_SECRET") and e("YT_REFRESH_TOKEN"))}
+
+
+def graph(method, endpoint, **params):
+    if DRY:
+        p("[DRY]", method, endpoint, {k: v for k, v in params.items() if k != "access_token"})
+        return {"id": "dry", "video_id": "dry", "status_code": "FINISHED", "status": {"video_status": "ready"}, "permalink": ""}
+    params["access_token"] = os.environ["FB_PAGE_TOKEN"]
+    url = endpoint if endpoint.startswith("http") else f"{GRAPH}/{endpoint}"
+    r = requests.request(method, url, params=params if method == "GET" else None,
+                         data=params if method != "GET" else None, timeout=120)
+    try:
+        body = r.json()
+    except ValueError:
+        body = {"raw": r.text[:300]}
+    if r.status_code >= 400 or "error" in body:
+        raise ThreadsError(f"{r.status_code} {json.dumps(body, ensure_ascii=False)[:400]}")
+    return body
+
+
+def share_caption(d, with_contact):
+    """FB／IG 說明文字：主文＋主題 hashtag；YouTube 說明欄再加聯繫方式和署名（YouTube 沒有自動自己留言）。"""
+    out = d["text"].strip()
+    if d.get("topic_tag"):
+        out += f"\n\n#{d['topic_tag']}"
+    if with_contact:
+        fc = first_comment(d)
+        if fc and fc[0]:
+            out += "\n\n" + fc[0]
+    return out
+
+
+def share_fb(d, video):
+    page = os.environ["FB_PAGE_ID"]
+    st = graph("POST", f"{page}/video_reels", upload_phase="start")
+    vid = st["video_id"]
+    if not DRY:
+        with open(path(video), "rb") as f:
+            data = f.read()
+        r = requests.post(f"https://rupload.facebook.com/video-upload/v23.0/{vid}", data=data, timeout=600,
+                          headers={"Authorization": f"OAuth {os.environ['FB_PAGE_TOKEN']}", "offset": "0",
+                                   "file_size": str(len(data))})
+        if r.status_code >= 400:
+            raise ThreadsError(f"FB 上傳失敗 {r.status_code} {r.text[:300]}")
+    graph("POST", f"{page}/video_reels", upload_phase="finish", video_id=vid, video_state="PUBLISHED",
+          description=share_caption(d, False))
+    for _ in range(36):  # 等 FB 轉檔，最多約 6 分鐘
+        s = graph("GET", vid, fields="status").get("status", {})
+        if s.get("video_status") in ("ready", "published") or (s.get("publishing_phase") or {}).get("status") == "complete" or DRY:
+            break
+        if s.get("video_status") == "error":
+            raise ThreadsError(f"FB 轉檔失敗：{json.dumps(s, ensure_ascii=False)[:300]}")
+        time.sleep(10)
+    return vid, f"https://www.facebook.com/reel/{vid}"
+
+
+def share_ig(d, video):
+    ig = os.environ["IG_USER_ID"]
+    c = graph("POST", f"{ig}/media", media_type="REELS", video_url=media_url(video),
+              caption=share_caption(d, False)[:2200], share_to_feed="true")
+    for _ in range(36):
+        s = graph("GET", c["id"], fields="status_code,status")
+        if s.get("status_code") == "FINISHED":
+            break
+        if s.get("status_code") in ("ERROR", "EXPIRED"):
+            raise ThreadsError(f"IG 轉檔失敗：{s.get('status')}")
+        time.sleep(10)
+    else:
+        raise ThreadsError("IG 轉檔逾時")
+    mid = graph("POST", f"{ig}/media_publish", creation_id=c["id"])["id"]
+    link = graph("GET", mid, fields="permalink").get("permalink", "")
+    return mid, link
+
+
+def share_comment(d, key, mid):
+    """FB／IG 也跟 Threads 一樣：聯繫方式和署名放自己第一則留言。失敗不影響貼文。"""
+    fc = first_comment(d)
+    if not fc or not fc[0]:
+        return
+    try:
+        graph("POST", f"{mid}/comments", message=fc[0])
+    except ThreadsError as e:
+        p(f"{PLATFORMS[key]} 自己留言失敗", d["id"], e)
+
+
+def share_yt(d, video):
+    if DRY:
+        p("[DRY] YouTube 上傳", video)
+        return "dry", ""
+    tok = requests.post("https://oauth2.googleapis.com/token", timeout=60, data={
+        "client_id": os.environ["YT_CLIENT_ID"], "client_secret": os.environ["YT_CLIENT_SECRET"],
+        "refresh_token": os.environ["YT_REFRESH_TOKEN"], "grant_type": "refresh_token"}).json()
+    if "access_token" not in tok:
+        raise ThreadsError(f"YouTube 授權失敗（可能要重新連結）：{tok}")
+    title = (d.get("share") or {}).get("yt_title") or d["text"].strip().split("\n")[0]
+    title = title.replace("<", "").replace(">", "").strip()[:90] + " #Shorts"
+    meta = {"snippet": {"title": title, "description": share_caption(d, True)[:4900], "categoryId": "22",
+                        "tags": [t for t in [d.get("topic_tag"), "台中買房", "Shorts"] if t]},
+            "status": {"privacyStatus": "public", "selfDeclaredMadeForKids": False}}
+    with open(path(video), "rb") as f:
+        data = f.read()
+    h = {"Authorization": f"Bearer {tok['access_token']}"}
+    r = requests.post("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
+                      json=meta, timeout=60, headers={**h, "X-Upload-Content-Type": "video/*",
+                                                      "X-Upload-Content-Length": str(len(data))})
+    if r.status_code >= 400 or "Location" not in r.headers:
+        raise ThreadsError(f"YouTube 上傳失敗 {r.status_code} {r.text[:300]}")
+    r = requests.put(r.headers["Location"], data=data, timeout=900, headers={**h, "Content-Type": "video/*"})
+    if r.status_code >= 400:
+        raise ThreadsError(f"YouTube 上傳失敗 {r.status_code} {r.text[:300]}")
+    vid = r.json()["id"]
+    return vid, f"https://youtube.com/shorts/{vid}"
+
+
+SHARERS = {"fb": share_fb, "ig": share_ig, "yt": share_yt}
+
+
+def cmd_share():
+    ok = connected()
+    if load("data/platforms.json", {}).get("connected") != ok:
+        save("data/platforms.json", {"connected": ok, "checked_at": now().isoformat()})
+    cutoff = now() - dt.timedelta(days=2)
+    for d in drafts():
+        sh = d.get("share") or {}
+        vids = d.get("videos") or []
+        if d.get("status") != "posted" or not vids or not any(sh.get(k) for k in PLATFORMS):
+            continue
+        if not d.get("posted_at") or parse_time(d["posted_at"]) < cutoff:
+            continue
+        st = d.setdefault("share_status", {})
+        for key, name in PLATFORMS.items():
+            cur = st.get(key) or {}
+            if not sh.get(key) or cur.get("id") or cur.get("tries", 0) >= 3:
+                continue
+            if not ok[key]:  # 還沒連結就先記著，2 天內連結好會補發
+                msg = f"還沒連結 {name}"
+                if cur.get("error") != msg:
+                    st[key] = {"error": msg, "tries": 0}
+                    save_draft(d)
+                continue
+            try:
+                mid, link = SHARERS[key](d, vids[0])
+                st[key] = {"id": mid, "url": link, "at": now().isoformat()}
+                p(f"已同步到 {name}", d["id"], link)
+                if key in ("fb", "ig"):
+                    share_comment(d, key, mid)
+            except Exception as e:  # noqa: BLE001
+                st[key] = {"error": str(e)[:400], "tries": cur.get("tries", 0) + 1}
+                p(f"同步到 {name} 失敗", d["id"], e)
+            save_draft(d)
 
 
 def first_comment(d):
@@ -559,6 +726,7 @@ def cmd_index():
             "publish_at": d.get("publish_at"), "posted_at": d.get("posted_at"), "permalink": d.get("permalink"),
             "first_line": d.get("text", "").strip().split("\n")[0][:60], "metrics": d.get("metrics"),
             "error": d.get("error", ""), "images": len(d.get("images") or []), "videos": len(d.get("videos") or []), "lib_id": d.get("lib_id", ""),
+            "share": {k: v.get("url") or ("失敗" if v.get("error") else "") for k, v in (d.get("share_status") or {}).items()},
         })
     idx.sort(key=lambda x: x.get("publish_at") or "", reverse=True)
     save("data/index.json", {"updated_at": now().isoformat(), "drafts": idx})
@@ -578,7 +746,7 @@ def cmd_wait():
 
 
 COMMANDS = {"wait": cmd_wait, "publish": cmd_publish, "replies": cmd_replies, "insights": cmd_insights,
-            "trends": cmd_trends, "refresh": cmd_refresh, "index": cmd_index}
+            "trends": cmd_trends, "refresh": cmd_refresh, "index": cmd_index, "share": cmd_share}
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in COMMANDS:
