@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-10-27T07:01:25.512350+08:00",
+  "updated_at": "2026-10-28T06:59:26.014678+08:00",
   "hooks": {
     "H06": {
       "n": 3,
-      "avg_views": 204,
+      "avg_views": 205,
       "avg_eng": 2.3,
-      "avg_score": 251.0,
+      "avg_score": 252.0,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -19,9 +19,9 @@
     },
     "H05": {
       "n": 4,
-      "avg_views": 68,
+      "avg_views": 69,
       "avg_eng": 7.0,
-      "avg_score": 208.0,
+      "avg_score": 209.0,
       "name": "二選一",
       "status": "觀察"
     },
@@ -37,23 +37,23 @@
       "n": 3,
       "avg_views": 235,
       "avg_eng": 1.7,
-      "avg_score": 268.3,
+      "avg_score": 268.7,
       "name": "踩雷警告",
       "status": "觀察"
     },
     "H12": {
       "n": 2,
-      "avg_views": 188,
+      "avg_views": 189,
       "avg_eng": 6.5,
-      "avg_score": 318.5,
+      "avg_score": 319.0,
       "name": "問題開場",
       "status": "觀察"
     },
     "—": {
       "n": 16,
-      "avg_views": 300,
+      "avg_views": 303,
       "avg_eng": 6.4,
-      "avg_score": 428.8,
+      "avg_score": 431.8,
       "name": "—",
       "status": "主力"
     },
@@ -67,9 +67,9 @@
     },
     "H10": {
       "n": 2,
-      "avg_views": 238,
+      "avg_views": 239,
       "avg_eng": 1.5,
-      "avg_score": 268.5,
+      "avg_score": 269.0,
       "name": "稀缺錯失",
       "status": "觀察"
     },
@@ -85,9 +85,9 @@
   "types": {
     "knowledge": {
       "n": 19,
-      "avg_views": 192,
+      "avg_views": 193,
       "avg_eng": 3.8,
-      "avg_score": 269.1
+      "avg_score": 269.6
     },
     "area": {
       "n": 2,
@@ -115,9 +115,9 @@
     },
     "listing": {
       "n": 14,
-      "avg_views": 297,
+      "avg_views": 301,
       "avg_eng": 6.0,
-      "avg_score": 417.3
+      "avg_score": 420.6
     }
   },
   "median_views": 215,
@@ -139,6 +139,14 @@
       "hook_id": "H05"
     },
     {
+      "id": "202610201224-kd9",
+      "first_line": "東山高中旁，7.5米大面寬別墅",
+      "views": 61,
+      "replies": 1,
+      "permalink": "https://www.threads.com/@jng01.10/post/De4JRthG6S6",
+      "hook_id": ""
+    },
+    {
       "id": "202610201224-mlt",
       "first_line": "專任♠14期全聯旗艦店旁商五精華大角地",
       "views": 30,
@@ -149,7 +157,7 @@
     {
       "id": "202610231230-w",
       "first_line": "為什麼有些房子，總是先賣掉？",
-      "views": 63,
+      "views": 64,
       "replies": 1,
       "permalink": "https://www.threads.com/@jng01.10/post/De0s_DhlrgQ",
       "hook_id": "H10"
@@ -157,7 +165,7 @@
     {
       "id": "202610232100-w",
       "first_line": "高樓層 vs 低樓層，你會選哪一個？",
-      "views": 54,
+      "views": 58,
       "replies": 1,
       "permalink": "https://www.threads.com/@jng01.10/post/De1qJFsm1rU",
       "hook_id": "H05"
@@ -170,7 +178,7 @@
     },
     "21": {
       "n": 9,
-      "avg_views": 181
+      "avg_views": 182
     },
     "8": {
       "n": 1,
@@ -182,15 +190,15 @@
     },
     "16": {
       "n": 3,
-      "avg_views": 245
+      "avg_views": 247
     },
     "18": {
       "n": 1,
-      "avg_views": 272
+      "avg_views": 273
     },
     "22": {
       "n": 3,
-      "avg_views": 444
+      "avg_views": 454
     },
     "10": {
       "n": 4,
@@ -202,15 +210,15 @@
     },
     "23": {
       "n": 1,
-      "avg_views": 285
+      "avg_views": 286
     },
     "20": {
       "n": 1,
-      "avg_views": 57
+      "avg_views": 61
     },
     "17": {
       "n": 1,
-      "avg_views": 194
+      "avg_views": 200
     }
   }
 }
