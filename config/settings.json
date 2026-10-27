@@ -4,9 +4,7 @@
   "line_url": "https://line.me/R/ti/p/@a0110",
   "phone": "0966-228-528",
   "timezone": "Asia/Taipei",
-  "slots": [
-    "22:00"
-  ],
+  "slots": [],
   "drafts_per_day": 3,
   "mix": {
     "listing": 1,
