@@ -32,7 +32,7 @@
 | `data/inbox.json` / `data/replied.json` | 待人工回的留言 / 已回覆紀錄 |
 | `drafts/<id>.json` | 每一篇貼文一個檔 |
 | `images/` | 上傳的照片（中控台會縮到長邊 1440 的 JPEG）與圖卡 |
-| `tools/connect.js` | 連結 FB 粉專／IG／YouTube 的小幫手（阿正在自己電腦跑 `node tools/connect.js meta`／`youtube`，產生要貼到 Secrets 的值） |
+| `tools/connect-web.js`／`tools/connect-yt-web.js` | 連結 FB 粉專＋IG／YouTube 的網頁版小幫手（`node --use-system-ca tools/connect-yt-web.js`；阿正電腦會攔截 Google 憑證，不加 `--use-system-ca` 會 fetch failed）。開 localhost 網頁 → 阿正貼密鑰、按授權 → 顯示要貼到 GitHub Secrets 的值。Meta 應用程式：AZheng Video Share（2484796785384900，粉專「台中房仲推薦x神案先生」）；Google Cloud 專案 evident-flame-513103-q7（OAuth 已發布為正式版）。權杖要重拿就重跑這兩支。`tools/connect.js` 是舊的終端機版 |
 | `data/platforms.json` | 機器人寫入：哪些平台已連結（中控台顯示「還沒連結」用） |
 | `docs/videos/` | 上傳的影片（28MB 內；GitHub 網頁 API 實測超過約 30MB 回 422，所以超過就在瀏覽器自動壓縮）。放 docs/ 是為了走 GitHub Pages 網址，Threads 才讀得到正確影片格式；上傳後約 2 分鐘 Pages 才更新 |
 
