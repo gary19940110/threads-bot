@@ -24,13 +24,32 @@ function openBrowser(url) {
   try { execSync(process.platform === "win32" ? `start "" "${url}"` : `open "${url}"`); } catch (_) { /* 打不開就手動貼 */ }
 }
 
+// 在本機開一個小網頁接 FB／Google 授權回來的 code（只在你電腦上，授權完就關掉）
+function waitCode(url, port) {
+  return new Promise((resolve, reject) => {
+    const srv = http.createServer((req, res) => {
+      const q = new URL(req.url, `http://localhost:${port}`).searchParams;
+      if (!q.get("code") && !q.get("error")) { res.writeHead(404); return res.end(); }
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+      res.end(q.get("code") ? "<h2>✅ 已授權，可以關掉這頁回到黑色視窗</h2>" : "<h2>❌ 沒有授權</h2>");
+      srv.close(); q.get("code") ? resolve(q.get("code")) : reject(new Error(q.get("error_description") || q.get("error")));
+    }).listen(port, () => {
+      console.log("\n瀏覽器會打開授權畫面，請按「繼續」並勾選你的粉專和 IG。沒自動打開就複製這個網址：\n" + url + "\n");
+      openBrowser(url);
+    });
+  });
+}
+
 async function meta() {
-  console.log("先到 https://developers.facebook.com/tools/explorer/ 選你的應用程式，按「Generate Access Token」，");
-  console.log("權限要勾：pages_show_list, pages_read_engagement, pages_manage_posts, pages_manage_engagement,");
-  console.log("          instagram_basic, instagram_content_publish, instagram_manage_comments, business_management\n");
-  const appId = await ask("應用程式編號（App ID）：");
-  const secret = await ask("應用程式密鑰（App Secret）：");
-  const short = await ask("剛產生的存取權杖（Access Token）：");
+  const appId = (await ask("應用程式編號（直接按 Enter＝AZheng Video Share）：")) || "2484796785384900";
+  const secret = await ask("應用程式密鑰（App Secret，32 碼英文數字）：");
+  if (!/^[0-9a-f]{32}$/i.test(secret)) throw new Error("應用程式密鑰格式不對：應該是 32 碼英文數字（應用程式設定 → 基本資料 → 應用程式密鑰 → 顯示）");
+  const redirect = "http://localhost:8765/";
+  const scope = "pages_show_list,pages_read_engagement,pages_manage_posts,pages_manage_engagement,instagram_basic,instagram_content_publish,instagram_manage_comments,business_management";
+  const code = await waitCode("https://www.facebook.com/v23.0/dialog/oauth?" + new URLSearchParams({
+    client_id: appId, redirect_uri: redirect, scope, response_type: "code" }), 8765);
+  const short = (await getJSON(`${G}/oauth/access_token?` + new URLSearchParams({
+    client_id: appId, client_secret: secret, redirect_uri: redirect, code }))).access_token;
   const long = await getJSON(`${G}/oauth/access_token?grant_type=fb_exchange_token&client_id=${appId}&client_secret=${secret}&fb_exchange_token=${encodeURIComponent(short)}`);
   const pages = (await getJSON(`${G}/me/accounts?fields=id,name,access_token,instagram_business_account&access_token=${long.access_token}`)).data || [];
   if (!pages.length) throw new Error("找不到粉專：權杖要有 pages_show_list 權限，而且你是粉專管理員");
