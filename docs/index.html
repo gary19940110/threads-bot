@@ -1030,7 +1030,9 @@ function renderLogin(err){
     ${err?`<div class="errbox">${esc(err)}</div>`:""}
     <div class="field"><label>GitHub 儲存庫（帳號/名稱）</label><input type="text" id="l-repo" placeholder="gary19940110/threads-bot" value="${esc(S.repo)}"></div>
     <div class="field"><label>GitHub 權杖（Fine-grained token）</label><input type="password" id="l-pat" placeholder="github_pat_…"></div>
-    <div class="btns"><button class="btn primary" id="l-go">連線</button></div></div>`;
+    <div class="btns"><button class="btn primary" id="l-go">連線</button></div>
+    <div class="small" style="margin-top:16px">AZheng Video Share：把阿正自己的影片同步發到自己的 Threads、Facebook 粉專、Instagram 與 YouTube（使用 YouTube API Services）。
+      <a href="privacy.html">隱私權政策 Privacy Policy</a>｜<a href="terms.html">服務條款 Terms of Service</a></div></div>`;
   $("#l-go").onclick=async()=>{ S.repo=$("#l-repo").value.trim(); S.pat=$("#l-pat").value.trim();
     try{ await gh(""); store.set("tb_repo",S.repo); store.set("tb_pat",S.pat); await loadAll(); }
     catch(e){ renderLogin("連不上："+e.message+"（檢查儲存庫名稱與權杖權限）"); } };

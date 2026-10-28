@@ -1,27 +1,42 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>隱私權政策｜阿正自動發文系統</title>
+<title>Privacy Policy</title>
 <style>
-  :root { --bg:#fff; --fg:#222; --muted:#666; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#aaa; } }
-  body { background:var(--bg); color:var(--fg); font:17px/1.7 system-ui, "Microsoft JhengHei", sans-serif; max-width:720px; margin:40px auto; padding:0 16px; }
-  small { color:var(--muted); }
+  :root { --bg:#fff; --fg:#222; --muted:#666; --link:#0b57d0; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#aaa; --link:#8ab4f8; } }
+  body { background:var(--bg); color:var(--fg); font:17px/1.7 system-ui, "Microsoft JhengHei", sans-serif; max-width:760px; margin:40px auto; padding:0 16px; }
+  a { color:var(--link); } small { color:var(--muted); } h2 { margin-top:28px; }
 </style>
 </head>
 <body>
-<h1>隱私權政策</h1>
-<p>本系統（阿正自動發文系統）僅供黃守正個人使用，用來把自己的貼文與影片發佈到自己的 Threads、Facebook 粉絲專頁、Instagram 與 YouTube 頻道。</p>
-<h2>收集哪些資料</h2>
-<p>只使用平台授權提供的存取權杖，用於發佈自己的內容與在自己的貼文下留言。不收集、不儲存、不分享任何其他使用者的個人資料。</p>
-<h2>資料存放</h2>
-<p>權杖以加密方式存放於 GitHub Actions Secrets，不公開、不提供給第三方。</p>
-<h2>撤銷授權</h2>
-<p>可隨時於 Facebook、Instagram、Google 帳號的「應用程式與網站」設定中移除授權。</p>
-<h2>聯絡</h2>
+<h1>Privacy Policy｜隱私權政策</h1>
+<p><small>App: AZheng Video Share · Last updated: 2026-10-29</small></p>
+
+<p>AZheng Video Share is a private, single-user publishing tool operated by 黃守正 (A-Zheng), a real estate agent in Taichung, Taiwan. It publishes the operator's own videos to the operator's own Threads, Facebook Page, Instagram and YouTube accounts. It is not offered to any other user.</p>
+
+<h2>Use of YouTube API Services</h2>
+<p>This app uses YouTube API Services to upload the operator's own videos to the operator's own YouTube channel (YouTube Data API v3, <code>videos.insert</code>, OAuth scope <code>youtube.upload</code> only). By using this app you agree to be bound by the <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a>. YouTube data is also subject to the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</p>
+
+<h2>Information we access, collect and store</h2>
+<ul>
+  <li>The only Google/YouTube data stored is the OAuth refresh token for the operator's own channel, kept encrypted in GitHub Actions Secrets.</li>
+  <li>After each upload, the ID and URL of the uploaded video are saved so the operator can see that the upload succeeded.</li>
+  <li>The app does not read, collect, store, display, analyze or share any data about other YouTube users or channels, and it does not use cookies or tracking for YouTube data.</li>
+</ul>
+
+<h2>Sharing</h2>
+<p>No YouTube API data is shared with any third party.</p>
+
+<h2>Deleting data and revoking access</h2>
+<p>Access can be revoked at any time on the <a href="https://security.google.com/settings/security/permissions">Google security settings page</a>. When access is revoked, or on request to the email below, the stored refresh token and saved video IDs are deleted within 7 days. Stored YouTube API data is never kept longer than 30 days without being refreshed.</p>
+
+<h2>Contact</h2>
 <p>gary19940110@gmail.com</p>
-<p><small>最後更新：2026-10-29</small></p>
+
+<hr>
+<p lang="zh-Hant">本系統只供黃守正個人使用，將自己的影片發到自己的 Threads、Facebook 粉專、Instagram 與 YouTube。使用 YouTube API Services，僅儲存自己頻道的授權權杖（加密存放於 GitHub Secrets），不收集、不分享任何其他使用者的資料。可隨時於 Google 帳號設定撤銷授權。</p>
 </body>
 </html>
