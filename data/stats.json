@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-10-29T07:03:33.640996+08:00",
+  "updated_at": "2026-10-30T07:05:53.728745+08:00",
   "hooks": {
     "H06": {
       "n": 3,
-      "avg_views": 209,
+      "avg_views": 210,
       "avg_eng": 2.3,
-      "avg_score": 255.3,
+      "avg_score": 256.7,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -13,15 +13,15 @@
       "n": 3,
       "avg_views": 226,
       "avg_eng": 4.3,
-      "avg_score": 312.3,
+      "avg_score": 313.0,
       "name": "反常識",
       "status": "觀察"
     },
     "H05": {
       "n": 4,
-      "avg_views": 72,
+      "avg_views": 74,
       "avg_eng": 7.0,
-      "avg_score": 212.2,
+      "avg_score": 214.5,
       "name": "二選一",
       "status": "觀察"
     },
@@ -29,7 +29,7 @@
       "n": 2,
       "avg_views": 90,
       "avg_eng": 1.0,
-      "avg_score": 110.0,
+      "avg_score": 110.5,
       "name": "身分點名",
       "status": "觀察"
     },
@@ -37,23 +37,23 @@
       "n": 3,
       "avg_views": 236,
       "avg_eng": 1.7,
-      "avg_score": 269.3,
+      "avg_score": 269.7,
       "name": "踩雷警告",
       "status": "觀察"
     },
     "H12": {
       "n": 2,
-      "avg_views": 191,
+      "avg_views": 192,
       "avg_eng": 6.5,
-      "avg_score": 321.0,
+      "avg_score": 321.5,
       "name": "問題開場",
       "status": "觀察"
     },
     "—": {
       "n": 16,
-      "avg_views": 329,
+      "avg_views": 338,
       "avg_eng": 6.4,
-      "avg_score": 457.9,
+      "avg_score": 466.6,
       "name": "—",
       "status": "主力"
     },
@@ -61,23 +61,23 @@
       "n": 2,
       "avg_views": 528,
       "avg_eng": 7.5,
-      "avg_score": 677.5,
+      "avg_score": 678.5,
       "name": "數字清單",
       "status": "主力"
     },
     "H10": {
       "n": 2,
-      "avg_views": 244,
+      "avg_views": 246,
       "avg_eng": 1.5,
-      "avg_score": 273.5,
+      "avg_score": 276.0,
       "name": "稀缺錯失",
       "status": "觀察"
     },
     "H11": {
       "n": 1,
-      "avg_views": 225,
+      "avg_views": 226,
       "avg_eng": 1.0,
-      "avg_score": 245.0,
+      "avg_score": 246.0,
       "name": "老鳥自白",
       "status": "測試中"
     }
@@ -85,9 +85,9 @@
   "types": {
     "knowledge": {
       "n": 19,
-      "avg_views": 195,
+      "avg_views": 197,
       "avg_eng": 3.8,
-      "avg_score": 272.2
+      "avg_score": 273.4
     },
     "area": {
       "n": 2,
@@ -103,29 +103,29 @@
     },
     "owner": {
       "n": 1,
-      "avg_views": 446,
+      "avg_views": 447,
       "avg_eng": 11.0,
-      "avg_score": 666.0
+      "avg_score": 667.0
     },
     "poll": {
       "n": 1,
-      "avg_views": 58,
+      "avg_views": 59,
       "avg_eng": 3.0,
-      "avg_score": 118.0
+      "avg_score": 119.0
     },
     "listing": {
       "n": 14,
-      "avg_views": 331,
+      "avg_views": 340,
       "avg_eng": 6.0,
-      "avg_score": 450.6
+      "avg_score": 460.4
     }
   },
-  "median_views": 225,
+  "median_views": 226,
   "low_posts": [
     {
       "id": "202610182100-w",
       "first_line": "仲介說「這間很搶手」，到底是真的假的？",
-      "views": 15,
+      "views": 16,
       "replies": 0,
       "permalink": "https://www.threads.com/@jng01.10/post/DeowX-qHBSt",
       "hook_id": "H06"
@@ -133,7 +133,7 @@
     {
       "id": "202610182200-s4",
       "first_line": "明天如果真的開低走低，你會怎麼做？",
-      "views": 58,
+      "views": 59,
       "replies": 1,
       "permalink": "https://www.threads.com/@jng01.10/post/Deo3FkslNYj",
       "hook_id": "H05"
@@ -141,7 +141,7 @@
     {
       "id": "202610201224-mlt",
       "first_line": "專任♠14期全聯旗艦店旁商五精華大角地",
-      "views": 32,
+      "views": 33,
       "replies": 1,
       "permalink": "https://www.threads.com/@jng01.10/post/DevVxrsEVr_",
       "hook_id": ""
@@ -154,7 +154,7 @@
     },
     "21": {
       "n": 9,
-      "avg_views": 185
+      "avg_views": 187
     },
     "8": {
       "n": 1,
@@ -162,11 +162,11 @@
     },
     "12": {
       "n": 7,
-      "avg_views": 227
+      "avg_views": 228
     },
     "16": {
       "n": 3,
-      "avg_views": 258
+      "avg_views": 262
     },
     "18": {
       "n": 1,
@@ -174,27 +174,27 @@
     },
     "22": {
       "n": 3,
-      "avg_views": 558
+      "avg_views": 589
     },
     "10": {
       "n": 4,
-      "avg_views": 143
+      "avg_views": 144
     },
     "9": {
       "n": 1,
-      "avg_views": 569
+      "avg_views": 570
     },
     "23": {
       "n": 1,
-      "avg_views": 290
+      "avg_views": 291
     },
     "20": {
       "n": 1,
-      "avg_views": 74
+      "avg_views": 80
     },
     "17": {
       "n": 1,
-      "avg_views": 251
+      "avg_views": 269
     }
   }
 }
