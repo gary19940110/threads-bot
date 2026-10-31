@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-10-31T07:00:32.653848+08:00",
+  "updated_at": "2026-11-01T06:58:39.679440+08:00",
   "hooks": {
     "H06": {
       "n": 3,
-      "avg_views": 212,
+      "avg_views": 213,
       "avg_eng": 2.3,
-      "avg_score": 258.7,
+      "avg_score": 259.3,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -19,17 +19,17 @@
     },
     "H05": {
       "n": 4,
-      "avg_views": 76,
+      "avg_views": 77,
       "avg_eng": 7.0,
-      "avg_score": 216.5,
+      "avg_score": 217.2,
       "name": "二選一",
       "status": "觀察"
     },
     "H08": {
       "n": 2,
-      "avg_views": 92,
+      "avg_views": 94,
       "avg_eng": 1.0,
-      "avg_score": 112.5,
+      "avg_score": 114.0,
       "name": "身分點名",
       "status": "觀察"
     },
@@ -45,15 +45,15 @@
       "n": 2,
       "avg_views": 194,
       "avg_eng": 6.5,
-      "avg_score": 323.5,
+      "avg_score": 324.0,
       "name": "問題開場",
       "status": "觀察"
     },
     "—": {
       "n": 16,
-      "avg_views": 342,
+      "avg_views": 344,
       "avg_eng": 6.4,
-      "avg_score": 471.1,
+      "avg_score": 472.3,
       "name": "—",
       "status": "主力"
     },
@@ -61,15 +61,15 @@
       "n": 2,
       "avg_views": 530,
       "avg_eng": 7.5,
-      "avg_score": 680.0,
+      "avg_score": 680.5,
       "name": "數字清單",
       "status": "主力"
     },
     "H10": {
       "n": 2,
-      "avg_views": 249,
+      "avg_views": 250,
       "avg_eng": 1.5,
-      "avg_score": 279.0,
+      "avg_score": 280.0,
       "name": "稀缺錯失",
       "status": "觀察"
     },
@@ -87,13 +87,13 @@
       "n": 19,
       "avg_views": 199,
       "avg_eng": 3.8,
-      "avg_score": 275.4
+      "avg_score": 276.0
     },
     "area": {
       "n": 2,
-      "avg_views": 321,
+      "avg_views": 322,
       "avg_eng": 9.5,
-      "avg_score": 511.0
+      "avg_score": 511.5
     },
     "market": {
       "n": 1,
@@ -115,12 +115,12 @@
     },
     "listing": {
       "n": 14,
-      "avg_views": 345,
+      "avg_views": 347,
       "avg_eng": 6.0,
-      "avg_score": 465.4
+      "avg_score": 466.7
     }
   },
-  "median_views": 227,
+  "median_views": 229,
   "low_posts": [
     {
       "id": "202610182100-w",
@@ -150,23 +150,23 @@
   "hours": {
     "13": {
       "n": 6,
-      "avg_views": 347
+      "avg_views": 348
     },
     "21": {
       "n": 9,
-      "avg_views": 189
+      "avg_views": 190
     },
     "8": {
       "n": 1,
-      "avg_views": 93
+      "avg_views": 96
     },
     "12": {
       "n": 7,
-      "avg_views": 230
+      "avg_views": 231
     },
     "16": {
       "n": 3,
-      "avg_views": 266
+      "avg_views": 267
     },
     "18": {
       "n": 1,
@@ -174,7 +174,7 @@
     },
     "22": {
       "n": 3,
-      "avg_views": 599
+      "avg_views": 601
     },
     "10": {
       "n": 4,
@@ -186,15 +186,15 @@
     },
     "23": {
       "n": 1,
-      "avg_views": 294
+      "avg_views": 295
     },
     "20": {
       "n": 1,
-      "avg_views": 89
+      "avg_views": 91
     },
     "17": {
       "n": 1,
-      "avg_views": 278
+      "avg_views": 281
     }
   }
 }
