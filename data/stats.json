@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-11-04T07:12:13.597876+08:00",
+  "updated_at": "2026-11-05T07:10:42.898193+08:00",
   "hooks": {
     "H06": {
       "n": 3,
-      "avg_views": 214,
+      "avg_views": 215,
       "avg_eng": 2.3,
-      "avg_score": 261.0,
+      "avg_score": 261.3,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -19,9 +19,9 @@
     },
     "H05": {
       "n": 4,
-      "avg_views": 81,
+      "avg_views": 82,
       "avg_eng": 7.0,
-      "avg_score": 221.2,
+      "avg_score": 221.5,
       "name": "二選一",
       "status": "觀察"
     },
@@ -53,7 +53,7 @@
       "n": 16,
       "avg_views": 350,
       "avg_eng": 6.4,
-      "avg_score": 478.8,
+      "avg_score": 478.9,
       "name": "—",
       "status": "主力"
     },
@@ -87,7 +87,7 @@
       "n": 19,
       "avg_views": 202,
       "avg_eng": 3.8,
-      "avg_score": 278.6
+      "avg_score": 278.7
     },
     "area": {
       "n": 2,
@@ -117,7 +117,7 @@
       "n": 14,
       "avg_views": 354,
       "avg_eng": 6.0,
-      "avg_score": 473.7
+      "avg_score": 473.9
     }
   },
   "median_views": 232,
@@ -125,7 +125,7 @@
     {
       "id": "202610182100-w",
       "first_line": "仲介說「這間很搶手」，到底是真的假的？",
-      "views": 18,
+      "views": 19,
       "replies": 0,
       "permalink": "https://www.threads.com/@jng01.10/post/DeowX-qHBSt",
       "hook_id": "H06"
@@ -190,7 +190,7 @@
     },
     "20": {
       "n": 1,
-      "avg_views": 102
+      "avg_views": 103
     },
     "17": {
       "n": 1,
