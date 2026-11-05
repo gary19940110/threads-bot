@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-11-05T07:10:42.898193+08:00",
+  "updated_at": "2026-11-06T07:11:08.487828+08:00",
   "hooks": {
     "H06": {
       "n": 3,
       "avg_views": 215,
       "avg_eng": 2.3,
-      "avg_score": 261.3,
+      "avg_score": 261.7,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -21,7 +21,7 @@
       "n": 4,
       "avg_views": 82,
       "avg_eng": 7.0,
-      "avg_score": 221.5,
+      "avg_score": 221.8,
       "name": "二選一",
       "status": "觀察"
     },
@@ -37,7 +37,7 @@
       "n": 3,
       "avg_views": 239,
       "avg_eng": 1.7,
-      "avg_score": 272.3,
+      "avg_score": 272.7,
       "name": "踩雷警告",
       "status": "觀察"
     },
@@ -45,23 +45,23 @@
       "n": 2,
       "avg_views": 196,
       "avg_eng": 6.5,
-      "avg_score": 326.0,
+      "avg_score": 326.5,
       "name": "問題開場",
       "status": "觀察"
     },
     "—": {
       "n": 16,
-      "avg_views": 350,
+      "avg_views": 351,
       "avg_eng": 6.4,
-      "avg_score": 478.9,
+      "avg_score": 479.8,
       "name": "—",
       "status": "主力"
     },
     "H02": {
       "n": 2,
-      "avg_views": 533,
+      "avg_views": 534,
       "avg_eng": 7.5,
-      "avg_score": 683.0,
+      "avg_score": 683.5,
       "name": "數字清單",
       "status": "主力"
     },
@@ -69,7 +69,7 @@
       "n": 2,
       "avg_views": 254,
       "avg_eng": 1.5,
-      "avg_score": 283.5,
+      "avg_score": 284.0,
       "name": "稀缺錯失",
       "status": "觀察"
     },
@@ -87,13 +87,13 @@
       "n": 19,
       "avg_views": 202,
       "avg_eng": 3.8,
-      "avg_score": 278.7
+      "avg_score": 279.0
     },
     "area": {
       "n": 2,
-      "avg_views": 324,
+      "avg_views": 326,
       "avg_eng": 9.5,
-      "avg_score": 514.5
+      "avg_score": 516.5
     },
     "market": {
       "n": 1,
@@ -117,7 +117,7 @@
       "n": 14,
       "avg_views": 354,
       "avg_eng": 6.0,
-      "avg_score": 473.9
+      "avg_score": 474.5
     }
   },
   "median_views": 232,
@@ -166,7 +166,7 @@
     },
     "16": {
       "n": 3,
-      "avg_views": 272
+      "avg_views": 273
     },
     "18": {
       "n": 1,
@@ -174,7 +174,7 @@
     },
     "22": {
       "n": 3,
-      "avg_views": 613
+      "avg_views": 614
     },
     "10": {
       "n": 4,
@@ -186,15 +186,15 @@
     },
     "23": {
       "n": 1,
-      "avg_views": 298
+      "avg_views": 299
     },
     "20": {
       "n": 1,
-      "avg_views": 103
+      "avg_views": 104
     },
     "17": {
       "n": 1,
-      "avg_views": 298
+      "avg_views": 300
     }
   }
 }
