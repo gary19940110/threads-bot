@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-11-09T07:01:09.925369+08:00",
+  "updated_at": "2026-11-10T07:10:33.902005+08:00",
   "hooks": {
     "H06": {
       "n": 3,
       "avg_views": 216,
       "avg_eng": 2.3,
-      "avg_score": 262.7,
+      "avg_score": 263.0,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -19,17 +19,17 @@
     },
     "H05": {
       "n": 4,
-      "avg_views": 82,
+      "avg_views": 83,
       "avg_eng": 7.0,
-      "avg_score": 222.2,
+      "avg_score": 222.8,
       "name": "二選一",
       "status": "觀察"
     },
     "H08": {
       "n": 2,
-      "avg_views": 96,
+      "avg_views": 97,
       "avg_eng": 1.0,
-      "avg_score": 116.5,
+      "avg_score": 117.0,
       "name": "身分點名",
       "status": "觀察"
     },
@@ -53,15 +53,15 @@
       "n": 16,
       "avg_views": 353,
       "avg_eng": 6.4,
-      "avg_score": 481.6,
+      "avg_score": 481.9,
       "name": "—",
       "status": "主力"
     },
     "H02": {
       "n": 2,
-      "avg_views": 535,
+      "avg_views": 536,
       "avg_eng": 7.5,
-      "avg_score": 685.0,
+      "avg_score": 685.5,
       "name": "數字清單",
       "status": "主力"
     },
@@ -87,13 +87,13 @@
       "n": 19,
       "avg_views": 203,
       "avg_eng": 3.8,
-      "avg_score": 279.7
+      "avg_score": 280.0
     },
     "area": {
       "n": 2,
-      "avg_views": 327,
+      "avg_views": 328,
       "avg_eng": 9.5,
-      "avg_score": 517.0
+      "avg_score": 517.5
     },
     "market": {
       "n": 1,
@@ -115,9 +115,9 @@
     },
     "listing": {
       "n": 14,
-      "avg_views": 356,
+      "avg_views": 357,
       "avg_eng": 6.0,
-      "avg_score": 476.5
+      "avg_score": 476.8
     }
   },
   "median_views": 232,
@@ -154,11 +154,11 @@
     },
     "21": {
       "n": 9,
-      "avg_views": 194
+      "avg_views": 195
     },
     "8": {
       "n": 1,
-      "avg_views": 97
+      "avg_views": 98
     },
     "12": {
       "n": 7,
@@ -194,7 +194,7 @@
     },
     "17": {
       "n": 1,
-      "avg_views": 308
+      "avg_views": 309
     }
   }
 }
