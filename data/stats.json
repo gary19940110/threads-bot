@@ -1,19 +1,19 @@
 {
-  "updated_at": "2026-11-10T07:10:33.902005+08:00",
+  "updated_at": "2026-11-11T07:06:33.916865+08:00",
   "hooks": {
     "H06": {
       "n": 3,
-      "avg_views": 216,
+      "avg_views": 217,
       "avg_eng": 2.3,
-      "avg_score": 263.0,
+      "avg_score": 263.3,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
     "H01": {
       "n": 3,
-      "avg_views": 229,
+      "avg_views": 230,
       "avg_eng": 4.3,
-      "avg_score": 316.0,
+      "avg_score": 316.3,
       "name": "反常識",
       "status": "觀察"
     },
@@ -87,7 +87,7 @@
       "n": 19,
       "avg_views": 203,
       "avg_eng": 3.8,
-      "avg_score": 280.0
+      "avg_score": 280.1
     },
     "area": {
       "n": 2,
@@ -103,9 +103,9 @@
     },
     "owner": {
       "n": 1,
-      "avg_views": 449,
+      "avg_views": 450,
       "avg_eng": 11.0,
-      "avg_score": 669.0
+      "avg_score": 670.0
     },
     "poll": {
       "n": 1,
@@ -117,7 +117,7 @@
       "n": 14,
       "avg_views": 357,
       "avg_eng": 6.0,
-      "avg_score": 476.8
+      "avg_score": 476.9
     }
   },
   "median_views": 232,
@@ -174,7 +174,7 @@
     },
     "22": {
       "n": 3,
-      "avg_views": 616
+      "avg_views": 617
     },
     "10": {
       "n": 4,
