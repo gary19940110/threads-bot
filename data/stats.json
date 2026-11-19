@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-18T11:46:26.057380+08:00",
+  "updated_at": "2026-11-19T11:44:45.040118+08:00",
   "hooks": {
     "H06": {
       "n": 3,
@@ -19,9 +19,9 @@
     },
     "H05": {
       "n": 4,
-      "avg_views": 83,
+      "avg_views": 84,
       "avg_eng": 7.0,
-      "avg_score": 222.8,
+      "avg_score": 223.5,
       "name": "二選一",
       "status": "觀察"
     },
@@ -35,17 +35,17 @@
     },
     "H07": {
       "n": 3,
-      "avg_views": 239,
+      "avg_views": 240,
       "avg_eng": 1.7,
-      "avg_score": 272.7,
+      "avg_score": 273.0,
       "name": "踩雷警告",
       "status": "觀察"
     },
     "H12": {
       "n": 2,
-      "avg_views": 198,
+      "avg_views": 199,
       "avg_eng": 6.5,
-      "avg_score": 328.5,
+      "avg_score": 329.0,
       "name": "問題開場",
       "status": "觀察"
     },
@@ -53,7 +53,7 @@
       "n": 16,
       "avg_views": 354,
       "avg_eng": 6.4,
-      "avg_score": 482.8,
+      "avg_score": 483.1,
       "name": "—",
       "status": "主力"
     },
@@ -85,15 +85,15 @@
   "types": {
     "knowledge": {
       "n": 19,
-      "avg_views": 203,
+      "avg_views": 204,
       "avg_eng": 3.8,
-      "avg_score": 280.1
+      "avg_score": 280.4
     },
     "area": {
       "n": 2,
       "avg_views": 328,
       "avg_eng": 9.5,
-      "avg_score": 517.5
+      "avg_score": 518.5
     },
     "market": {
       "n": 1,
@@ -117,10 +117,10 @@
       "n": 14,
       "avg_views": 358,
       "avg_eng": 6.0,
-      "avg_score": 477.8
+      "avg_score": 478.0
     }
   },
-  "median_views": 235,
+  "median_views": 236,
   "low_posts": [
     {
       "id": "202610182100-w",
@@ -166,7 +166,7 @@
     },
     "16": {
       "n": 3,
-      "avg_views": 276
+      "avg_views": 277
     },
     "18": {
       "n": 1,
@@ -194,7 +194,7 @@
     },
     "17": {
       "n": 1,
-      "avg_views": 312
+      "avg_views": 314
     }
   }
 }
