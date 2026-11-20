@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-19T11:44:45.040118+08:00",
+  "updated_at": "2026-11-20T11:38:36.115507+08:00",
   "hooks": {
     "H06": {
       "n": 3,
@@ -21,7 +21,7 @@
       "n": 4,
       "avg_views": 84,
       "avg_eng": 7.0,
-      "avg_score": 223.5,
+      "avg_score": 224.2,
       "name": "二選一",
       "status": "觀察"
     },
@@ -53,7 +53,7 @@
       "n": 16,
       "avg_views": 354,
       "avg_eng": 6.4,
-      "avg_score": 483.1,
+      "avg_score": 483.2,
       "name": "—",
       "status": "主力"
     },
@@ -87,7 +87,7 @@
       "n": 19,
       "avg_views": 204,
       "avg_eng": 3.8,
-      "avg_score": 280.4
+      "avg_score": 280.5
     },
     "area": {
       "n": 2,
@@ -117,7 +117,7 @@
       "n": 14,
       "avg_views": 358,
       "avg_eng": 6.0,
-      "avg_score": 478.0
+      "avg_score": 478.1
     }
   },
   "median_views": 236,
@@ -154,7 +154,7 @@
     },
     "21": {
       "n": 9,
-      "avg_views": 195
+      "avg_views": 196
     },
     "8": {
       "n": 1,
@@ -194,7 +194,7 @@
     },
     "17": {
       "n": 1,
-      "avg_views": 314
+      "avg_views": 316
     }
   }
 }
