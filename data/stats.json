@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-11-21T11:21:05.573632+08:00",
+  "updated_at": "2026-11-22T10:28:21.755053+08:00",
   "hooks": {
     "H06": {
       "n": 3,
       "avg_views": 217,
       "avg_eng": 2.3,
-      "avg_score": 263.3,
+      "avg_score": 263.7,
       "name": "仲介行話翻譯",
       "status": "觀察"
     },
@@ -21,7 +21,7 @@
       "n": 4,
       "avg_views": 84,
       "avg_eng": 7.0,
-      "avg_score": 224.2,
+      "avg_score": 224.5,
       "name": "二選一",
       "status": "觀察"
     },
@@ -87,7 +87,7 @@
       "n": 19,
       "avg_views": 204,
       "avg_eng": 3.8,
-      "avg_score": 280.6
+      "avg_score": 280.7
     },
     "area": {
       "n": 2,
