@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-25T12:58:26.249351+08:00",
+  "updated_at": "2026-11-26T12:15:43.056990+08:00",
   "hooks": {
     "H06": {
       "n": 3,
@@ -52,8 +52,8 @@
     "—": {
       "n": 16,
       "avg_views": 355,
-      "avg_eng": 6.4,
-      "avg_score": 483.6,
+      "avg_eng": 6.2,
+      "avg_score": 479.8,
       "name": "—",
       "status": "主力"
     },
@@ -116,8 +116,8 @@
     "listing": {
       "n": 14,
       "avg_views": 358,
-      "avg_eng": 6.0,
-      "avg_score": 478.4
+      "avg_eng": 5.8,
+      "avg_score": 474.1
     }
   },
   "median_views": 236,
