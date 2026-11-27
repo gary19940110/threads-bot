@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-26T12:15:43.056990+08:00",
+  "updated_at": "2026-11-27T12:24:21.948856+08:00",
   "hooks": {
     "H06": {
       "n": 3,
@@ -37,7 +37,7 @@
       "n": 3,
       "avg_views": 240,
       "avg_eng": 1.7,
-      "avg_score": 273.0,
+      "avg_score": 273.3,
       "name": "踩雷警告",
       "status": "觀察"
     },
@@ -53,7 +53,7 @@
       "n": 16,
       "avg_views": 355,
       "avg_eng": 6.2,
-      "avg_score": 479.8,
+      "avg_score": 479.9,
       "name": "—",
       "status": "主力"
     },
@@ -87,7 +87,7 @@
       "n": 19,
       "avg_views": 204,
       "avg_eng": 3.8,
-      "avg_score": 280.8
+      "avg_score": 280.9
     },
     "area": {
       "n": 2,
@@ -117,7 +117,7 @@
       "n": 14,
       "avg_views": 358,
       "avg_eng": 5.8,
-      "avg_score": 474.1
+      "avg_score": 474.2
     }
   },
   "median_views": 236,
@@ -170,7 +170,7 @@
     },
     "18": {
       "n": 1,
-      "avg_views": 276
+      "avg_views": 277
     },
     "22": {
       "n": 3,
